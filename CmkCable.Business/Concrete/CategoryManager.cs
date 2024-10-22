@@ -2,9 +2,11 @@
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 //iş kuralları için
 namespace CmkCable.Business.Concrete
 {
@@ -14,29 +16,43 @@ namespace CmkCable.Business.Concrete
         public CategoryManager() { 
            _categoryRepository = new CategoryRepository();
         }
-        public Category CreateCategory(Category category)
-        {
-            return _categoryRepository.CreateCategory(category);
-        }
 
         public void DeleteCategory(int id)
         {
             _categoryRepository.DeleteCategory(id);
         }
 
-        public List<Category> GetAllCategories()
+        
+
+        public List<CategoryDTO> GetAllCategoriesWithLanguage(int languageId)
         {
-            return _categoryRepository.GetAllCategories();
+            return _categoryRepository.GetAllCategoriesWithLanguage(languageId);
         }
 
-        public Category GetCategoryById(int id)
+        public CategoryDTO GetCategoryById(int id, int languageId)
         {
-            return _categoryRepository.GetCategoryById(id);
+            return _categoryRepository.GetCategoryById(id, languageId);
         }
 
-        public Category UpdateCategory(Category category)
+        Task<Category> ICategoryService.UpdateCategory(Category category, List<string> translations, List<int> languageIds)
         {
-            return _categoryRepository.UpdateCategory(category);
+            return _categoryRepository.UpdateCategory(category,  translations,languageIds);
+        }
+
+        Task<Category> ICategoryService.CreateCategory(CategoryDTO categoryDto, List<string> translations, List<int> languageIds)
+        {
+            return _categoryRepository.CreateCategory(categoryDto, translations, languageIds);
+        }
+
+
+        public CategoryDTO GetCategoryWithAllTranslations(int categoryId)
+        {
+            return _categoryRepository.GetCategoryWithAllTranslations(categoryId);
+        }
+
+        public List<CategoryDTO> GetAll()
+        {
+            return _categoryRepository.GetAll();
         }
     }
 }

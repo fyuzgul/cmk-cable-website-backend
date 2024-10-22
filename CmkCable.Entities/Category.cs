@@ -1,22 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
-namespace CmkCable.Entities
+public class Category
 {
-    public class Category
-    {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
+    [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
 
+    public string Image { get; set; }  
 
-        [Required(ErrorMessage = "Name is required.")]
-        [StringLength(150)]
-        public string Name { get; set; }
-
-        [NotMapped]
-        public IFormFile Image { get; set; }
-        public byte[] ImageData { get; set; }
-    }
 }

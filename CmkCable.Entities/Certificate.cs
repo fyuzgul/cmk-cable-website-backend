@@ -28,9 +28,5 @@ namespace CmkCable.Entities
 
         public byte[] ImageData { get; set; }
 
-
-        public ICollection<ProductCertificate> ProductCertificates { get; set; }
-        public ICollection<StandartCertificate> StandartCertificates { get; set; }
-
     }
 }

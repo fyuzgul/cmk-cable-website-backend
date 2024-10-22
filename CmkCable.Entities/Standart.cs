@@ -11,12 +11,17 @@ namespace CmkCable.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-
         [Required(ErrorMessage = "Name is required.")]
-        [StringLength(150)]
         public string Name { get; set; }
-        public ICollection<ProductStandart> ProductStandarts { get; set; }
-        public ICollection<StandartCertificate> StandartCertificates { get; set; }
+
+        [ForeignKey(nameof(Product))]    
+        public int ProductId { get; set; }
+
+        [ForeignKey(nameof(Certificate))]
+        public int CertificateId { get; set; }  
+
+        public virtual Product Product { get; set; }
+        public virtual Certificate Certificate { get; set; }
 
     }
 }

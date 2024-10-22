@@ -42,6 +42,11 @@ namespace CmkCable.DataAccess.Concrete
             }
         }
 
+        public List<Structure> GetStructuresByProductId(int prodcutId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Structure UpdateStructure(Structure structure)
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
@@ -51,13 +56,6 @@ namespace CmkCable.DataAccess.Concrete
             }
         }
 
-        public List<Structure> GetStructuresByProductId(int prodcutId)
-        {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.Structures.Where(p => p.ProductStructures.Any(ps => ps.ProductId == prodcutId))
-                     .ToList();
-            }
-        }
+      
     }
 }

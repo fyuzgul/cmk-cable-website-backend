@@ -3,13 +3,16 @@ C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\CmkCable.Business.pdb
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\CmkCable.DataAccess.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\CmkCable.Entities.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\DTOs.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\CmkCable.DataAccess.pdb
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\CmkCable.Entities.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\bin\Debug\netcoreapp3.1\DTOs.pdb
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.csproj.AssemblyReference.cache
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.AssemblyInfoInputs.cache
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.AssemblyInfo.cs
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.csproj.CoreCompileInputs.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.sourcelink.json
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.A0751370.Up2Date
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Business\obj\Debug\netcoreapp3.1\CmkCable.Business.pdb

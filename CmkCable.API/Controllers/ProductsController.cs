@@ -1,6 +1,7 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -16,120 +17,76 @@ namespace CmkCable.API.Controllers
         private IProductService _productService;
         public ProductsController() { _productService = new ProductManager(); }
 
-        [HttpGet]
-        public List<Product> Get()
+        [HttpGet("all/{languageId}")]
+        public List<ProductDTO> Get(int languageId)
         {
-            return _productService.GetAllProdcuts();
+            return _productService.GetAllProducts(languageId);
         }
 
         [HttpGet("{id}")]
-        public Product Get(int id)
-        {
-            return _productService.GetProductById(id);
-        }
+        public ProductDTO GetProductWithAllTranslations(int id) { return _productService.GetProductWithAllTranslations(id); }
+        [HttpGet("{id}/{languageId}")]
+        public ProductDTO GetProductById(int id, int languageId) { return _productService.GetProductById(id, languageId); }
 
         [HttpGet("byStandart")]
-        public List<Product> GetProductsByStandart(int id)
+        public List<ProductDTO> GetProductsByStandart(int id)
         {
             return _productService.GetProductsByStandart(id);
         }
 
 
         [HttpGet("byCategory/{id}")]
-        public List<Product> GetProductsByCategory(int id)
+        public List<ProductDTO> GetProductsByCategory(int id)
         {
             return _productService.GetProductsByCategory(id);
         }
 
-
-        [HttpGet("byStructure")]
-        public List<Product> GetProductsByStructure(int id)
-        {
-            return _productService.GetProductsByStructure(id);
-        }
-
         [HttpGet("byCertificate/{id}")]
-        public List<Product> GetProductsByCertificate(int id)
+        public List<ProductDTO> GetProductsByCertificate(int id)
         {
             return _productService.GetProductsByCertificate(id);
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct([FromForm] Product _product)
+        public async Task<IActionResult> CreateProduct([FromForm] Product _product, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
-            if (_product.Image == null || _product.Image.Length == 0)
-                return BadRequest("No Image uploaded.");
-            if (_product.DetailImage == null || _product.DetailImage.Length == 0)
-                return BadRequest("No DetailImage uploaded.");
-            byte[] imageBytes;
-            byte[] detailImageBytes;
+            
 
-            using (var memoryStream = new MemoryStream())
-            {
-                await _product.Image.CopyToAsync(memoryStream);
-                imageBytes = memoryStream.ToArray();
-            }
-            using (var memoryStream = new MemoryStream())
-            {
-                await _product.DetailImage.CopyToAsync(memoryStream);
-                detailImageBytes = memoryStream.ToArray();
-            }
+
             var product = new Product
             {
                 Type = _product.Type,
-                UsageLocations = _product.UsageLocations,
-                ImageData = imageBytes,
+                Image = _product.Image,
                 CategoryId = _product.CategoryId,
-                DetailImageData = detailImageBytes,
+                DetailImage = _product.DetailImage,
             };
-            var createdProduct = _productService.CreateProduct(product);
-            return Ok(createdProduct);
+
+            var createdProduct = await _productService.CreateProduct(product, translations, languageIds);
+
+            return CreatedAtAction(nameof(CreateProduct), new { id = createdProduct.Id }, createdProduct);
         }
 
-        [HttpPut("update")]
-        public async Task<IActionResult> UpdateProduct([FromForm] Product updatedProduct)
-        {
-            if (updatedProduct.Id <= 0)
-            {
-                return BadRequest("Product ID is required.");
-            }
 
-            var existingProduct = _productService.GetProductById(updatedProduct.Id);
-
-            if (existingProduct == null)
-            {
-                return NotFound($"Product with ID {updatedProduct.Id} not found.");
-            }
-
-      
-            if (updatedProduct.Image != null && updatedProduct.Image.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await updatedProduct.Image.CopyToAsync(memoryStream);
-                    existingProduct.ImageData = memoryStream.ToArray();
-                }
-            }
-
-            if (updatedProduct.DetailImage != null && updatedProduct.DetailImage.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await updatedProduct.DetailImage.CopyToAsync(memoryStream);
-                    existingProduct.DetailImageData = memoryStream.ToArray();
-                }
-            }
-
-            existingProduct.Type = string.IsNullOrEmpty(updatedProduct.Type) ? existingProduct.Type : updatedProduct.Type;
-            existingProduct.UsageLocations = string.IsNullOrEmpty(updatedProduct.UsageLocations) ? existingProduct.UsageLocations : updatedProduct.UsageLocations;
-            existingProduct.CategoryId = updatedProduct.CategoryId != 0 ? updatedProduct.CategoryId : existingProduct.CategoryId;
-
-            var updatedProd = _productService.UpdateProduct(existingProduct);
-
-            return Ok(updatedProd);
-        }
 
         [HttpDelete("delete/{id}")]
         public void DeleteProduct(int id) { _productService.DeleteProduct(id); }
+
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateProduct([FromForm] Product product,
+     [FromForm] List<string> translations,
+     [FromForm] List<int> languageIds)
+        {
+            if (product.Id <= 0)
+                return BadRequest("Invalid product ID.");
+
+            var updatedProduct = await _productService.UpdateProduct(product, translations, languageIds);
+
+            if (updatedProduct == null)
+                return NotFound("Product not found.");
+
+            return Ok(updatedProduct);
+        }
+
     }
 }

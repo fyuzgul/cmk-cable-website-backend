@@ -1,20 +1,22 @@
 ﻿using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CmkCable.DataAccess.Abstract
 {
     public interface IProductRepository
     {
-        List<Product> GetAllProdcuts();
-        Product GetProductById(int id);
-        List<Product> GetProductsByCategory(int categoryId);
-        List<Product> GetProductsByStandart(int standartId);
-        List<Product> GetProductsByStructure(int structureId);
-        List<Product> GetProductsByCertificate(int certificateId);
-        Product CreateProduct(Product product);
-        Product UpdateProduct(Product product);
+        List<ProductDTO> GetAllProducts(int languageId);
+        ProductDTO GetProductWithAllTranslations(int id);
+        List<ProductDTO> GetProductsByCategory(int categoryId);
+        ProductDTO GetProductById(int id, int languageId);
+        List<ProductDTO> GetProductsByStandart(int standartId);
+        List<ProductDTO> GetProductsByCertificate(int certificateId);
+        Task<Product> CreateProduct(Product product, List<string> translations, List<int> languageIds);
+        Task<Product> UpdateProduct(Product product, List<string> translations, List<int> languageIds);
         void DeleteProduct(int id);
 
 

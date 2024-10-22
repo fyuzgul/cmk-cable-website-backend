@@ -13,10 +13,12 @@ namespace CmkCable.Entities
 
         [ForeignKey(nameof(Product))]
         public int ProductId { get; set; }
-        public Product Product { get; set; }
+
 
         [ForeignKey(nameof(Standart))]
         public int StandartId { get; set; }
-        public Standart Standart { get; set; }
+
+        public virtual Product Product { get; set; }
+        public virtual Standart Standart { get; set; }
     }
 }

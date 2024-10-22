@@ -57,7 +57,6 @@ namespace CmkCable.API.Controllers
                 Id = _certificate.Id,
                 ImageData = photoBytes,
                 FileContentData = fileBytes,
-                ProductCertificates = _certificate.ProductCertificates,
                 TypeId = _certificate.TypeId
             };
 

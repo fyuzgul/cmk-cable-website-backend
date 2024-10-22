@@ -1,36 +1,22 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
-using CmkCable.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using CmkCable.Entities.CmkCable.Entities;
+
 
 namespace CmkCable.Business.Concrete
 {
     public class ProductCertificateManager : IProductCertificateService
     {
         private IProductCertificateRepository _productCertificateRepository;
-        public ProductCertificateManager() { _productCertificateRepository = new ProductCertificateRepository(); }
-
-        public ProductCertificate CreateProductCertificate(ProductCertificate ProductCertificate)
+        public ProductCertificateManager()
         {
-           return _productCertificateRepository.CreateProductCertificate(ProductCertificate);
+            _productCertificateRepository = new ProductCertificateRepository();
         }
 
-        public void DeleteProductCertificate(int id)
+        public ProductCertificate Create(ProductCertificate productCertificate)
         {
-            _productCertificateRepository.DeleteProductCertificate(id);
-        }
-
-        public List<ProductCertificate> GetProductCertificatesByProductId(int productId)
-        {
-            return _productCertificateRepository.GetProductCertificatesByProductId(productId);
-        }
-
-        public List<ProductCertificate> GetCertificates()
-        {
-            return  _productCertificateRepository.GetCertificates();
+           return _productCertificateRepository.Create(productCertificate);
         }
     }
 }

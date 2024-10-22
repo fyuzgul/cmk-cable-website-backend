@@ -1,11 +1,14 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CmkCable.API.Controllers
@@ -15,76 +18,104 @@ namespace CmkCable.API.Controllers
     public class CategoriesController : ControllerBase
     {
         private ICategoryService _categoryService;
-        public CategoriesController() {
+        public CategoriesController()
+        {
             _categoryService = new CategoryManager();
         }
+
         [HttpGet]
-        public List<Category> Get()
+        public List<CategoryDTO> GetAll()
         {
-            return _categoryService.GetAllCategories();
+            return _categoryService.GetAll();
         }
 
-        [HttpGet("{id}")]
-        public Category Get(int id)
+        [HttpGet("byLanguage/{languageId}")]
+        public IActionResult GetAllCategoriesWithLanguage(int languageId)
         {
-            return _categoryService.GetCategoryById(id);
+            var categories = _categoryService.GetAllCategoriesWithLanguage(languageId);
+            return Ok(categories);
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromForm] Category _category)
+        [HttpGet("{id}/{languageId}")]
+        public IActionResult Get(int id, int languageId)
         {
-            if (_category.Image == null || _category.Image.Length == 0)
-                return BadRequest("No Image uploaded.");
-            byte[] imageBytes;
+            var category = _categoryService.GetCategoryById(id, languageId);
 
-            using (var memoryStream = new MemoryStream())
+            if (category == null)
             {
-                await _category.Image.CopyToAsync(memoryStream);
-                imageBytes = memoryStream.ToArray();
+                return NotFound($"Kategori bulunamadı. ID: {id}, Dil ID: {languageId}");
             }
-            var category = new Category
+
+            return Ok(category);
+        }
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCategory([FromForm] CategoryDTO categoryDto,  [FromForm] List<string> translations, [FromForm] List<int> languageIds)
+        {
+            if (categoryDto == null || translations == null || languageIds == null)
             {
-                Name = _category.Name,
-                ImageData = imageBytes,
-            };
-            var createdCategory = _categoryService.CreateCategory(category);
-            return Ok(createdCategory);
+                return BadRequest("Invalid input data.");
+            }
+
+            if (translations.Count != languageIds.Count)
+            {
+                return BadRequest("The number of translations must match the number of languages.");
+            }
+
+            try
+            {
+
+                await _categoryService.CreateCategory(categoryDto, translations, languageIds);
+
+                return CreatedAtAction(nameof(CreateCategory), new { id = categoryDto.Id }, categoryDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateCategory([FromForm] Category updateCategory)
+        public async Task<IActionResult> UpdateCategory(
+     [FromForm] Category category,
+     [FromForm] List<string> translations,
+     [FromForm] List<int> languageIds)
         {
-            if (updateCategory.Id <= 0)
+            if (category.Id <= 0)
             {
-                return BadRequest("Product ID is required.");
+                return BadRequest("Category ID is required.");
             }
 
-            var existingCategory = _categoryService.GetCategoryById(updateCategory.Id);
-
-            if (existingCategory == null)
+            if (translations == null || languageIds == null || translations.Count != languageIds.Count)
             {
-                return NotFound($"Product with ID {updateCategory.Id} not found.");
+                return BadRequest("Translations and language IDs must have the same length.");
             }
 
-            if (updateCategory.Image != null && updateCategory.Image.Length > 0)
+            try
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await updateCategory.Image.CopyToAsync(memoryStream);
-                    existingCategory.ImageData = memoryStream.ToArray();
-                }
+                var updatedCategory = await _categoryService.UpdateCategory(category, translations, languageIds);
+                return Ok(updatedCategory);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}/translations")]
+        public ActionResult<CategoryDTO> GetCategoryWithAllTranslations(int id)
+        {
+            var categoryDto = _categoryService.GetCategoryWithAllTranslations(id);
+            if (categoryDto == null)
+            {
+                return NotFound(); 
             }
 
-            existingCategory.Name = string.IsNullOrEmpty(updateCategory.Name) ? existingCategory.Name : updateCategory.Name;
-            // Güncelleme işlemi
-            var updatepCate = _categoryService.UpdateCategory(existingCategory);
-
-            return Ok(updatepCate);
+            return Ok(categoryDto); 
         }
 
         [HttpDelete("delete/{id}")]
         public void Delete(int id) { _categoryService.DeleteCategory(id); }
-      
+
 
     }
 }

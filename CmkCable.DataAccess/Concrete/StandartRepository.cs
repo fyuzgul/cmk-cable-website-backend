@@ -11,66 +11,37 @@ namespace CmkCable.DataAccess.Concrete
     {
         public Standart CreateStandart(Standart standart)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                cmkCableDbContext.Standarts.Add(standart);
-                cmkCableDbContext.SaveChanges();
-                return standart;
-            }
+            throw new NotImplementedException();
         }
 
         public void DeleteStandart(int id)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                var deletedStandart = cmkCableDbContext.Standarts.Find(id);
-                cmkCableDbContext.Standarts.Remove(deletedStandart);
-                cmkCableDbContext.SaveChanges();
-            }
+            throw new NotImplementedException();
         }
 
         public List<Standart> GetAllStandart()
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.Standarts.ToList();
-            }
+            throw new NotImplementedException();
         }
 
         public Standart GetStandartById(int id)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.Standarts.Find(id);
-            }
+            throw new NotImplementedException();
         }
 
         public List<Standart> GetStandartsByCertificateId(int certificateId)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.Standarts.Where(p => p.StandartCertificates.Any(ps => ps.CertificateId == certificateId))
-                    .ToList();
-            }
+            throw new NotImplementedException();
         }
 
         public List<Standart> GetStandartsByProducId(int productId)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.Standarts.Where(p => p.ProductStandarts.Any(ps => ps.ProductId == productId))
-                    .ToList();
-            }
+            throw new NotImplementedException();
         }
 
         public Standart UpdateStandart(Standart standart)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                cmkCableDbContext.Standarts.Update(standart);
-                cmkCableDbContext.SaveChanges();
-                return standart;
-            }
+            throw new NotImplementedException();
         }
     }
 }
