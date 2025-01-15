@@ -29,13 +29,16 @@ namespace CmkCable.DataAccess.Concrete
             }
         }
 
-        public List<AboutUsItem> GetAllAboutUsItems()
+        public List<AboutUsItem> GetAllAboutUsItemsWithLanguage(int languageId)
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                return cmkCableDbContext.AboutUsItems.ToList();
+                return cmkCableDbContext.AboutUsItems
+                    .Where(item => item.LanguageId == languageId)
+                    .ToList();
             }
         }
+
 
         public AboutUsItem UpdateAboutUsItem(AboutUsItem aboutUsItem)
         {

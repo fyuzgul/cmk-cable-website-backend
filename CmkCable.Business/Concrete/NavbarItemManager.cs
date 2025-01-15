@@ -23,7 +23,7 @@ namespace CmkCable.Business.Concrete
             _itemRepository.DeleteNavbarItem(id);
         }
 
-        public List<NavbarItem> GetAllNavbarItems()
+        public List<List<NavbarItemDto>> GetAllNavbarItems()
         {
             return _itemRepository.GetAllNavbarItems();
         }
@@ -33,9 +33,9 @@ namespace CmkCable.Business.Concrete
             return _itemRepository.GetNavbarItem(id);
         }
 
-        public NavbarItem UpdateNavbarItem(NavbarItem navbarItem)
+        public List<NavbarItemDto> UpdateNavbarItem(List<NavbarItemDto> navbarItems)
         {
-            return _itemRepository.UpdateNavbarItem(navbarItem);
+            return _itemRepository.UpdateNavbarItem(navbarItems);
         }
 
         public List<NavbarItemDto> GetNavbarItemsByLanguage(int languageId)

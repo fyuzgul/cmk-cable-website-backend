@@ -1,9 +1,11 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace CmkCable.API.Controllers
 {
@@ -15,22 +17,25 @@ namespace CmkCable.API.Controllers
         public StructuresController() { _structureService = new StructureManager(); }
 
         [HttpGet]
-        public List<Structure> GetAllStructures() { return _structureService.GetAllStructures(); }
+        public List<StructureDTO> GetAllStructures() { return _structureService.GetAllStructures(); }
 
         [HttpGet("{id}")]
-        public Structure GetStructureById(int id) { return _structureService.GetStructureById(id); }
+        public StructureDTO GetStructureById(int id) { return _structureService.GetStructureById(id); }
 
         [HttpGet("byProduct/{id}")]
         public List<Structure> GetStructuresByProductId(int id) { return _structureService.GetStructuresByProductId(id); }
 
         [HttpPost("create")]
-        public Structure CreateStructure(Structure structure) { return _structureService.CreateStructure(structure); }
+        public Task<Structure> CreateStructure([FromForm]Structure structure, [FromForm] List<string> translations, [FromForm] List<int> languageIds) { return _structureService.CreateStructure(structure, translations, languageIds); }
 
         [HttpPut("update")]
-        public Structure UpdateStructure(Structure structure) { return _structureService.UpdateStructure(structure); }
+        public Structure UpdateStructure([FromForm] Structure structure, [FromForm] List<string> translations, [FromForm] List<int> languageIds) { return _structureService.UpdateStructure(structure, translations, languageIds); }
 
         [HttpDelete("delete/{id}")]
         public void DeleteStructure(int id) { _structureService.DeleteStructure(id); }
+
+        [HttpGet("byLanguage/{languageId}")]
+        public List<StructureDTO> GetStructuresByLanguageId(int languageId) { return _structureService.GetStructuresByLanguageId(languageId); }
 
     }
 }

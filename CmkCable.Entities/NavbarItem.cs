@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace CmkCable.Entities
 {
@@ -13,7 +11,13 @@ namespace CmkCable.Entities
 
         public string Route { get; set; }
 
+        public int? ParentId { get; set; }
+
+        [ForeignKey("ParentId")]
+        public virtual NavbarItem ParentItem { get; set; }
+
+        public virtual ICollection<NavbarItem> SubItems { get; set; }
+
         public virtual ICollection<NavbarItemTranslation> Translations { get; set; }
     }
-
 }

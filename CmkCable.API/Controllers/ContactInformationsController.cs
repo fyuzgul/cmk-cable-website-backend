@@ -1,6 +1,7 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -17,8 +18,8 @@ namespace CmkCable.API.Controllers
             _contactInformationService = new ContactInfromationManager();
         }
 
-        [HttpGet]
-        public List<ContactInformation> GetAllContactInformations() { return _contactInformationService.GetAllContactInformations();}
+        [HttpGet("bylanguage/{languageId}")]
+        public List<ContactInformationDTO> GetAllContactInformations(int languageId) { return _contactInformationService.GetAllContactInformations(languageId);}
 
         [HttpPost("create")]
         public ContactInformation CreateContactInformation(ContactInformation contactInformation) { return _contactInformationService.CreateContactInformation(contactInformation); }

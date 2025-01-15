@@ -10,16 +10,6 @@ namespace CmkCable.Entities
     {
         [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
-        [ForeignKey("Language")]
-        public int LanguageId { get; set; }
-        [ForeignKey("Product")]
-        public int ProductId { get; set; }
-
-        [Required(ErrorMessage = "Description is required.")]
-        public string Description { get; set; }
-
-        public virtual Product Product { get; set; }  
-        public virtual Language Language { get; set; }
+        public string Name { get; set; }
     }
 }

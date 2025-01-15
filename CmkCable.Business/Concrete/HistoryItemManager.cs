@@ -2,6 +2,7 @@
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,29 +13,35 @@ namespace CmkCable.Business.Concrete
     {
         private IHistoryItemRepository _historyItemRepository;
         public HistoryItemManager() { _historyItemRepository = new HistoryItemRepository(); }
+
         public HistoryItem CreateHistoryItem(HistoryItem historyItem)
         {
-            return _historyItemRepository.CreateHistoryItem(historyItem);
+            throw new NotImplementedException();
         }
 
         public void DeleteHistoryItem(int id)
         {
-            _historyItemRepository.DeleteHistoryItem(id);
+            throw new NotImplementedException();
         }
 
-        public List<HistoryItem> GetAllHistoryItems()
+        public List<HistoryItemDTO> GetAllHistoryItems()
         {
-            return _historyItemRepository.GetAllHistoryItems();
+            throw new NotImplementedException();
         }
 
-        public HistoryItem GetHistoryItem(int id)
+        public List<HistoryItemDTO> GetAllHistoryItemWithSelectedLanguage(int languageId)
         {
-           return _historyItemRepository.GetHistoryItem(id);
+            return _historyItemRepository.GetAllHistoryItemWithSelectedLanguage(languageId);    
+        }
+
+        public HistoryItemDTO GetHistoryItem(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public HistoryItem UpdateHistoryItem(HistoryItem historyItem)
         {
-            return _historyItemRepository.UpdateHistoryItem(historyItem);
+            throw new NotImplementedException();
         }
     }
 }

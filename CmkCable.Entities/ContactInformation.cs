@@ -11,10 +11,6 @@ namespace CmkCable.Entities
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Department is required.")]
-        [StringLength(100)]
-        public string Department { get; set; }
-
         [Required(ErrorMessage = "PhoneNumber is required.")]
         [StringLength(100)]
         public string PhoneNumber { get; set; }

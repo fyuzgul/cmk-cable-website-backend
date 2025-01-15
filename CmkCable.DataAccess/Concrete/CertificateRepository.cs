@@ -1,5 +1,6 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,13 +31,53 @@ namespace CmkCable.DataAccess.Concrete
 
         }
 
-        public List<Certificate> GetAllCertifacets()
+        public List<CertificateDTO> GetAllCertifacets()
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                return cmkCableDbContext.Certificates.ToList();
+                // Sertifikaları al
+                var certificates = cmkCableDbContext.Certificates.ToList();
+                var certificateDTOs = new List<CertificateDTO>();
+
+                foreach (var certificate in certificates)
+                {
+                    var productIds = cmkCableDbContext.ProductCertificates
+                                                       .Where(pc => pc.CertificateId == certificate.Id)
+                                                       .Select(pc => pc.ProductId)
+                                                       .ToList();
+
+                    var productNames = cmkCableDbContext.Products
+                                                        .Where(p => productIds.Contains(p.Id))
+                                                        .Select(p => p.Type)
+                                                        .ToList();
+
+                    var certificateDTO = new CertificateDTO
+                    {
+                        Id = certificate.Id,
+                        Name = certificate.Name,
+                        FileContent = certificate.FileContent,
+                        Image = certificate.Image,
+                        CertificateType = new CertificateTypeDTO
+                        {
+                            Id = certificate.TypeId,
+                            Name = cmkCableDbContext.CertificateTypes
+                                        .Where(ct => ct.Id == certificate.TypeId)
+                                        .Select(ct => ct.Name)
+                                        .FirstOrDefault()
+                        },
+                        ProductNames = productNames
+                    };
+
+                    certificateDTOs.Add(certificateDTO);
+                }
+
+                return certificateDTOs;
             }
         }
+
+
+
+
 
         public List<Certificate> GetAllCertificatesByTypeId(int typeId)
         {

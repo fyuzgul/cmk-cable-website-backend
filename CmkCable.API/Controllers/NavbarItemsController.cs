@@ -1,6 +1,7 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpGet]
-        public List<NavbarItem> GetAllNavbarItems() { return navbarItemService.GetAllNavbarItems();}
+        public List<List<NavbarItemDto>> GetAllNavbarItems() { return navbarItemService.GetAllNavbarItems();}
 
         [HttpGet("{languageId}")]
         public IActionResult GetNavbarItems(int languageId)
@@ -31,6 +32,6 @@ namespace CmkCable.API.Controllers
         public NavbarItem CreateNavbarItem(NavbarItem navbarItem) {return navbarItemService.CreateNavbarItem(navbarItem);}
 
         [HttpPut("update")]
-        public NavbarItem UpdateNavbarItem(NavbarItem navbarItem) { return navbarItemService.UpdateNavbarItem(navbarItem); }
+        public List<NavbarItemDto> UpdateNavbarItem(List<NavbarItemDto> navbarItems) { return navbarItemService.UpdateNavbarItem(navbarItems); }
     }
 }

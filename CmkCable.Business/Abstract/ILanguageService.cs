@@ -8,5 +8,8 @@ namespace CmkCable.Business.Abstract
     public interface ILanguageService
     {
         List<Language> GetLanguages();
+        Language CreateLanguage(Language language);
+        Language UpdateLanguage(Language language);
+        void DeleteLanguage(int id);
     }
 }

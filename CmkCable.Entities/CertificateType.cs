@@ -15,9 +15,6 @@ namespace CmkCable.Entities
         [Required(ErrorMessage = "Name is required.")]
         [StringLength(150)]
         public string Name { get; set; }    
-
-        [NotMapped]
-        public IFormFile Image { get; set; }
-        public byte[] ImageData { get; set; }
+        public string Image { get; set; }
     }
 }

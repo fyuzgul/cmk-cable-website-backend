@@ -1,0 +1,107 @@
+﻿using CmkCable.DataAccess.Abstract;
+using CmkCable.Entities;
+using DTOs;
+using DTOs.Translations;
+using DTOs.UpdateDTOs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Xml.Linq;
+
+namespace CmkCable.DataAccess.Concrete
+{
+    public class HomePageTextRepository : IHomePageTextRepository
+    {
+        public List<HomePageTextDTO> GetHomeAllPageTexts(int languageId)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                var texts = cmkCableDbContext.HomePageTexts
+                    .Select(text => new HomePageTextDTO
+                    {
+                        Id = text.Id,
+                        Name = text.Name,
+                        Values = cmkCableDbContext.HomePageTextTranslations
+                            .Where(t => t.LanguageId == languageId && text.Id == t.TextId)
+                            .Select(t => new HomePageTextTranslationDTO
+                            {
+                                LanguageId = t.LanguageId,
+                                Value = t.Value
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                return texts;
+            }
+        }
+
+
+
+        public HomePageTextDTO GetHomePageTextByName(string name, int languageId)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public List<HomePageTextDTO> GetHomePageTextsWithAllTranslations()
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                var texts = cmkCableDbContext.HomePageTexts
+                    .Select(text => new HomePageTextDTO
+                    {
+                        Id = text.Id,
+                        Name = text.Name,
+                        Values = cmkCableDbContext.HomePageTextTranslations
+                            .Where(t => text.Id == t.TextId)
+                            .Select(t => new HomePageTextTranslationDTO
+                            {
+                                LanguageId = t.LanguageId,
+                                Value = t.Value
+                            })
+                            .ToList()
+                    })
+                    .ToList();
+
+                return texts;
+            }
+        }
+
+        public List<HomePageTextUpdateDTO> UpdateHomeText(List<HomePageTextUpdateDTO> homePageTextUpdateDTOs)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                foreach (var updateDto in homePageTextUpdateDTOs)
+                {
+                    var translation = cmkCableDbContext.HomePageTextTranslations
+                        .FirstOrDefault(t => t.TextId == updateDto.Id && t.LanguageId == updateDto.LanguageId);
+
+                    if (translation == null)
+                    {
+                        translation = new HomePageTextTranslation
+                        {
+                            TextId = updateDto.Id,
+                            LanguageId = updateDto.LanguageId,
+                            Value = updateDto.Value
+                        };
+                        cmkCableDbContext.HomePageTextTranslations.Add(translation);
+                    }
+                    else
+                    {
+                        translation.Value = updateDto.Value;
+                    }
+                }
+
+                cmkCableDbContext.SaveChanges();
+            }
+
+            return homePageTextUpdateDTOs;
+        }
+
+
+    }
+}

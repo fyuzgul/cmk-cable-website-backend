@@ -15,9 +15,25 @@ namespace CmkCable.Business.Concrete
         {
             _languageRepository = new LanguageRepository();
         }
+
+        public Language CreateLanguage(Language language)
+        {
+            return _languageRepository.CreateLanguage(language);
+        }
+
+        public void DeleteLanguage(int id)
+        {
+            _languageRepository.DeleteLanguage(id); 
+        }
+
         public List<Language> GetLanguages()
         {
             return _languageRepository.GetLanguages();
+        }
+
+        public Language UpdateLanguage(Language language)
+        {
+           return _languageRepository.UpdateLanguage(language); 
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,7 +8,7 @@ namespace CmkCable.DataAccess.Abstract
 {
     public interface ICertificateRepository
     {
-        List<Certificate> GetAllCertifacets();
+        List<CertificateDTO> GetAllCertifacets();
         Certificate CreateCertificate(Certificate certificate);
         Certificate GetCertifacetById(int id);
 

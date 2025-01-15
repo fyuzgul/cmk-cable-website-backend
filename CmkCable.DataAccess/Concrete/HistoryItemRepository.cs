@@ -1,5 +1,7 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
+using DTOs;
+using DTOs.Translations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,48 +13,62 @@ namespace CmkCable.DataAccess.Concrete
     {
         public HistoryItem CreateHistoryItem(HistoryItem historyItem)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                cmkCableDbContext.HistoryItems.Add(historyItem);
-                cmkCableDbContext.SaveChanges();
-                return historyItem;
-            }
+            throw new NotImplementedException();
         }
 
         public void DeleteHistoryItem(int id)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                var deletedItem = cmkCableDbContext.HistoryItems.Find(id);
-                cmkCableDbContext.HistoryItems.Remove(deletedItem);
-                cmkCableDbContext.SaveChanges();
-            }
+            throw new NotImplementedException();
         }
 
-        public List<HistoryItem> GetAllHistoryItems()
+        public List<HistoryItemDTO> GetAllHistoryItems()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<HistoryItemDTO> GetAllHistoryItemWithSelectedLanguage(int languageId)
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                return cmkCableDbContext.HistoryItems.ToList();
+                var historyItemsWithSelectedLanguage = from hi in cmkCableDbContext.HistoryItems
+                                                       join hit in cmkCableDbContext.HistoryItemTranslations
+                                                       on hi.Id equals hit.HistoryItemId
+                                                       where hit.LanguageId == languageId
+                                                       select new
+                                                       {
+                                                           hi.Id,
+                                                           hi.Image,
+                                                           hi.Year,
+                                                           Translation = new HistoryItemTranslationDTO
+                                                           {
+                                                               LanguageId = hit.LanguageId,
+                                                               Title = hit.Title,
+                                                               Description = hit.Description
+                                                           }
+
+                                                       };
+                var historyItemDTO = historyItemsWithSelectedLanguage
+                    .Select(item => new HistoryItemDTO
+                    {
+                        Id = item.Id,
+                        Year = item.Year,
+                        Image = item.Image,
+                        Translations = new List<HistoryItemTranslationDTO> { item.Translation }
+                    })
+                    .ToList();
+
+                return historyItemDTO;
             }
         }
 
-        public HistoryItem GetHistoryItem(int id)
+        public HistoryItemDTO GetHistoryItem(int id)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                return cmkCableDbContext.HistoryItems.Find(id);
-            }
+            throw new NotImplementedException();
         }
 
         public HistoryItem UpdateHistoryItem(HistoryItem historyItem)
         {
-            using (var cmkCableDbContext = new CmkCableDbContext())
-            {
-                cmkCableDbContext.HistoryItems.Update(historyItem);
-                cmkCableDbContext.SaveChanges();
-                return historyItem;
-            }
+            throw new NotImplementedException();
         }
     }
 }

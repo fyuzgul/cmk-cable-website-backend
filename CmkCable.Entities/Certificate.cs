@@ -16,17 +16,7 @@ namespace CmkCable.Entities
 
         [ForeignKey(nameof(CertificateType))]
         public int TypeId {  get; set; }
-
-        [NotMapped]
-        public IFormFile FileContent { get; set; }
-
-        public byte[] FileContentData { get; set; }
-
-
-        [NotMapped]
-        public IFormFile Image { get; set; } 
-
-        public byte[] ImageData { get; set; }
-
+        public string FileContent { get; set; }
+        public string Image { get; set; } 
     }
 }

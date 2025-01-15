@@ -20,5 +20,12 @@ namespace CmkCable.API.Controllers
 
         [HttpGet]
         public List<Language> GetLanguages() { return _languageService.GetLanguages(); }
+
+        [HttpDelete("{id}")]
+        public void DeleteLanguage(int id) { _languageService.DeleteLanguage(id); }
+        [HttpPost("create")]
+        public Language CreateLanguage([FromBody] Language language) { return _languageService.CreateLanguage(language); }
+        [HttpPut("update")]
+        public Language UpdateLanguage([FromBody] Language language) { return _languageService.UpdateLanguage(language); }
     }
 }

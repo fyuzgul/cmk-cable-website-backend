@@ -2,6 +2,7 @@
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,9 +27,9 @@ namespace CmkCable.Business.Concrete
             _contactInformationRepository.DeleteContactInformation(id);
         }
 
-        public List<ContactInformation> GetAllContactInformations()
+        public List<ContactInformationDTO> GetAllContactInformations(int languageId)
         {
-            return _contactInformationRepository.GetAllContactInformations();
+            return _contactInformationRepository.GetAllContactInformations(languageId);
         }
 
         public ContactInformation GetContactInformation(int id)

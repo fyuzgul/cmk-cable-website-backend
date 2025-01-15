@@ -14,7 +14,7 @@ namespace CmkCable.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server=DESKTOP-HT2540H;Database=CmkCableDb;Integrated Security=True;");
+            optionsBuilder.UseSqlServer("Server=DESKTOP-HT2540H;Database=CmkCableDb;Integrated Security=True; TrustServerCertificate=True;");
         }
 
         public DbSet<Category> Categories { get; set; }
@@ -24,7 +24,6 @@ namespace CmkCable.DataAccess
         public DbSet<Structure> Structures { get; set; }
         public DbSet<TechnicalFeature> TechnicalFeatures { get; set; }
         public DbSet<CertificateType> CertificateTypes { get; set; }
-        public DbSet<CareerForm> CareerForms { get; set; }  
         public DbSet<ContactInformation> ContactInformations { get; set; }
         public DbSet<HistoryItem> HistoryItems { get; set; }
         public DbSet<AboutUsItem> AboutUsItems { get; set; }
@@ -37,7 +36,13 @@ namespace CmkCable.DataAccess
         public DbSet<CertificateStandart> CertificateStandarts { get; set; }
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<CategoryTranslation> CategoryTranslations { get; set; }
-
-
+        public DbSet<HomePageText> HomePageTexts { get; set; }  
+        public DbSet<HomePageTextTranslation> HomePageTextTranslations { get; set; }
+        public DbSet<PdsDocument> PdsDocuments { get; set; }
+        public DbSet<PdsDocumentTranslation> PdsDocumentsTranslations { get; set; }
+        public DbSet<ContactInformationTranslation> ContactInformationTranslations { get; set; }
+        public DbSet<HistoryItemTranslation> HistoryItemTranslations { get; set; }  
+        public DbSet<StructureTranslation> StructureTranslations { get; set; }
+        public DbSet<User> Users { get; set; } 
     }
 }

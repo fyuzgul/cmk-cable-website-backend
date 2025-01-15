@@ -16,6 +16,6 @@ namespace DTOs
         public CategoryDTO Category { get; set; }
         public List<Standart> Standarts { get; set; }
         public List<CertificateDTO> Certificates { get; set; } 
-        public List<Structure> Structures { get; set; } 
+        public List<StructureTranslationDTO> Structures { get; set; } 
     }
 }

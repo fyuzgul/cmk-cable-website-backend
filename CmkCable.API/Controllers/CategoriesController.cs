@@ -1,7 +1,11 @@
-﻿using CmkCable.Business.Abstract;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
 using DTOs;
+using DTOs.CreateDTOs;
+using DTOs.UpdateDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -18,9 +22,12 @@ namespace CmkCable.API.Controllers
     public class CategoriesController : ControllerBase
     {
         private ICategoryService _categoryService;
+        private CloudinaryManager _cloudinaryManager;
+
         public CategoriesController()
         {
             _categoryService = new CategoryManager();
+            _cloudinaryManager = new CloudinaryManager();
         }
 
         [HttpGet]
@@ -49,51 +56,57 @@ namespace CmkCable.API.Controllers
             return Ok(category);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromForm] CategoryDTO categoryDto,  [FromForm] List<string> translations, [FromForm] List<int> languageIds)
+        public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDTO categoryDto, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
-            if (categoryDto == null || translations == null || languageIds == null)
+            string imageUrl = null;
+            if (categoryDto.Image != null && categoryDto.Image.Length > 0)
             {
-                return BadRequest("Invalid input data.");
+                imageUrl = await _cloudinaryManager.UploadImage(categoryDto.Image, "category-images");
             }
-
-            if (translations.Count != languageIds.Count)
+            var category = new CategoryDTO
             {
-                return BadRequest("The number of translations must match the number of languages.");
-            }
+                Image = imageUrl
+            };
+            var createdCategory = await _categoryService.CreateCategory(category, translations, languageIds);
 
-            try
-            {
-
-                await _categoryService.CreateCategory(categoryDto, translations, languageIds);
-
-                return CreatedAtAction(nameof(CreateCategory), new { id = categoryDto.Id }, categoryDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            return CreatedAtAction(nameof(createdCategory), new { id = createdCategory.Id }, createdCategory);
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> UpdateCategory(
-     [FromForm] Category category,
+     [FromForm] UpdateCategoryDTO category,
      [FromForm] List<string> translations,
      [FromForm] List<int> languageIds)
         {
-            if (category.Id <= 0)
-            {
-                return BadRequest("Category ID is required.");
-            }
+            string imageUrl = null;
+            var _category = _categoryService.GetCategoryById(category.Id, 1);
+            if (_category == null || _category.Id <= 0)
+                return BadRequest("Invalid product ID.");
 
             if (translations == null || languageIds == null || translations.Count != languageIds.Count)
             {
                 return BadRequest("Translations and language IDs must have the same length.");
             }
+            if (category.Image != null)
+            {
+                DeletionResult imageDeletionResult = await _cloudinaryManager.DestoryImage(_category.Image);
+                if (imageDeletionResult.Result.Equals("ok"))
+                {
+                    imageUrl = await _cloudinaryManager.UploadImage(category.Image, "category-images");
+                }
+            }
+
+            var updatedcategory = new Category
+            {
+                Id = category.Id,
+                Image = imageUrl
+            };
+
 
             try
             {
-                var updatedCategory = await _categoryService.UpdateCategory(category, translations, languageIds);
-                return Ok(updatedCategory);
+                var updatedCategoryBool = await _categoryService.UpdateCategory(updatedcategory, translations, languageIds);
+                return Ok(updatedCategoryBool);
             }
             catch (Exception ex)
             {
@@ -107,14 +120,22 @@ namespace CmkCable.API.Controllers
             var categoryDto = _categoryService.GetCategoryWithAllTranslations(id);
             if (categoryDto == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
 
-            return Ok(categoryDto); 
+            return Ok(categoryDto);
         }
 
         [HttpDelete("delete/{id}")]
-        public void Delete(int id) { _categoryService.DeleteCategory(id); }
+        public async void Delete(int id)
+        {
+            var deletedCategory = _categoryService.GetCategoryById(id, 1);
+             DeletionResult deletionResult= await _cloudinaryManager.DestoryImage(deletedCategory.Image);
+            if (deletionResult.Result.Equals("ok"))
+            {
+                _categoryService.DeleteCategory(id);
+            }
+        }
 
 
     }

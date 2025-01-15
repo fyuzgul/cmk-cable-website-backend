@@ -2,6 +2,7 @@
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ namespace CmkCable.Business.Concrete
             _certificateRepository.DeleteCertificate(id);
         }
 
-        public List<Certificate> GetAllCertifacets()
+        public List<CertificateDTO> GetAllCertifacets()
         {
             return _certificateRepository.GetAllCertifacets(); 
         }

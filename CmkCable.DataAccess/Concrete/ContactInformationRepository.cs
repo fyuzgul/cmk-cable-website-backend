@@ -1,5 +1,6 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,13 +30,28 @@ namespace CmkCable.DataAccess.Concrete
             }
         }
 
-        public List<ContactInformation> GetAllContactInformations()
+        public List<ContactInformationDTO> GetAllContactInformations(int languageId)
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                return cmkCableDbContext.ContactInformations.ToList();
+                return cmkCableDbContext.ContactInformations
+                    .Join(cmkCableDbContext.ContactInformationTranslations,
+                        ci => ci.Id, 
+                        cit => cit.ContactInformationId,
+                        (ci, cit) => new { ci, cit })
+                    .Where(x => x.cit.LanguageId == languageId) 
+                    .Select(x => new ContactInformationDTO
+                    {
+                        PhoneNumber = x.ci.PhoneNumber,
+                        Email = x.ci.Email,
+                        FaxNumber = x.ci.FaxNumber,
+                        Department = x.cit.Department
+                    })
+                    .ToList();
             }
         }
+
+
 
         public ContactInformation GetContactInformation(int id)
         {

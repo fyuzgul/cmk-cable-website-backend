@@ -1,6 +1,10 @@
-﻿using CmkCable.Business.Abstract;
+﻿using CloudinaryDotNet.Actions;
+using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
+using DTOs;
+using DTOs.CreateDTOs;
+using DTOs.UpdateDTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -14,13 +18,15 @@ namespace CmkCable.API.Controllers
     public class CertificateTypesController : ControllerBase
     {
         private ICertificateTypeService _certificateTypeService;
+        private CloudinaryManager _cloudinaryManager;
         public CertificateTypesController()
         {
             _certificateTypeService = new CertificateTypeManager();
+            _cloudinaryManager = new CloudinaryManager();
         }
 
         [HttpGet]
-        public List<CertificateType> GetAllCertificateTypes()
+        public List<CertificateTypeDTO> GetAllCertificateTypes()
         {
             return _certificateTypeService.GetAllCertificateTypes();
         }
@@ -31,21 +37,13 @@ namespace CmkCable.API.Controllers
             return _certificateTypeService.GetCertificateTypeById(id);
         }
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCertificateType([FromForm] CertificateType _certificateType)
+        public async Task<IActionResult> CreateCertificateType([FromForm] CreateCertificateTypeDTO _certificateType)
         {
-            if (_certificateType.Image == null || _certificateType.Image.Length == 0)
-                return BadRequest("No Image uploaded.");
-            byte[] imageBytes;
-
-            using (var memoryStream = new MemoryStream())
-            {
-                await _certificateType.Image.CopyToAsync(memoryStream);
-                imageBytes = memoryStream.ToArray();
-            }
+            string imageUrl =  await _cloudinaryManager.UploadImage(_certificateType.Image, "document-types");
             var certificateType = new CertificateType
             {
-                Name = _certificateType.Name,
-                ImageData = imageBytes,
+                Name = _certificateType.Name.ToUpper(),
+                Image = imageUrl
             };
             var createdCertificateType = _certificateTypeService.CreateCertificateType(certificateType);    
             return Ok(createdCertificateType);
@@ -56,8 +54,9 @@ namespace CmkCable.API.Controllers
 
 
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateCertificateType([FromForm] CertificateType updatedCertificateType)
+        public async Task<IActionResult> UpdateCertificateType([FromForm] UpdateCertifcateTypeDTO updatedCertificateType)
         {
+            string imageUrl = null;
             if (updatedCertificateType.Id <= 0)
             {
                 return BadRequest("Product ID is required.");
@@ -73,16 +72,21 @@ namespace CmkCable.API.Controllers
 
             if (updatedCertificateType.Image != null && updatedCertificateType.Image.Length > 0)
             {
-                using (var memoryStream = new MemoryStream())
+                DeletionResult deletionResult = await _cloudinaryManager.DestoryImage(existingCertificateType.Image);
+                if (deletionResult.Result.Equals("ok"))
                 {
-                    await updatedCertificateType.Image.CopyToAsync(memoryStream);
-                    existingCertificateType.ImageData = memoryStream.ToArray();
+                    imageUrl = await _cloudinaryManager.UploadImage(updatedCertificateType.Image, "document-types");
                 }
             }
 
-            existingCertificateType.Name= string.IsNullOrEmpty(updatedCertificateType.Name) ? existingCertificateType.Name : updatedCertificateType.Name;
+            var certificateType = new CertificateType
+            {
+                Id = updatedCertificateType.Id,
+                Name = updatedCertificateType.Name,
+                Image = imageUrl
+            };
             
-            var updatedCertType = _certificateTypeService.UpdateCertificateType(existingCertificateType);
+            var updatedCertType = _certificateTypeService.UpdateCertificateType(certificateType);
 
             return Ok(updatedCertType);
         }

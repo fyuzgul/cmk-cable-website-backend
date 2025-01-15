@@ -26,9 +26,9 @@ namespace CmkCable.Business.Concrete
             _aboutUsItemRepository.DeleteAboutUsItem(id);
         }
 
-        public List<AboutUsItem> GetAllAboutUsItems()
+        public List<AboutUsItem> GetAllAboutUsItemsWithLanguage(int languageId)
         {
-            return _aboutUsItemRepository.GetAllAboutUsItems();
+            return _aboutUsItemRepository.GetAllAboutUsItemsWithLanguage(languageId);
         }
 
         public AboutUsItem UpdateAboutUsItem(AboutUsItem aboutUsItem)

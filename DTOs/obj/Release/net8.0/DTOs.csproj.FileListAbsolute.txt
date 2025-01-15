@@ -1,0 +1,16 @@
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\bin\Release\net8.0\DTOs.deps.json
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\bin\Release\net8.0\DTOs.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\bin\Release\net8.0\DTOs.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\bin\Release\net8.0\CmkCable.Entities.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\bin\Release\net8.0\CmkCable.Entities.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.csproj.AssemblyReference.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.AssemblyInfoInputs.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.AssemblyInfo.cs
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.csproj.CoreCompileInputs.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.sourcelink.json
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.csproj.Up2Date
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\refint\DTOs.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\DTOs.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\DTOs\obj\Release\net8.0\ref\DTOs.dll

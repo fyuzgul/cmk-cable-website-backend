@@ -1,0 +1,13 @@
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\bin\Release\net8.0\CmkCable.Entities.deps.json
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\bin\Release\net8.0\CmkCable.Entities.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\bin\Release\net8.0\CmkCable.Entities.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.csproj.AssemblyReference.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.AssemblyInfoInputs.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.AssemblyInfo.cs
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.csproj.CoreCompileInputs.cache
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.sourcelink.json
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\refint\CmkCable.Entities.dll
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\CmkCable.Entities.pdb
+C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.Entities\obj\Release\net8.0\ref\CmkCable.Entities.dll

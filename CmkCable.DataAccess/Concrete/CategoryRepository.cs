@@ -210,6 +210,14 @@ namespace CmkCable.DataAccess.Concrete
                     throw new ArgumentException("Kategori bulunamadı.");
                 }
 
+
+                if (category.Image != null)
+                {
+                    existingCategory.Image = category.Image;
+                    cmkCableDbContext.Categories.Update(existingCategory);
+                    cmkCableDbContext.SaveChanges();
+                }
+
                 for (int i = 0; i < translations.Count; i++)
                 {
                     var translation = await cmkCableDbContext.CategoryTranslations

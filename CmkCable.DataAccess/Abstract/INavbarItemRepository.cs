@@ -6,11 +6,11 @@ namespace CmkCable.DataAccess.Abstract
 {
     public interface INavbarItemRepository
     {
-        List<NavbarItem> GetAllNavbarItems();
+        List<List<NavbarItemDto>> GetAllNavbarItems();
         NavbarItem GetNavbarItem(int id);
         NavbarItem CreateNavbarItem(NavbarItem navbarItem);
         List<NavbarItemDto> GetNavbarItemsByLanguage(int languageId);
-        NavbarItem UpdateNavbarItem(NavbarItem navbarItem);
+        List<NavbarItemDto> UpdateNavbarItem(List<NavbarItemDto> navbarItems);
         void DeleteNavbarItem(string id);
     }
 }

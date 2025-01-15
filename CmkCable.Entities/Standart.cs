@@ -14,14 +14,5 @@ namespace CmkCable.Entities
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; }
 
-        [ForeignKey(nameof(Product))]    
-        public int ProductId { get; set; }
-
-        [ForeignKey(nameof(Certificate))]
-        public int CertificateId { get; set; }  
-
-        public virtual Product Product { get; set; }
-        public virtual Certificate Certificate { get; set; }
-
     }
 }
