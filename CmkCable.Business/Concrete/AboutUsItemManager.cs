@@ -21,9 +21,14 @@ namespace CmkCable.Business.Concrete
             return _aboutUsItemRepository.CreateAboutUsItem(aboutUsItem);   
         }
 
-        public void DeleteAboutUsItem(string id)
+        public void DeleteAboutUsItem(int id)
         {
             _aboutUsItemRepository.DeleteAboutUsItem(id);
+        }
+
+        public List<AboutUsItem> GetAllAboutUsItems()
+        {
+            return _aboutUsItemRepository.GetAllAboutUsItems();
         }
 
         public List<AboutUsItem> GetAllAboutUsItemsWithLanguage(int languageId)
@@ -31,9 +36,9 @@ namespace CmkCable.Business.Concrete
             return _aboutUsItemRepository.GetAllAboutUsItemsWithLanguage(languageId);
         }
 
-        public AboutUsItem UpdateAboutUsItem(AboutUsItem aboutUsItem)
+        public AboutUsItem UpdateAboutUsItem(int id, AboutUsItem aboutUsItem)
         {
-            return _aboutUsItemRepository.UpdateAboutUsItem(aboutUsItem);
+            return _aboutUsItemRepository.UpdateAboutUsItem(id, aboutUsItem);
         }
     }
 }

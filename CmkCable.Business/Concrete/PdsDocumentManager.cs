@@ -15,19 +15,21 @@ namespace CmkCable.Business.Concrete
         private IPdsDocumentRepository _repository;
         public PdsDocumentManager() { _repository = new PdsDocumentRepository(); }
 
-        public Task<PdsDocument> CreatePdsDocument(PdsDocumentDTO pdsDocumentDTO, List<string> translations, List<int> languageIds)
+       
+
+        public Task<PdsDocument> CreatePdsDocument(PdsDocumentDTO pdsDocument, List<string> translations, List<int> languageIds)
         {
-            throw new NotImplementedException();
+            return _repository.CreatePdsDocument(pdsDocument, translations, languageIds);
         }
 
         public void DeletePdsDocument(int id)
         {
-            throw new NotImplementedException();
+            _repository.DeletePdsDocument(id);
         }
 
         public List<PdsDocumentDTO> GetAll()
         {
-            throw new NotImplementedException();
+            return _repository.GetAll();
         }
 
         public List<PdsDocumentDTO> GetAllPdsDocumentsWithLanguage(int languageId)
@@ -37,12 +39,12 @@ namespace CmkCable.Business.Concrete
 
         public PdsDocumentDTO PdsDocumentWithAllTranslations(int pdsId)
         {
-            throw new NotImplementedException();
+            return _repository.PdsDocumentWithAllTranslations(pdsId);
         }
 
-        public Task<PdsDocument> UpdateCategory(PdsDocument pdsDocument, List<string> translations, List<int> languageIds)
+        public Task<PdsDocument> UpdatePdsDocument(PdsDocument pdsDocument, List<string> translations, List<int> languageIds)
         {
-            throw new NotImplementedException();
+            return _repository.UpdatePdsDocument(pdsDocument, translations, languageIds);
         }
     }
 }

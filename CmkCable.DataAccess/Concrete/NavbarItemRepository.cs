@@ -103,19 +103,26 @@ namespace CmkCable.DataAccess.Concrete
                 var navbarItemDtos = navbarItems.Select(item => new NavbarItemDto
                 {
                     Id = item.Id,
-                    Title = item.Translations.FirstOrDefault(t => t.LanguageId == languageId)?.Title,
+                    // Ana öğe için çeviri işlemini burada yapıyoruz
+                    Title = item.Translations.FirstOrDefault(t => t.LanguageId == languageId)?.Title
+                            ?? item.Translations.FirstOrDefault(t => t.LanguageId == 2)?.Title
+                            ?? "Çeviri Yok",
                     Route = item.Route,
                     SubItems = item.SubItems.Select(subItem => new NavbarItemDto
                     {
                         Id = subItem.Id,
-                        Title = subItem.Translations.FirstOrDefault(t => t.LanguageId == languageId)?.Title,
+                        // Alt öğe için çeviri işlemini burada yapıyoruz
+                        Title = subItem.Translations.FirstOrDefault(t => t.LanguageId == languageId)?.Title
+                                ?? subItem.Translations.FirstOrDefault(t => t.LanguageId == 2)?.Title
+                                ?? "Çeviri Yok",
                         Route = subItem.Route
                     }).ToList()
                 }).ToList();
 
-                return navbarItemDtos; 
+                return navbarItemDtos;
             }
         }
+
 
 
 

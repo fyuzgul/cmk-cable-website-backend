@@ -28,7 +28,6 @@ namespace CmkCable.API.Controllers
         [HttpDelete("delete/{id}")]
         public void DeleteStandart(int id) { _standartService.DeleteStandart(id); }
         [HttpPost("create")]
-        [Authorize]
         public Standart CreateStandart(Standart standart) { return _standartService.CreateStandart(standart); }
         [HttpPut("update")]
         public Standart UpdateStandart(Standart standart) { return _standartService.UpdateStandart(standart); }

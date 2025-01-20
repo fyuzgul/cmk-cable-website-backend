@@ -23,15 +23,44 @@ namespace CmkCable.DataAccess.Concrete
                         Id = text.Id,
                         Name = text.Name,
                         Values = cmkCableDbContext.HomePageTextTranslations
-                            .Where(t => t.LanguageId == languageId && text.Id == t.TextId)
+                            .Where(t => t.TextId == text.Id && t.LanguageId == languageId)
                             .Select(t => new HomePageTextTranslationDTO
                             {
                                 LanguageId = t.LanguageId,
-                                Value = t.Value
+                                Value = t.Value ?? "Çevirisi yok"
                             })
-                            .ToList()
+                            .ToList() // Sorguyu burada çalıştırıyoruz
                     })
-                    .ToList();
+                    .ToList(); // Tüm listeyi burada çekiyoruz
+
+                // Alternatif dil çevirilerini kontrol et
+                foreach (var text in texts)
+                {
+                    if (text.Values == null || !text.Values.Any())
+                    {
+                        var alternativeTranslation = cmkCableDbContext.HomePageTextTranslations
+                            .Where(alt => alt.TextId == text.Id && alt.LanguageId == 2) // Alternatif dil ID'si
+                            .Select(alt => new HomePageTextTranslationDTO
+                            {
+                                LanguageId = alt.LanguageId,
+                                Value = alt.Value ?? "Çevirisi yok"
+                            })
+                            .FirstOrDefault();
+
+                        if (alternativeTranslation != null)
+                        {
+                            text.Values.Add(alternativeTranslation);
+                        }
+                        else
+                        {
+                            text.Values.Add(new HomePageTextTranslationDTO
+                            {
+                                LanguageId = 2,
+                                Value = "Çevirisi yok"
+                            });
+                        }
+                    }
+                }
 
                 return texts;
             }

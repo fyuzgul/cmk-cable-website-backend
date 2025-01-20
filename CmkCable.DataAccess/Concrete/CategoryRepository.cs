@@ -18,23 +18,48 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                var categoriesWithTranslations = from category in cmkCableDbContext.Categories
-                                                 select new CategoryDTO
-                                                 {
-                                                     Id = category.Id,
-                                                     Image = category.Image,
-                                                     Translations = (from translation in cmkCableDbContext.CategoryTranslations
-                                                                     where translation.CategoryId == category.Id
-                                                                     select new CategoryTranslationDTO
-                                                                     {
-                                                                         LanguageId = translation.LanguageId,
-                                                                         Name = translation.Name
-                                                                     }).ToList()
-                                                 };
+                // Tüm dilleri ve çevirileri belleğe alıyoruz.
+                var allLanguages = cmkCableDbContext.Languages.ToList();
+                var allCategoryTranslations = cmkCableDbContext.CategoryTranslations.ToList();
 
-                return categoriesWithTranslations.ToList();
+                var categoriesWithTranslations = cmkCableDbContext.Categories
+                    .AsEnumerable() // LINQ to Entities dışına çıkıyoruz
+                    .Select(category => new CategoryDTO
+                    {
+                        Id = category.Id,
+                        Image = category.Image,
+                        Translations = allLanguages.Select(language =>
+                        {
+                            // Çeviriyi buluyoruz, dilde varsa alıyoruz
+                            var translation = allCategoryTranslations
+                                .FirstOrDefault(t => t.CategoryId == category.Id && t.LanguageId == language.Id);
+
+                            if (translation != null)
+                            {
+                                return new CategoryTranslationDTO
+                                {
+                                    LanguageId = language.Id,
+                                    Name = translation.Name
+                                };
+                            }
+
+                            // Eğer dilde çeviri yoksa, 2. dildeki çeviriyi kontrol ediyoruz
+                            var fallbackTranslation = allCategoryTranslations
+                                .FirstOrDefault(t => t.CategoryId == category.Id && t.LanguageId == 2);
+
+                            // 2. dilde de çeviri yoksa, "Çevirisi yok" yazıyoruz
+                            return new CategoryTranslationDTO
+                            {
+                                LanguageId = language.Id,
+                                Name = fallbackTranslation?.Name ?? "Çevirisi yok"
+                            };
+                        }).ToList()
+                    }).ToList();
+
+                return categoriesWithTranslations;
             }
         }
+
 
         public async Task<Category> CreateCategory(CategoryDTO categoryDto, List<string> translations, List<int> languageIds)
         {
@@ -93,27 +118,52 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
+                // Kategorileri ve çevirileri tek bir sorguda çekiyoruz
                 var categoriesWithTranslations = from ni in cmkCableDbContext.Categories
                                                  join nit in cmkCableDbContext.CategoryTranslations
-                                                 on ni.Id equals nit.CategoryId
-                                                 where nit.LanguageId == languageId
+                                                 on ni.Id equals nit.CategoryId into translations
+                                                 from translation in translations.Where(t => t.LanguageId == languageId).DefaultIfEmpty()
                                                  select new
                                                  {
                                                      ni.Id,
                                                      ni.Image,
-                                                     Translation = new CategoryTranslationDTO
-                                                     {
-                                                         LanguageId = nit.LanguageId,
-                                                         Name = nit.Name
-                                                     }
+                                                     Translation = translation != null
+                                                         ? new CategoryTranslationDTO
+                                                         {
+                                                             LanguageId = translation.LanguageId,
+                                                             Name = translation.Name
+                                                         }
+                                                         : null
                                                  };
 
+                // Tüm kategorilerle ilgili verileri çekiyoruz
                 var categoryDtos = categoriesWithTranslations
-                    .Select(item => new CategoryDTO
+                    .AsEnumerable()
+                    .Select(item =>
                     {
-                        Id = item.Id,
-                        Image = item.Image,
-                        Translations = new List<CategoryTranslationDTO> { item.Translation }
+                        CategoryTranslationDTO fallbackTranslation = null;
+
+                        if (item.Translation == null)
+                        {
+                            fallbackTranslation = cmkCableDbContext.CategoryTranslations
+                                .Where(t => t.CategoryId == item.Id && t.LanguageId == 2)  
+                                .Select(t => new CategoryTranslationDTO
+                                {
+                                    LanguageId = t.LanguageId,
+                                    Name = t.Name ?? "Çevirisi yok"
+                                })
+                                .FirstOrDefault();
+                        }
+
+                        return new CategoryDTO
+                        {
+                            Id = item.Id,
+                            Image = item.Image,
+                            Translations = new List<CategoryTranslationDTO>
+                            {
+                        item.Translation ?? fallbackTranslation ?? new CategoryTranslationDTO { LanguageId = 2, Name = "Çevirisi yok" }
+                            }
+                        };
                     })
                     .ToList();
 
@@ -135,7 +185,7 @@ namespace CmkCable.DataAccess.Concrete
 
                 if (category == null)
                 {
-                    return null; 
+                    return null;
                 }
 
                 var translation = (from ct in cmkCableDbContext.CategoryTranslations
@@ -145,6 +195,17 @@ namespace CmkCable.DataAccess.Concrete
                                        LanguageId = ct.LanguageId,
                                        Name = ct.Name
                                    }).FirstOrDefault();
+
+                if (translation == null)
+                {
+                    translation = (from ct in cmkCableDbContext.CategoryTranslations
+                                   where ct.CategoryId == id && ct.LanguageId == 2
+                                   select new CategoryTranslationDTO
+                                   {
+                                       LanguageId = ct.LanguageId,
+                                       Name = ct.Name
+                                   }).FirstOrDefault();
+                }
 
                 if (translation == null)
                 {

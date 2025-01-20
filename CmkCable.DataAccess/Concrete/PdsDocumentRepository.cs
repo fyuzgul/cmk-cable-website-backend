@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using DTOs.Translations;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace CmkCable.DataAccess.Concrete
 {
@@ -19,7 +20,8 @@ namespace CmkCable.DataAccess.Concrete
             {
                 var pdsDocument = new PdsDocument
                 {
-                    Image = pdsDocumentDTO.Image
+                    FileContent = pdsDocumentDTO.FileContent,
+                    Image = pdsDocumentDTO.Image,
                 };
 
                 cmkCableDbContext.PdsDocuments.Add(pdsDocument);
@@ -38,8 +40,8 @@ namespace CmkCable.DataAccess.Concrete
                 }
 
                 await cmkCableDbContext.SaveChangesAsync();
+                return pdsDocument; 
 
-                return pdsDocument;
             }
         }
 
@@ -92,31 +94,70 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                var pdsDocumentsWithTranslations = from pd in cmkCableDbContext.PdsDocuments
-                                                   join pdt in cmkCableDbContext.PdsDocumentsTranslations
-                                                   on pd.Id equals pdt.PdsId
-                                                   where pdt.LanguageId == languageId
-                                                   select new
-                                                   {
-                                                       pd.Id,
-                                                       pd.Image,
-                                                       pd.FileContent,
-                                                       Translation = new PdsDocumentTranslationDTO
-                                                       {
-                                                           LanguageId = pdt.LanguageId,
-                                                           Name = pdt.Name
-                                                       }
-                                                   };
+                // 1. Adım: PdsDocuments tablosunu alıyoruz
+                var pdsDocuments = cmkCableDbContext.PdsDocuments.ToList();
 
-                var documentDtos = pdsDocumentsWithTranslations
-                    .Select(item => new PdsDocumentDTO
-                    {
-                        Id = item.Id,
-                        Image = item.Image,
-                        FileContent = item.FileContent,
-                        Translations = new List<PdsDocumentTranslationDTO> { item.Translation }
-                    })
+                // 2. Adım: Seçilen dildeki çevirileri alıyoruz
+                var translationsForSelectedLanguage = cmkCableDbContext.PdsDocumentsTranslations
+                    .Where(pdt => pdt.LanguageId == languageId)
                     .ToList();
+
+                // 3. Adım: Seçilen dilde çeviri olmayan belgeleri ikinci dilde (örneğin, 2 numaralı dil) kontrol ediyoruz
+                var translationsForSecondLanguage = cmkCableDbContext.PdsDocumentsTranslations
+                    .Where(pdt => pdt.LanguageId == 2) // 2 numaralı dil (örneğin Türkçe)
+                    .ToList();
+
+                // 4. Adım: Şimdi her bir PdsDocument için dil çevirisini bulalım
+                var documentDtos = new List<PdsDocumentDTO>();
+
+                foreach (var pd in pdsDocuments)
+                {
+                    // Seçilen dildeki çeviriyi bulalım
+                    var selectedLanguageTranslation = translationsForSelectedLanguage
+                        .FirstOrDefault(pdt => pdt.PdsId == pd.Id);
+
+                    // Eğer seçilen dilde çeviri yoksa, ikinci dildeki çeviriyi bulalım
+                    var secondLanguageTranslation = selectedLanguageTranslation == null
+                        ? translationsForSecondLanguage.FirstOrDefault(pdt => pdt.PdsId == pd.Id)
+                        : null;
+
+                    // Eğer her iki dilde de çeviri yoksa, "Çeviri Yok" mesajını ekleyelim
+                    var translations = new List<PdsDocumentTranslationDTO>();
+
+                    if (selectedLanguageTranslation != null)
+                    {
+                        translations.Add(new PdsDocumentTranslationDTO
+                        {
+                            LanguageId = selectedLanguageTranslation.LanguageId,
+                            Name = selectedLanguageTranslation.Name
+                        });
+                    }
+                    else if (secondLanguageTranslation != null)
+                    {
+                        translations.Add(new PdsDocumentTranslationDTO
+                        {
+                            LanguageId = secondLanguageTranslation.LanguageId,
+                            Name = secondLanguageTranslation.Name
+                        });
+                    }
+                    else
+                    {
+                        translations.Add(new PdsDocumentTranslationDTO
+                        {
+                            LanguageId = 0, // Özel bir ID ya da 0
+                            Name = "Çeviri Yok"
+                        });
+                    }
+
+                    // Her belge için DTO oluşturuyoruz
+                    documentDtos.Add(new PdsDocumentDTO
+                    {
+                        Id = pd.Id,
+                        Image = pd.Image,
+                        FileContent = pd.FileContent,
+                        Translations = translations
+                    });
+                }
 
                 return documentDtos;
             }
@@ -158,9 +199,50 @@ namespace CmkCable.DataAccess.Concrete
             }
         }
 
-        public Task<PdsDocument> UpdateCategory(PdsDocument pdsDocument, List<string> translations, List<int> languageIds)
+        public async Task<PdsDocument> UpdatePdsDocument(PdsDocument pdsDocument, List<string> translations, List<int> languageIds)
         {
-            throw new NotImplementedException();
+            using (var context = new CmkCableDbContext())
+            {
+                var existingDocument = await context.PdsDocuments.FindAsync(pdsDocument.Id);
+                if (existingDocument == null)
+                {
+                    throw new Exception("Document not found");
+                }
+
+                existingDocument.Image = pdsDocument.Image;
+                existingDocument.FileContent = pdsDocument.FileContent;
+
+                var existingTranslations = context.PdsDocumentsTranslations
+                                                  .Where(t => t.PdsId == pdsDocument.Id)
+                                                  .ToList();
+
+                for (int i = 0; i < translations.Count; i++)
+                {
+                    var existingTranslation = existingTranslations
+                                              .FirstOrDefault(t => t.LanguageId == languageIds[i]);
+
+                    if (existingTranslation != null)
+                    {
+                        existingTranslation.Name = translations[i];
+                    }
+                    else
+                    {
+                        var pdsDocumentTranslation = new PdsDocumentTranslation
+                        {
+                            Name = translations[i],
+                            PdsId = pdsDocument.Id,
+                            LanguageId = languageIds[i]
+                        };
+                        context.PdsDocumentsTranslations.Add(pdsDocumentTranslation);
+                    }
+                }
+
+                await context.SaveChangesAsync();
+
+                return existingDocument;
+            }
         }
+
+
     }
 }

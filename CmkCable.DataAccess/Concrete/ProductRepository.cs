@@ -95,7 +95,30 @@ namespace CmkCable.DataAccess.Concrete
                         {
                             LanguageId = pt.LanguageId,
                             UsageLocation = pt.UsageLocations,
-                        }).ToList();
+                        })
+                        .ToList();
+
+                    if (!translations.Any())
+                    {
+                        translations = cmkCableDbContext.ProductTranslations
+                            .Where(pt => pt.ProductId == product.Id && pt.LanguageId == 2)
+                            .Select(pt => new ProductTranslationDTO
+                            {
+                                LanguageId = pt.LanguageId,
+                                UsageLocation = pt.UsageLocations,
+                            })
+                            .ToList();
+                    }
+
+                    // Eğer hala çeviri bulunmazsa, boş bir çeviri ekleyebiliriz (isteğe bağlı)
+                    if (!translations.Any())
+                    {
+                        translations.Add(new ProductTranslationDTO
+                        {
+                            LanguageId = 2, // Alternatif dil (2) veya başka bir değer
+                            UsageLocation = string.Empty // Boş kullanım yeri
+                        });
+                    }
 
                     var standarts = cmkCableDbContext.ProductStandarts
                         .Where(ps => ps.ProductId == product.Id)
@@ -133,54 +156,67 @@ namespace CmkCable.DataAccess.Concrete
 
                     var category = cmkCableDbContext.Categories
                         .FirstOrDefault(c => c.Id == product.CategoryId);
-                    var categoryTranslations = cmkCableDbContext.CategoryTranslations
-                        .Where(ct => ct.CategoryId == product.CategoryId && ct.LanguageId == languageId)
-                        .ToList();
-                    var productStructures = cmkCableDbContext.ProductStructures
-                        .Where(ps => ps.ProductId == product.Id)
-                        .ToList();
 
-                    var structures = productStructures
-                        .Select(ps => cmkCableDbContext.StructureTranslations
-                            .Where(st => st.StructureId == ps.StructureId && st.LanguageId == languageId)
-                            .Select(st => new StructureTranslationDTO
-                            {
-                                LanguageId = st.LanguageId,
-                                Description = st.Description
-                            })
-                            .FirstOrDefault())
-                        .Where(dto => dto != null) // Null olan kayıtları filtreler
-                        .ToList();
-
-                    var productDto = new ProductDTO
+                    // Eğer kategori bulunamazsa, dil ID 2'yi kontrol et
+                    if (category != null)
                     {
-                        Id = product.Id,
-                        Type = product.Type,
-                        Image = product.Image,
-                        DetailImage = product.DetailImage,
-                        UsageLocations = translations,
-                        Category = new CategoryDTO
+                        var categoryTranslations = cmkCableDbContext.CategoryTranslations
+                            .Where(ct => ct.CategoryId == product.CategoryId && ct.LanguageId == languageId)
+                            .ToList();
+
+                        // Eğer belirtilen dilde kategori çevirisi yoksa, dil ID 2'yi kontrol et
+                        if (!categoryTranslations.Any())
                         {
-                            Image = category.Image,
-                            Id = category.Id,
-                            Translations = categoryTranslations.Select(ct => new CategoryTranslationDTO
+                            categoryTranslations = cmkCableDbContext.CategoryTranslations
+                                .Where(ct => ct.CategoryId == product.CategoryId && ct.LanguageId == 2)
+                                .ToList();
+                        }
+
+                        // ProductStructures ve Structures işlemi
+                        var productStructures = cmkCableDbContext.ProductStructures
+                            .Where(ps => ps.ProductId == product.Id)
+                            .ToList();
+
+                        var structures = productStructures
+                            .Select(ps => cmkCableDbContext.StructureTranslations
+                                .Where(st => st.StructureId == ps.StructureId && st.LanguageId == languageId)
+                                .Select(st => new StructureTranslationDTO
+                                {
+                                    LanguageId = st.LanguageId,
+                                    Description = st.Description
+                                })
+                                .FirstOrDefault())
+                            .Where(dto => dto != null)
+                            .ToList();
+
+                        productDtos.Add(new ProductDTO
+                        {
+                            Id = product.Id,
+                            Type = product.Type,
+                            Image = product.Image,
+                            DetailImage = product.DetailImage,
+                            UsageLocations = translations,
+                            Category = new CategoryDTO
                             {
-                                LanguageId = ct.LanguageId,
-                                Name = ct.Name
-                            }).ToList()
-                        },
-                        Standarts = standarts,
-                        Certificates = certificates,
-                        Structures = structures,
-
-                    };
-
-                    productDtos.Add(productDto);
+                                Image = category.Image,
+                                Id = category.Id,
+                                Translations = categoryTranslations.Select(ct => new CategoryTranslationDTO
+                                {
+                                    LanguageId = ct.LanguageId,
+                                    Name = ct.Name
+                                }).ToList()
+                            },
+                            Standarts = standarts,
+                            Certificates = certificates,
+                            Structures = structures, 
+                        });
+                    }
                 }
 
                 return productDtos;
             }
         }
+
         public ProductDTO GetProductWithAllTranslations(int id)
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
@@ -295,7 +331,6 @@ namespace CmkCable.DataAccess.Concrete
                     throw new Exception("Product not found");
                 }
 
-                // Product Translations
                 var translation = cmkCableDbContext.ProductTranslations
                     .Where(pt => pt.ProductId == id && pt.LanguageId == languageId)
                     .Select(pt => new ProductTranslationDTO
@@ -305,13 +340,33 @@ namespace CmkCable.DataAccess.Concrete
                     })
                     .FirstOrDefault();
 
-                // Standarts
+                if (translation == null)
+                {
+                    translation = cmkCableDbContext.ProductTranslations
+                        .Where(pt => pt.ProductId == id && pt.LanguageId == 2)
+                        .Select(pt => new ProductTranslationDTO
+                        {
+                            LanguageId = pt.LanguageId,
+                            UsageLocation = pt.UsageLocations,
+                        })
+                        .FirstOrDefault();
+                }
+
+                if (translation == null)
+                {
+                    translation = new ProductTranslationDTO
+                    {
+                        LanguageId = 2, 
+                        UsageLocation = string.Empty 
+                    };
+                }
+
+
                 var standarts = cmkCableDbContext.ProductStandarts
                     .Where(ps => ps.ProductId == id)
                     .Select(ps => ps.Standart)
                     .ToList();
 
-                // Certificates
                 var certificates = cmkCableDbContext.Certificates
                     .Where(c => cmkCableDbContext.ProductCertificates.Any(pc => pc.CertificateId == c.Id && pc.ProductId == id))
                     .Select(c => new CertificateDTO

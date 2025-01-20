@@ -17,12 +17,20 @@ namespace CmkCable.API.Controllers
         {
             _aboutUsItemService = new AboutUsItemManager();
         }
+        [HttpGet]
+        public List<AboutUsItem> GetAllAboutUsItems() { return _aboutUsItemService.GetAllAboutUsItems(); }
 
         [HttpGet("{languageId}")]
         public List<AboutUsItem> GetAllAboutUsItemsWithLanguage(int languageId) { return _aboutUsItemService.GetAllAboutUsItemsWithLanguage(languageId); }
 
         [HttpPost("create")]
-        public AboutUsItem CreateAboutUsItem(AboutUsItem aboutUsItem) {return _aboutUsItemService.CreateAboutUsItem(aboutUsItem);} 
+        public AboutUsItem CreateAboutUsItem(AboutUsItem aboutUsItem) {return _aboutUsItemService.CreateAboutUsItem(aboutUsItem);}
+
+        [HttpPut("update/{id}")]
+        public AboutUsItem UpdateAboutUsItem(int id, AboutUsItem aboutUsItem) { return _aboutUsItemService.UpdateAboutUsItem(id, aboutUsItem); }
+
+        [HttpDelete("delete/{id}")]
+        public void DeleteAboutUsItem(int id) { _aboutUsItemService.DeleteAboutUsItem(id); }    
 
     }
 }

@@ -31,7 +31,6 @@ namespace CmkCable.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            // JWT Authentication yapýlandýrmasý
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -95,15 +94,11 @@ namespace CmkCable.API
 
             services.AddSingleton(cloudinary);
 
-            services.Configure<FormOptions>(options =>
-            {
-                options.MultipartBodyLengthLimit = 2000000000;
-            });
-
             services.Configure<KestrelServerOptions>(options =>
             {
-                options.Limits.MaxRequestBodySize = 2000000000;
+                options.Limits.MaxRequestBodySize = 1073741824; // 1 GB
             });
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

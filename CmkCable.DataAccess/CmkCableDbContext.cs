@@ -14,7 +14,7 @@ namespace CmkCable.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server=DESKTOP-HT2540H;Database=CmkCableDb;Integrated Security=True; TrustServerCertificate=True;");
+            optionsBuilder.UseSqlServer("Server=DESKTOP-HT2540H;Database=CmkCableDb;Integrated Security=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
         }
 
         public DbSet<Category> Categories { get; set; }
@@ -44,5 +44,6 @@ namespace CmkCable.DataAccess
         public DbSet<HistoryItemTranslation> HistoryItemTranslations { get; set; }  
         public DbSet<StructureTranslation> StructureTranslations { get; set; }
         public DbSet<User> Users { get; set; } 
+        public DbSet<SwiperItem> SwiperItems { get; set; }
     }
 }
