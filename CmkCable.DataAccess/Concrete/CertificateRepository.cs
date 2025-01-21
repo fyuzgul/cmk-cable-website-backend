@@ -103,10 +103,15 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                cmkCableDbContext.Certificates.Update(certificate);
+                cmkCableDbContext.Certificates.Attach(certificate);
+
+                cmkCableDbContext.Entry(certificate).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+
                 cmkCableDbContext.SaveChanges();
+
                 return certificate;
             }
         }
+
     }
 }
