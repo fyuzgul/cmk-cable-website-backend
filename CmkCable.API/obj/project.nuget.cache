@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "UEfx6VY9Hp4=",
+  "dgSpecHash": "4yLuxEfP2b4=",
   "success": true,
   "projectFilePath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
   "expectedPackageFiles": [
@@ -52,6 +52,8 @@
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\mysql.data\\9.1.0\\mysql.data.9.1.0.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\mysql.entityframeworkcore\\6.0.33\\mysql.entityframeworkcore.6.0.33.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\mfyuzgul\\.nuget\\packages\\npgsql\\9.0.2\\npgsql.9.0.2.nupkg.sha512",
+    "C:\\Users\\mfyuzgul\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\9.0.2\\npgsql.entityframeworkcore.postgresql.9.0.2.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl\\4.3.2\\runtime.fedora.24-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",

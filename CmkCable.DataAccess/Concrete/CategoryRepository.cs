@@ -118,7 +118,6 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                // Kategorileri ve çevirileri tek bir sorguda çekiyoruz
                 var categoriesWithTranslations = from ni in cmkCableDbContext.Categories
                                                  join nit in cmkCableDbContext.CategoryTranslations
                                                  on ni.Id equals nit.CategoryId into translations
@@ -136,9 +135,8 @@ namespace CmkCable.DataAccess.Concrete
                                                          : null
                                                  };
 
-                // Tüm kategorilerle ilgili verileri çekiyoruz
                 var categoryDtos = categoriesWithTranslations
-                    .AsEnumerable()
+                    .ToList()
                     .Select(item =>
                     {
                         CategoryTranslationDTO fallbackTranslation = null;
@@ -146,7 +144,7 @@ namespace CmkCable.DataAccess.Concrete
                         if (item.Translation == null)
                         {
                             fallbackTranslation = cmkCableDbContext.CategoryTranslations
-                                .Where(t => t.CategoryId == item.Id && t.LanguageId == 2)  
+                                .Where(t => t.CategoryId == item.Id && t.LanguageId == 2)
                                 .Select(t => new CategoryTranslationDTO
                                 {
                                     LanguageId = t.LanguageId,
@@ -170,6 +168,7 @@ namespace CmkCable.DataAccess.Concrete
                 return categoryDtos;
             }
         }
+
 
         public CategoryDTO GetCategoryById(int id, int languageId)
         {

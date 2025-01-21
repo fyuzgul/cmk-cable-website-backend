@@ -14,8 +14,9 @@ namespace CmkCable.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server=DESKTOP-HT2540H;Database=CmkCableDb;Integrated Security=True; TrustServerCertificate=True; MultipleActiveResultSets=True;");
+            optionsBuilder.UseNpgsql("Host=junction.proxy.rlwy.net;Port=17718;Database=CmkCable;Username=postgres;Password=ZrIGLubhctMdZuFGycghBqNRpSpzVFUB;");
         }
+
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Certificate> Certificates { get; set; }
