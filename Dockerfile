@@ -18,10 +18,26 @@ COPY . .
 WORKDIR /src/CmkCable.API
 RUN dotnet publish -c Release -o /app/out
 
-# ASP.NET Core Runtime'ını temel alın (runtime aşaması)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# SQL Server ve ASP.NET Core Runtime'ı çalıştırmak için temel alın
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# SQL Server'ı ekle
+RUN apt-get update && apt-get install -y curl gnupg \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update && ACCEPT_EULA=Y apt-get install -y mssql-server
+
+# ASP.NET uygulamasını ekle
 COPY --from=build /app/out .
 
-# Uygulamayı başlat
-ENTRYPOINT ["dotnet", "CmkCable.API.dll"]
+# Giriş noktası scripti ekle
+COPY start.sh .
+RUN chmod +x start.sh
+
+# Portları aç
+EXPOSE 80
+EXPOSE 1433
+
+# Script ile hem SQL Server hem de uygulamayı başlat
+ENTRYPOINT ["./start.sh"]
