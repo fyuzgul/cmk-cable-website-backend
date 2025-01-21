@@ -65,7 +65,15 @@ namespace CmkCable.Business.Concrete
                 };
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
-            return uploadResult.Url.ToString();
+
+            // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
+            var url = uploadResult.Url.ToString();
+            if (url.StartsWith("http://"))
+            {
+                url = url.Replace("http://", "https://");
+            }
+
+            return url;
         }
         public async Task<string> UploadPdf(IFormFile fromFile, string folderName)
         {
@@ -82,7 +90,15 @@ namespace CmkCable.Business.Concrete
 
                 uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
-            return uploadResult.Url.ToString();
+
+            // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
+            var url = uploadResult.Url.ToString();
+            if (url.StartsWith("http://"))
+            {
+                url = url.Replace("http://", "https://");
+            }
+
+            return url;
         }
 
 
