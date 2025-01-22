@@ -39,15 +39,19 @@ namespace CmkCable.API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateCertificateType([FromForm] CreateCertificateTypeDTO _certificateType)
         {
-            string imageUrl =  await _cloudinaryManager.UploadImage(_certificateType.Image, "document-types");
+            string imageUrl = await _cloudinaryManager.UploadImage(_certificateType.Image, "document-types");
+
             var certificateType = new CertificateType
             {
                 Name = _certificateType.Name.ToUpper(),
                 Image = imageUrl
             };
-            var createdCertificateType = _certificateTypeService.CreateCertificateType(certificateType);    
+
+            var createdCertificateType = _certificateTypeService.CreateCertificateType(certificateType);
+
             return Ok(createdCertificateType);
         }
+
 
         [HttpDelete("delete/{id}")]
         public void DeleteCertificateType(int id) { _certificateTypeService.DeleteCertificateType(id); }
