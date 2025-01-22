@@ -66,7 +66,7 @@ namespace CmkCable.API.Controllers
 
             if (existingCertificateType == null)
             {
-                return NotFound($"Product with ID {updatedCertificateType.Id} not found.");
+                return NotFound($"Certficate type with ID {updatedCertificateType.Id} not found.");
             }
 
 
@@ -77,6 +77,10 @@ namespace CmkCable.API.Controllers
                 {
                     imageUrl = await _cloudinaryManager.UploadImage(updatedCertificateType.Image, "document-types");
                 }
+            }
+            else
+            {
+                imageUrl = existingCertificateType.Image;
             }
 
             var certificateType = new CertificateType
