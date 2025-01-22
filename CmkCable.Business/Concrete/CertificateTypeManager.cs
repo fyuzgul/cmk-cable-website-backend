@@ -25,7 +25,7 @@ namespace CmkCable.Business.Concrete
 
         public void DeleteCertificateType(int id)
         {
-            _certificateTypeRepository?.DeleteCertificateType(id);
+            _certificateTypeRepository.DeleteCertificateType(id);
         }
 
         public List<CertificateTypeDTO> GetAllCertificateTypes()
