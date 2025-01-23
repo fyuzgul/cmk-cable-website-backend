@@ -19,5 +19,10 @@ namespace CmkCable.Business.Concrete
         {
             return repository.Create(productStandart);  
         }
+        public void Delete(int productId, int standartId)
+        {
+            repository.Delete(productId, standartId);
+        }
+
     }
 }

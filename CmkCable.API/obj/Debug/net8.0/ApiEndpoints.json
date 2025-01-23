@@ -1555,6 +1555,33 @@
     ]
   },
   {
+    "ContainingType": "CmkCable.API.Controllers.ProductCertificatesController",
+    "Method": "Delete",
+    "RelativePath": "api/ProductCertificates/delete/{productId}/{certificateId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "certificateId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
     "ContainingType": "CmkCable.API.Controllers.ProductsController",
     "Method": "GetProductWithAllTranslations",
     "RelativePath": "api/Products/{id}",
@@ -1840,6 +1867,33 @@
           "application/json",
           "text/json"
         ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ProductStandartsController",
+    "Method": "Delete",
+    "RelativePath": "api/ProductStandarts/delete/{productId}/{standartId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "standartId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
         "StatusCode": 200
       }
     ]

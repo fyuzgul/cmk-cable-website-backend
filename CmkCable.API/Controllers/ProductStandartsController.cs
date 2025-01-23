@@ -18,5 +18,8 @@ namespace CmkCable.API.Controllers
 
         [HttpPost("create")]
         public ProductStandart Create(ProductStandart productStandart) { return _productStandartService.Create(productStandart); }
+
+        [HttpDelete("delete/{productId}/{standartId}")]
+        public void Delete(int productId, int standartId) { _productStandartService.Delete(productId, standartId); }
     }
 }

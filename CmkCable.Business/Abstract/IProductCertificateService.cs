@@ -8,5 +8,6 @@ namespace CmkCable.Business.Abstract
     public interface IProductCertificateService
     {
         ProductCertificate Create(ProductCertificate productCertificate);
+        void Delete(int productId, int certificateId);
     }
 }

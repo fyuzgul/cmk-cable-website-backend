@@ -18,5 +18,7 @@ namespace CmkCable.Business.Concrete
         {
            return _productCertificateRepository.Create(productCertificate);
         }
+
+        public void Delete(int productId, int certificateId) { _productCertificateRepository.Delete(productId, certificateId); }
     }
 }

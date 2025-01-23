@@ -18,5 +18,8 @@ namespace CmkCable.API.Controllers
 
         [HttpPost("create")]
         public ProductCertificate Create(ProductCertificate productCertificate) { return _productCertificateService.Create(productCertificate); }
+
+        [HttpDelete("delete/{productId}/{certificateId}")]
+        public void Delete(int productId, int certificateId) { _productCertificateService.Delete(productId, certificateId); }
     }
 }

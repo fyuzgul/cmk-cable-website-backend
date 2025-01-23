@@ -8,5 +8,6 @@ namespace CmkCable.DataAccess.Abstract
     public interface IProductCertificateRepository
     {
         ProductCertificate Create(ProductCertificate productCertificate);
+        void Delete(int productId, int certificateId);
     }
 }

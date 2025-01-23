@@ -7,6 +7,7 @@ namespace CmkCable.DataAccess.Abstract
 {
     public interface IProductStandartRepository
     {
-        ProductStandart Create(ProductStandart productStandart);    
+        ProductStandart Create(ProductStandart productStandart);
+        void Delete(int productId, int standartId); 
     }
 }
