@@ -103,13 +103,21 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                cmkCableDbContext.Certificates.Attach(certificate);
+                var existingCertificate = cmkCableDbContext.Certificates.Find(certificate.Id);
+                if (existingCertificate == null)
+                {
+                    throw new Exception($"Certificate with ID {certificate.Id} not found");
+                }
 
-                cmkCableDbContext.Entry(certificate).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                // Update the properties
+                existingCertificate.Name = certificate.Name;
+                existingCertificate.FileContent = certificate.FileContent;
+                existingCertificate.Image = certificate.Image;
+                existingCertificate.TypeId = certificate.TypeId;
 
                 cmkCableDbContext.SaveChanges();
 
-                return certificate;
+                return existingCertificate;
             }
         }
 

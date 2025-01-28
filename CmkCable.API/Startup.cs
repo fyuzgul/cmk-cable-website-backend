@@ -51,6 +51,49 @@ namespace CmkCable.API
 
                     options.Events = new JwtBearerEvents
                     {
+                        OnMessageReceived = context =>
+                        {
+                            try
+                            {
+                                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                                var authHeader = context.Request.Headers["Authorization"].ToString();
+                                logger.LogInformation($"Authorization Header: {authHeader}");
+
+                                if (string.IsNullOrEmpty(authHeader))
+                                {
+                                    logger.LogWarning("Authorization header is missing");
+                                    return Task.CompletedTask;
+                                }
+
+                                string token;
+                                if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    token = authHeader.Substring("Bearer ".Length).Trim();
+                                }
+                                else
+                                {
+                                    token = authHeader.Trim();
+                                }
+
+                                if (string.IsNullOrEmpty(token))
+                                {
+                                    logger.LogWarning("Token is empty after extraction");
+                                    return Task.CompletedTask;
+                                }
+
+                                logger.LogInformation($"Extracted Token: {token}");
+                                context.Token = token;
+
+                                return Task.CompletedTask;
+                            }
+                            catch (Exception ex)
+                            {
+                                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                                logger.LogError($"Error in OnMessageReceived: {ex.Message}");
+                                return Task.CompletedTask;
+                            }
+                        },
+
                         OnAuthenticationFailed = context =>
                         {
                             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
@@ -60,7 +103,7 @@ namespace CmkCable.API
                             if (context.Exception is SecurityTokenExpiredException)
                             {
                                 logger.LogError("Token has expired");
-                                context.Response.Headers.Add("Token-Expired", "true");
+                                context.Response.Headers.Append("Token-Expired", "true");
                             }
                             
                             return Task.CompletedTask;
@@ -70,31 +113,6 @@ namespace CmkCable.API
                         {
                             var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
                             logger.LogInformation("Token was successfully validated");
-                            return Task.CompletedTask;
-                        },
-
-                        OnMessageReceived = context =>
-                        {
-                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
-                            var authHeader = context.Request.Headers["Authorization"].ToString();
-                            logger.LogInformation($"Authorization Header: {authHeader}");
-
-                            if (string.IsNullOrEmpty(authHeader))
-                            {
-                                logger.LogWarning("Authorization header is missing");
-                                return Task.CompletedTask;
-                            }
-
-                            if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                            {
-                                logger.LogWarning("Authorization header does not start with 'Bearer '");
-                                return Task.CompletedTask;
-                            }
-
-                            var token = authHeader.Substring("Bearer ".Length).Trim();
-                            logger.LogInformation($"Extracted Token: {token}");
-                            context.Token = token;
-
                             return Task.CompletedTask;
                         },
 
@@ -158,7 +176,36 @@ namespace CmkCable.API
                 var exception = context.Features
                     .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>()
                     .Error;
-                var response = new { message = "Token has expired or is invalid." };
+
+                var logger = context.RequestServices.GetRequiredService<ILogger<Startup>>();
+                logger.LogError($"Error: {exception.Message}");
+
+                context.Response.ContentType = "application/json";
+                object response;
+
+                if (exception is SecurityTokenException)
+                {
+                    context.Response.StatusCode = 401;
+                    response = new { message = "Token has expired or is invalid." };
+                }
+                else if (exception is UnauthorizedAccessException)
+                {
+                    context.Response.StatusCode = 401;
+                    response = new { message = exception.Message };
+                }
+                else
+                {
+                    context.Response.StatusCode = 500;
+                    if (env.IsDevelopment())
+                    {
+                        response = new { message = exception.Message, stackTrace = exception.StackTrace };
+                    }
+                    else
+                    {
+                        response = new { message = "An error occurred while processing your request." };
+                    }
+                }
+
                 await context.Response.WriteAsJsonAsync(response);
             }));
 

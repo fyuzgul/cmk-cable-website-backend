@@ -72,48 +72,70 @@ namespace CmkCable.API.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateCertificate([FromForm] UpdateCertificateDTO updatedCertificate)
         {
-            string imageUrl = null, pdfUrl = null;
-            if (updatedCertificate.Id <= 0)
+            try
             {
-                return BadRequest("Certificate ID is required.");
-            }
-
-            var existingCertificate = _certificateService.GetCertifacetById(updatedCertificate.Id);
-            if (existingCertificate == null)
-            {
-                return NotFound($"Certificate with ID {updatedCertificate.Id} not found.");
-            }
-
-            if (updatedCertificate.Image != null && updatedCertificate.Image.Length > 0)
-            {
-                DeletionResult deletionResult = await _cloudinaryManager.DestoryImage(existingCertificate.Image);
-                if (deletionResult.Result.Equals("ok"))
+                if (updatedCertificate.Id <= 0)
                 {
-                    imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-image");
+                    return BadRequest("Certificate ID is required.");
                 }
-            }
 
-            if (updatedCertificate.FileContent != null && updatedCertificate.FileContent.Length > 0)
-            {
-                DeletionResult deletion = await _cloudinaryManager.DestroyPdf(existingCertificate.FileContent);
-                if (deletion.Result.Equals("ok"))
+                var existingCertificate = _certificateService.GetCertifacetById(updatedCertificate.Id);
+                if (existingCertificate == null)
                 {
-                    pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
+                    return NotFound($"Certificate with ID {updatedCertificate.Id} not found.");
                 }
+
+                string imageUrl = existingCertificate.Image;
+                string pdfUrl = existingCertificate.FileContent;
+
+                if (updatedCertificate.Image != null && updatedCertificate.Image.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(existingCertificate.Image))
+                    {
+                        DeletionResult deletionResult = await _cloudinaryManager.DestoryImage(existingCertificate.Image);
+                        if (deletionResult.Result.Equals("ok"))
+                        {
+                            imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-image");
+                        }
+                    }
+                    else
+                    {
+                        imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-image");
+                    }
+                }
+
+                if (updatedCertificate.FileContent != null && updatedCertificate.FileContent.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(existingCertificate.FileContent))
+                    {
+                        DeletionResult deletion = await _cloudinaryManager.DestroyPdf(existingCertificate.FileContent);
+                        if (deletion.Result.Equals("ok"))
+                        {
+                            pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
+                        }
+                    }
+                    else
+                    {
+                        pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
+                    }
+                }
+
+                var certificate = new Certificate
+                {
+                    Id = updatedCertificate.Id,
+                    Name = updatedCertificate.Name ?? existingCertificate.Name,
+                    TypeId = updatedCertificate.TypeId,
+                    Image = imageUrl,
+                    FileContent = pdfUrl
+                };
+
+                var updatedCert = _certificateService.UpdateCertificate(certificate);
+                return Ok(updatedCert);
             }
-
-            var certificate = new Certificate
+            catch (System.Exception ex)
             {
-                Name = updatedCertificate.Name,
-                TypeId = updatedCertificate.Id,
-                Image = imageUrl,
-                FileContent = pdfUrl,
-            };
-
-
-            var updatedCert = _certificateService.UpdateCertificate(certificate);
-
-            return Ok(updatedCert);
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
 
