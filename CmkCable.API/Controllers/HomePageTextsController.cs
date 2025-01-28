@@ -3,6 +3,7 @@ using CmkCable.Business.Concrete;
 using CmkCable.Entities;
 using DTOs;
 using DTOs.UpdateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace CmkCable.API.Controllers
         public List<HomePageTextDTO> GetHomePageTextsWithAllTranslations() { return _homePageTextService.GetHomePageTextsWithAllTranslations(); }
 
         [HttpPut("update")]
+        [Authorize]
         public void UpdateHomeText(List<HomePageTextUpdateDTO> homePageTextUpdateDTOs) { _homePageTextService.UpdateHomeText(homePageTextUpdateDTOs); }
     }
 }

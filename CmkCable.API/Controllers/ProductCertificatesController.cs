@@ -1,6 +1,7 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
 using CmkCable.Entities.CmkCable.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,11 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public ProductCertificate Create(ProductCertificate productCertificate) { return _productCertificateService.Create(productCertificate); }
 
         [HttpDelete("delete/{productId}/{certificateId}")]
+        [Authorize]
         public void Delete(int productId, int certificateId) { _productCertificateService.Delete(productId, certificateId); }
     }
 }

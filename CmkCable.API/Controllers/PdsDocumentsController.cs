@@ -5,6 +5,7 @@ using CmkCable.Entities;
 using DTOs;
 using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<PdsDocument>> CreatePdsDocument([FromForm] CreatePdsDocumentDTO createPdsDocument, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
             string imageUrl = "https://res.cloudinary.com/dk7nt7ar5/image/upload/v1730807470/7a1d0281-977f-4be1-a12a-3fcace994705_oih48s.jpg";
@@ -69,6 +71,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdatePdsDocument([FromForm] UpdatePdsDocumentDTO pdsDocumentDTO, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
             string pdfUrl = null;
@@ -100,6 +103,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public IActionResult DeletePdsDocument(int id)
         {
             _documentService.DeletePdsDocument(id);

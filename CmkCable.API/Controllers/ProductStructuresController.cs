@@ -2,6 +2,7 @@
 using CmkCable.Business.Concrete;
 using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -19,9 +20,11 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public ProductStructure Create(ProductStructure productStructure) { return _productStructureService.CreateProductStructure(productStructure); }
 
         [HttpDelete("delete/{productId}/{structureId}")]
+        [Authorize]
         public void Delete(int productId, int structureId) { _productStructureService.DeletProductStructure(productId, structureId); }
 
         [HttpGet("byProduct/{productId}")]

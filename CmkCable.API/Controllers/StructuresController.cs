@@ -2,6 +2,7 @@
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
 using DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -26,12 +27,15 @@ namespace CmkCable.API.Controllers
         public List<Structure> GetStructuresByProductId(int id) { return _structureService.GetStructuresByProductId(id); }
 
         [HttpPost("create")]
+        [Authorize]
         public Task<Structure> CreateStructure([FromForm]Structure structure, [FromForm] List<string> translations, [FromForm] List<int> languageIds) { return _structureService.CreateStructure(structure, translations, languageIds); }
 
         [HttpPut("update")]
+        [Authorize]
         public Structure UpdateStructure([FromForm] Structure structure, [FromForm] List<string> translations, [FromForm] List<int> languageIds) { return _structureService.UpdateStructure(structure, translations, languageIds); }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public void DeleteStructure(int id) { _structureService.DeleteStructure(id); }
 
         [HttpGet("byLanguage/{languageId}")]

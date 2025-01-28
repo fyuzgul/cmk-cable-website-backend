@@ -2,6 +2,7 @@
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
 using DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -29,9 +30,11 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public NavbarItem CreateNavbarItem(NavbarItem navbarItem) {return navbarItemService.CreateNavbarItem(navbarItem);}
 
         [HttpPut("update")]
+        [Authorize]
         public List<NavbarItemDto> UpdateNavbarItem(List<NavbarItemDto> navbarItems) { return navbarItemService.UpdateNavbarItem(navbarItems); }
     }
 }

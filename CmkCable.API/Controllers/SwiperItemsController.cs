@@ -2,6 +2,7 @@
 using CmkCable.Business.Concrete;
 using CmkCable.Entities;
 using DTOs.CreateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public SwiperItem Create([FromBody] SwiperItem item)
         {
             return _swiperItemService.CreateSwiperItem(item);
@@ -33,10 +35,11 @@ namespace CmkCable.API.Controllers
         public SwiperItem GetSwiperItemById(int id) {return _swiperItemService.GetSwiperItemById(id);}
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public void DeleteSwiperItemById(int id) { _swiperItemService.DeleteSwiperItem(id);}
 
         [HttpPut("update")]
+        [Authorize]
         public SwiperItem UpdateSwiperItem(SwiperItem swiperItem) { return _swiperItemService.UpdateSwiperItem(swiperItem); }
-
     }
 }

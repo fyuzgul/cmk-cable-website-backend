@@ -5,6 +5,7 @@ using CmkCable.Entities;
 using DTOs;
 using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace CmkCable.API.Controllers
             return _certificateTypeService.GetCertificateTypeById(id);
         }
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreateCertificateType([FromForm] CreateCertificateTypeDTO _certificateType)
         {
             string imageUrl = await _cloudinaryManager.UploadImage(_certificateType.Image, "document-types");
@@ -54,10 +56,12 @@ namespace CmkCable.API.Controllers
 
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public void DeleteCertificateType(int id) { _certificateTypeService.DeleteCertificateType(id); }
 
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateCertificateType([FromForm] UpdateCertifcateTypeDTO updatedCertificateType)
         {
             string imageUrl = null;

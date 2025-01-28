@@ -5,6 +5,7 @@ using CmkCable.Entities;
 using DTOs;
 using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;
@@ -37,9 +38,11 @@ namespace CmkCable.API.Controllers
         public Certificate GetCertifacetById(int id) { return _certificateService.GetCertifacetById(id); }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public void DeleteCertificate(int id) { _certificateService.DeleteCertificate(id); }
 
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> UploadCertificate([FromForm] CreateCertificateDTO _certificate)
         {
             string typeName = _certificateTypeService.GetCertificateTypeById(_certificate.TypeId).Name;
@@ -66,6 +69,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateCertificate([FromForm] UpdateCertificateDTO updatedCertificate)
         {
             string imageUrl = null, pdfUrl = null;

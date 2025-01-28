@@ -64,6 +64,7 @@ namespace CmkCable.API.Controllers
             return _productService.GetProductsByCertificate(id);
         }
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductDto productDto, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
             string imageUrl = null;
@@ -96,6 +97,7 @@ namespace CmkCable.API.Controllers
 
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = _productService.GetProductById(id, 1);
@@ -124,6 +126,7 @@ namespace CmkCable.API.Controllers
 
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateProduct([FromForm] UpdateProductDTO _product,
     [FromForm] List<string> translations,
     [FromForm] List<int> languageIds)

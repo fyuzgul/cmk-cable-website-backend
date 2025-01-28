@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace CmkCable.API
 {
@@ -36,32 +37,77 @@ namespace CmkCable.API
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ValidateIssuerSigningKey = true,
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
-                        ValidIssuer = "http://localhost:5972/", 
-                        ValidAudience = "http://localhost:5972/", 
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("a-very-strong-secret-key-123456789")) 
+                        ValidIssuer = Configuration["Jwt:Issuer"],
+                        ValidAudience = Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:SecretKey"])),
+                        ClockSkew = TimeSpan.Zero,
+                        RequireSignedTokens = true,
+                        RequireExpirationTime = true
                     };
 
                     options.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>
                         {
-                            Console.WriteLine("Authentication Failed: " + context.Exception.Message);
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                            logger.LogError($"Authentication Failed - Exception Type: {context.Exception.GetType().Name}");
+                            logger.LogError($"Error Message: {context.Exception.Message}");
+                            
+                            if (context.Exception is SecurityTokenExpiredException)
+                            {
+                                logger.LogError("Token has expired");
+                                context.Response.Headers.Add("Token-Expired", "true");
+                            }
+                            
+                            return Task.CompletedTask;
+                        },
+
+                        OnTokenValidated = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                            logger.LogInformation("Token was successfully validated");
+                            return Task.CompletedTask;
+                        },
+
+                        OnMessageReceived = context =>
+                        {
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                            var authHeader = context.Request.Headers["Authorization"].ToString();
+                            logger.LogInformation($"Authorization Header: {authHeader}");
+
+                            if (string.IsNullOrEmpty(authHeader))
+                            {
+                                logger.LogWarning("Authorization header is missing");
+                                return Task.CompletedTask;
+                            }
+
+                            if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                logger.LogWarning("Authorization header does not start with 'Bearer '");
+                                return Task.CompletedTask;
+                            }
+
+                            var token = authHeader.Substring("Bearer ".Length).Trim();
+                            logger.LogInformation($"Extracted Token: {token}");
+                            context.Token = token;
+
                             return Task.CompletedTask;
                         },
 
                         OnChallenge = context =>
                         {
-                            if (context.Error == "invalid_token")
-                            {
-                                context.Response.StatusCode = 401; 
-                                context.Response.ContentType = "application/json";
-                                return context.Response.WriteAsync("{\"message\": \"Token has expired or is invalid.\"}");
-                            }
+                            var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                            logger.LogWarning($"OnChallenge: {context.Error}, {context.ErrorDescription}");
 
-                            return Task.CompletedTask;
+                            context.HandleResponse();
+                            context.Response.StatusCode = 401;
+                            context.Response.ContentType = "application/json";
+                            var result = System.Text.Json.JsonSerializer.Serialize(new { message = "Token has expired or is invalid." });
+                            return context.Response.WriteAsync(result);
                         }
                     };
                 });
@@ -71,19 +117,19 @@ namespace CmkCable.API
                 options.AddPolicy("Bearer", policy => policy.RequireAuthenticatedUser());
             });
 
-
             services.AddControllers();
 
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", builder =>
                 {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    builder
+                        .SetIsOriginAllowed(_ => true) // Tüm originlere izin ver
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
-
 
             var cloudinaryAccount = new Account(
                 Configuration["Cloudinary:CloudName"],
@@ -98,7 +144,6 @@ namespace CmkCable.API
             {
                 options.Limits.MaxRequestBodySize = 1073741824; // 1 GB
             });
-
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -108,12 +153,21 @@ namespace CmkCable.API
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseExceptionHandler(c => c.Run(async context =>
+            {
+                var exception = context.Features
+                    .Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>()
+                    .Error;
+                var response = new { message = "Token has expired or is invalid." };
+                await context.Response.WriteAsJsonAsync(response);
+            }));
+
             app.UseRouting();
 
-            app.UseAuthentication(); 
-            app.UseAuthorization();
-
             app.UseCors("AllowAll");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

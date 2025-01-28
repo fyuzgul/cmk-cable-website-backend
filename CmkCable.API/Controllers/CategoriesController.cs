@@ -6,6 +6,7 @@ using CmkCable.Entities;
 using DTOs;
 using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
@@ -56,6 +57,7 @@ namespace CmkCable.API.Controllers
             return Ok(category);
         }
         [HttpPost("create")]
+        [Authorize]
         public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDTO categoryDto, [FromForm] List<string> translations, [FromForm] List<int> languageIds)
         {
             string imageUrl = null;
@@ -73,6 +75,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize]
         public async Task<IActionResult> UpdateCategory(
      [FromForm] UpdateCategoryDTO category,
      [FromForm] List<string> translations,
@@ -127,6 +130,7 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize]
         public async void Delete(int id)
         {
             var deletedCategory = _categoryService.GetCategoryById(id, 1);
