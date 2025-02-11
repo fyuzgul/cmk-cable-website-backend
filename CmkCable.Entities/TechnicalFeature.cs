@@ -33,4 +33,7 @@ public class TechnicalFeature
 
     [Required(ErrorMessage = "ApproximateWeight is required.")]
     public string ApproximateWeight { get; set; }
+    [Required(ErrorMessage = "Current Carrying Cap. (A) is required")]
+    public string CurrentCarryingCap { get; set; }
+
 }
