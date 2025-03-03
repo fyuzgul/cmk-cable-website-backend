@@ -141,6 +141,179 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CmkCable.API.Controllers.CareerFormsController",
+    "Method": "Get",
+    "RelativePath": "api/CareerForms",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.CareerFormsController",
+    "Method": "Post",
+    "RelativePath": "api/CareerForms",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "FullName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "TelephoneNumber",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Gender",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "MaritalStatus",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "MilitaryStatus",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DriverLicense",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "TravelAvailability",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "School",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Faculty",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "GraduationDate",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Languages",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SoftwareSkills",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Seminars",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReferenceSource",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Cv",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "CvPath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Consent",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Experiences",
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.Experience, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "experience",
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.Experience, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.CareerFormsController",
+    "Method": "Get",
+    "RelativePath": "api/CareerForms/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.CareerFormsController",
+    "Method": "Delete",
+    "RelativePath": "api/CareerForms/delete/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "CmkCable.API.Controllers.CategoriesController",
     "Method": "GetAll",
     "RelativePath": "api/Categories",
@@ -579,6 +752,64 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CmkCable.API.Controllers.ContactFormsController",
+    "Method": "GetAllContactRequests",
+    "RelativePath": "api/ContactForms",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactFormsController",
+    "Method": "Get",
+    "RelativePath": "api/ContactForms/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactFormsController",
+    "Method": "Post",
+    "RelativePath": "api/ContactForms/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "contactRequest",
+        "Type": "CmkCable.Entities.ContactRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactFormsController",
+    "Method": "Delete",
+    "RelativePath": "api/ContactForms/delete/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
     "Method": "GetContactInformation",
     "RelativePath": "api/ContactInformations/{id}",
@@ -713,6 +944,11 @@
     "Order": 0,
     "Parameters": [
       {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
         "Name": "FullName",
         "Type": "System.String",
         "IsRequired": false
@@ -753,38 +989,33 @@
         "IsRequired": false
       },
       {
-        "Name": "Education.School",
+        "Name": "School",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "Education.Faculty",
+        "Name": "Faculty",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "Education.GraduationDate",
+        "Name": "GraduationDate",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "Education.Languages",
+        "Name": "Languages",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "Education.SoftwareSkills",
+        "Name": "SoftwareSkills",
         "Type": "System.String",
         "IsRequired": false
       },
       {
-        "Name": "Education.Seminars",
+        "Name": "Seminars",
         "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Experiences",
-        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.Experience, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
@@ -808,8 +1039,28 @@
         "IsRequired": false
       },
       {
+        "Name": "CvPath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Consent",
         "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "Experiences",
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.Experience, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "experiences",
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.Experience, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       }
     ],
@@ -839,6 +1090,11 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
       {
         "Name": "AdSoyad",
         "Type": "System.String",
@@ -913,9 +1169,118 @@
         "Name": "AcikRiza",
         "Type": "System.Boolean",
         "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.FormTypesController",
+    "Method": "Get",
+    "RelativePath": "api/FormTypes",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.GetOffersController",
+    "Method": "GetAllGetOffers",
+    "RelativePath": "api/GetOffers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.GetOffer, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.GetOffersController",
+    "Method": "Get",
+    "RelativePath": "api/GetOffers/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CmkCable.Entities.GetOffer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.GetOffersController",
+    "Method": "Post",
+    "RelativePath": "api/GetOffers/create",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "getOffer",
+        "Type": "CmkCable.Entities.GetOffer",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "CmkCable.Entities.GetOffer",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.GetOffersController",
+    "Method": "Delete",
+    "RelativePath": "api/GetOffers/delete/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "CmkCable.API.Controllers.HistoryItemsController",
@@ -1271,6 +1636,90 @@
           "application/json",
           "text/json"
         ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ManagerMailsController",
+    "Method": "GetAll",
+    "RelativePath": "api/ManagerMails",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ManagerMailsController",
+    "Method": "Add",
+    "RelativePath": "api/ManagerMails",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "formTypeIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ManagerMailsController",
+    "Method": "Update",
+    "RelativePath": "api/ManagerMails",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "formTypes",
+        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.FormType, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ManagerMailsController",
+    "Method": "Delete",
+    "RelativePath": "api/ManagerMails/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
         "StatusCode": 200
       }
     ]
@@ -2475,7 +2924,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.TechnicalFeature, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[TechnicalFeature, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -2501,7 +2950,7 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.List\u00601[[CmkCable.Entities.TechnicalFeature, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[TechnicalFeature, CmkCable.Entities, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -2521,13 +2970,13 @@
     "Parameters": [
       {
         "Name": "technicalFeature",
-        "Type": "CmkCable.Entities.TechnicalFeature",
+        "Type": "TechnicalFeature",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "CmkCable.Entities.TechnicalFeature",
+        "Type": "TechnicalFeature",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -2569,13 +3018,13 @@
     "Parameters": [
       {
         "Name": "technicalFeature",
-        "Type": "CmkCable.Entities.TechnicalFeature",
+        "Type": "TechnicalFeature",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "CmkCable.Entities.TechnicalFeature",
+        "Type": "TechnicalFeature",
         "MediaTypes": [
           "text/plain",
           "application/json",

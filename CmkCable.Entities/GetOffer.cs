@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 
 namespace CmkCable.Entities
 {
     public class GetOffer
     {
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
         public string AdSoyad { get; set; }
         public string FirmaAdi { get; set; }
         public string Telefon { get; set; }
@@ -20,6 +24,7 @@ namespace CmkCable.Entities
         public string OdemeSekli { get; set; }
         public string Ambalajlama { get; set; }
         public bool AcikRiza { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public override string ToString()
         {

@@ -14,8 +14,13 @@ namespace CmkCable.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseNpgsql("Host=junction.proxy.rlwy.net;Port=17718;Database=CmkCable;Username=postgres;Password=ZrIGLubhctMdZuFGycghBqNRpSpzVFUB;");
+
+            optionsBuilder.UseNpgsql("Host=165.22.95.181;Port=5432;Database=CmkCable;Username=postgres;Password=20analyzer16");
+
         }
+
+
+        
 
 
         public DbSet<Category> Categories { get; set; }
@@ -46,5 +51,12 @@ namespace CmkCable.DataAccess
         public DbSet<StructureTranslation> StructureTranslations { get; set; }
         public DbSet<User> Users { get; set; } 
         public DbSet<SwiperItem> SwiperItems { get; set; }
+        public DbSet<GetOffer> GetOffers { get; set; }
+        public DbSet<ContactRequest> ContactRequests { get; set; }
+        public DbSet<CareerInformation> CareerInformations { get; set; }
+        public DbSet<Experience> Experiences { get; set; }
+        public DbSet<ManagerMail> ManagerMails { get; set; }
+        public DbSet<MailFormType> MailFormTypes { get; set; }
+        public DbSet<FormType> FormTypes { get; set; }
     }
 }

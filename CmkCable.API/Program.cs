@@ -21,6 +21,7 @@ public class Program
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {
+                webBuilder.UseUrls("http://*:5000");
                 webBuilder.UseStartup<Startup>();
             });
 }

@@ -35,5 +35,19 @@ public class TechnicalFeature
     public string ApproximateWeight { get; set; }
     [Required(ErrorMessage = "Current Carrying Cap. (A) is required")]
     public string CurrentCarryingCap { get; set; }
+    [Required(ErrorMessage = "Current Carrying Capacity in Soil (A) is required")]
+    public string CurrentCarryingCapacityinSoil { get; set; }
+    [Required(ErrorMessage = "Current Carrying Capacity in Air (A) is required")]
+    public string CurrentCarryingCapacityinAir { get; set; }
+
+    [Required(ErrorMessage = "Nominal Section (mm² ) is required")]
+    public string NominalSection { get; set; }
+
+    [Required(ErrorMessage = "Conductor Structure is required")]
+    public string ConductorStructure { get; set; }
+    [Required(ErrorMessage = "Isolation  Structure is required")]
+    public string Isolation { get; set; }
+    [Required(ErrorMessage = "Shipment Length is required")]
+    public string ShipmentLength { get; set; }
 
 }
