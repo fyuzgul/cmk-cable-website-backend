@@ -1381,6 +1381,7 @@
           "MailKit": "4.10.0",
           "Microsoft.AspNetCore.Http": "2.3.0",
           "Microsoft.EntityFrameworkCore": "9.0.2",
+          "Microsoft.EntityFrameworkCore.Analyzers": "9.0.2",
           "Newtonsoft.Json": "13.0.3",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.4",
           "System.Text.Json": "9.0.2"
@@ -4419,6 +4420,7 @@
       "CmkCable.Entities >= 1.0.0",
       "MailKit >= 4.10.0",
       "Microsoft.EntityFrameworkCore >= 9.0.2",
+      "Microsoft.EntityFrameworkCore.Analyzers >= 9.0.2",
       "Newtonsoft.Json >= 13.0.3",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 9.0.4",
       "System.Text.Json >= 9.0.2"
@@ -4482,6 +4484,10 @@
             "version": "[4.10.0, )"
           },
           "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[9.0.2, )"
+          },
+          "Microsoft.EntityFrameworkCore.Analyzers": {
             "target": "Package",
             "version": "[9.0.2, )"
           },

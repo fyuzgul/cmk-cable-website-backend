@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CmkCable.DataAccess")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96720dde8b1dcc1239bdd07c40c02de2f3af742f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0413d51bb74fb8ba1f99a6e9bf9da3a9836d14ab")]
 [assembly: System.Reflection.AssemblyProductAttribute("CmkCable.DataAccess")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CmkCable.DataAccess")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
