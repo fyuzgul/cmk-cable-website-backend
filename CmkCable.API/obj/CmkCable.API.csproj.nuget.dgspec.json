@@ -55,11 +55,11 @@
           "dependencies": {
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.27.1, )"
+              "version": "[1.27.4, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[4.10.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -67,15 +67,7 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "MySql.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[6.0.33, )"
+              "version": "[9.0.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -83,11 +75,11 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.4, )"
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             }
           },
           "imports": [
@@ -164,11 +156,11 @@
           "dependencies": {
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.27.1, )"
+              "version": "[1.27.4, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[4.10.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -176,19 +168,11 @@
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             },
             "Microsoft.IdentityModel.JsonWebTokens": {
               "target": "Package",
               "version": "[8.3.0, )"
-            },
-            "MySql.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[6.0.33, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -196,7 +180,7 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.4, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
@@ -204,7 +188,7 @@
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             }
           },
           "imports": [
@@ -278,19 +262,21 @@
           "dependencies": {
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.27.1, )"
+              "version": "[1.27.4, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[4.10.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -298,11 +284,11 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.4, )"
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             }
           },
           "imports": [
@@ -369,27 +355,19 @@
           "dependencies": {
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.27.1, )"
+              "version": "[1.27.4, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[4.10.0, )"
             },
             "Microsoft.AspNetCore.Http": {
               "target": "Package",
-              "version": "[2.2.2, )"
+              "version": "[2.3.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "MySql.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[6.0.33, )"
+              "version": "[9.0.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -397,11 +375,11 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.4, )"
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             }
           },
           "imports": [
@@ -475,23 +453,15 @@
           "dependencies": {
             "CloudinaryDotNet": {
               "target": "Package",
-              "version": "[1.27.1, )"
+              "version": "[1.27.4, )"
             },
             "MailKit": {
               "target": "Package",
-              "version": "[4.9.0, )"
+              "version": "[4.10.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.0, )"
-            },
-            "MySql.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[6.0.33, )"
+              "version": "[9.0.2, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",
@@ -499,11 +469,11 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.4, )"
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.2, )"
             }
           },
           "imports": [
