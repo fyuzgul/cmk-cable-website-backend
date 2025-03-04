@@ -1,5 +1,4 @@
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\bin\Debug\net8.0\CmkCable.DataAccess.deps.json
-C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\bin\Debug\net8.0\CmkCable.DataAccess.runtimeconfig.json
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\bin\Debug\net8.0\CmkCable.DataAccess.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\bin\Debug\net8.0\CmkCable.DataAccess.pdb
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\bin\Debug\net8.0\CmkCable.Entities.dll
@@ -16,5 +15,4 @@ C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\Cmk
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\CmkCable.DataAccess.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\refint\CmkCable.DataAccess.dll
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\CmkCable.DataAccess.pdb
-C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\CmkCable.DataAccess.genruntimeconfig.cache
 C:\Users\mfyuzgul\source\repos\CmkCable\CmkCable.DataAccess\obj\Debug\net8.0\ref\CmkCable.DataAccess.dll
