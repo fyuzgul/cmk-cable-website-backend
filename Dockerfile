@@ -1,8 +1,8 @@
-# 1. .NET SDK'sını temel alın (Build aşaması)
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+# 1. .NET SDK'sını temel al
+FROM mcr.microsoft.com/dotnet/sdk:8 AS build
 WORKDIR /src
 
-# 2. NuGet kaynaklarını temizle ve güncelle
+# 2. NuGet kaynaklarını temizle
 RUN dotnet nuget locals all --clear
 
 # 3. Çözüm ve bağımlılık dosyalarını kopyala
@@ -13,18 +13,18 @@ COPY CmkCable.DataAccess/CmkCable.DataAccess.csproj CmkCable.DataAccess/
 COPY CmkCable.Entities/CmkCable.Entities.csproj CmkCable.Entities/
 COPY DTOs/DTOs.csproj DTOs/
 
-# 4. Bağımlılıkları indir (önce ayrı restore işlemi)
-RUN dotnet restore CmkCable.sln --force
+# 4. Bağımlılıkları indir
+RUN dotnet restore CmkCable.sln
 
 # 5. Tüm kaynak dosyalarını kopyala
 COPY . .
 
 # 6. Projeyi derle ve yayınla
 WORKDIR /src/CmkCable.API
-RUN dotnet publish -c Release -o /app/out --no-restore
+RUN dotnet publish -c Release -o /app/out
 
 # 7. Küçük ve hafif bir runtime container kullan
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8 AS runtime
 WORKDIR /app
 
 # 8. Yayınlanan dosyaları kopyala
