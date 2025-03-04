@@ -11,6 +11,7 @@ COPY CmkCable.Entities/CmkCable.Entities.csproj CmkCable.Entities/
 COPY DTOs/DTOs.csproj DTOs/
 
 RUN dotnet restore CmkCable.sln
+
 COPY . .
 
 WORKDIR /src/CmkCable.API
