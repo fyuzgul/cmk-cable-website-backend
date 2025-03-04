@@ -1,5 +1,5 @@
 # 1. .NET SDK'sını temel al
-FROM mcr.microsoft.com/dotnet/sdk:8 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # 2. NuGet kaynaklarını temizle
@@ -24,7 +24,7 @@ WORKDIR /src/CmkCable.API
 RUN dotnet publish -c Release -o /app/out
 
 # 7. Küçük ve hafif bir runtime container kullan
-FROM mcr.microsoft.com/dotnet/aspnet:8 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # 8. Yayınlanan dosyaları kopyala
