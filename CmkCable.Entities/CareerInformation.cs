@@ -36,7 +36,7 @@ namespace CmkCable.Entities
         public string CvPath { get; set; }
 
         public bool Consent { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual List<Experience> Experiences { get; set; } = new List<Experience>();
     }
 
