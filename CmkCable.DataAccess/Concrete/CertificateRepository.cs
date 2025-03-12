@@ -116,10 +116,8 @@ namespace CmkCable.DataAccess.Concrete
                 existingCertificate.Image = certificate.Image;
                 existingCertificate.TypeId = certificate.TypeId;
 
-                if (!string.IsNullOrEmpty(certificate.DopNumber))
-                {
+                
                     existingCertificate.DopNumber = certificate.DopNumber;
-                }
 
                 cmkCableDbContext.SaveChanges();
 
