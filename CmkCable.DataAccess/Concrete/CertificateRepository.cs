@@ -57,6 +57,7 @@ namespace CmkCable.DataAccess.Concrete
                         Name = certificate.Name,
                         FileContent = certificate.FileContent,
                         Image = certificate.Image,
+                        DopNumber = certificate.DopNumber,
                         CertificateType = new CertificateTypeDTO
                         {
                             Id = certificate.TypeId,
@@ -114,6 +115,7 @@ namespace CmkCable.DataAccess.Concrete
                 existingCertificate.FileContent = certificate.FileContent;
                 existingCertificate.Image = certificate.Image;
                 existingCertificate.TypeId = certificate.TypeId;
+                existingCertificate.DopNumber = certificate.DopNumber;
 
                 cmkCableDbContext.SaveChanges();
 

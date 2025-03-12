@@ -1,6 +1,7 @@
 ﻿using CloudinaryDotNet.Actions;
 using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
+using CmkCable.DataAccess;
 using CmkCable.Entities;
 using DTOs;
 using DTOs.CreateDTOs;
@@ -31,7 +32,39 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpGet]
-        public List<CertificateDTO> GetAllCertificates() { return _certificateService.GetAllCertifacets(); }
+        public IActionResult GetAllCertificates()
+        {
+            using (var context = new CmkCableDbContext())
+            {
+                var certificates = context.Certificates
+                    .Select(c => new CertificateDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        FileContent = c.FileContent,
+                        Image = c.Image,
+                        DopNumber = c.DopNumber,
+                        CertificateType = new CertificateTypeDTO
+                        {
+                            Id = c.TypeId,
+                            Name = context.CertificateTypes
+                                .Where(ct => ct.Id == c.TypeId)
+                                .Select(ct => ct.Name)
+                                .FirstOrDefault()
+                        },
+                        ProductNames = context.ProductCertificates
+                            .Where(pc => pc.CertificateId == c.Id)
+                            .Join(context.Products,
+                                pc => pc.ProductId,
+                                p => p.Id,
+                                (pc, p) => p.Type)
+                            .ToList()
+                    })
+                    .ToList();
+
+                return Ok(certificates);
+            }
+        }
 
         [HttpGet("byType/{id}")]
         public List<Certificate> GetAllCertificatesByTypeId(int id) { return _certificateService.GetAllCertificatesByTypeId(id); }
@@ -148,11 +181,37 @@ namespace CmkCable.API.Controllers
             if (string.IsNullOrWhiteSpace(dopNumber))
                 return BadRequest("DOP number is required.");
 
-            var certificates = _certificateService.GetAllCertifacets()
-                .Where(c => c.DopNumber != null && c.DopNumber.Contains(dopNumber, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            using (var context = new CmkCableDbContext())
+            {
+                var certificates = context.Certificates
+                    .Where(c => c.DopNumber != null && c.DopNumber.Contains(dopNumber))
+                    .Select(c => new CertificateDTO
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        FileContent = c.FileContent,
+                        Image = c.Image,
+                        DopNumber = c.DopNumber,
+                        CertificateType = new CertificateTypeDTO
+                        {
+                            Id = c.TypeId,
+                            Name = context.CertificateTypes
+                                .Where(ct => ct.Id == c.TypeId)
+                                .Select(ct => ct.Name)
+                                .FirstOrDefault()
+                        },
+                        ProductNames = context.ProductCertificates
+                            .Where(pc => pc.CertificateId == c.Id)
+                            .Join(context.Products,
+                                pc => pc.ProductId,
+                                p => p.Id,
+                                (pc, p) => p.Type)
+                            .ToList()
+                    })
+                    .ToList();
 
-            return Ok(certificates);
+                return Ok(certificates);
+            }
         }
     }
 }
