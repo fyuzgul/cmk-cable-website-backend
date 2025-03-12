@@ -110,12 +110,16 @@ namespace CmkCable.DataAccess.Concrete
                     throw new Exception($"Certificate with ID {certificate.Id} not found");
                 }
 
-                // Update the properties
+                // Update only if the new value is not null or empty
                 existingCertificate.Name = certificate.Name;
                 existingCertificate.FileContent = certificate.FileContent;
                 existingCertificate.Image = certificate.Image;
                 existingCertificate.TypeId = certificate.TypeId;
-                existingCertificate.DopNumber = certificate.DopNumber;
+
+                if (!string.IsNullOrEmpty(certificate.DopNumber))
+                {
+                    existingCertificate.DopNumber = certificate.DopNumber;
+                }
 
                 cmkCableDbContext.SaveChanges();
 
