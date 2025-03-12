@@ -163,7 +163,7 @@ namespace CmkCable.API.Controllers
                     TypeId = updatedCertificate.TypeId,
                     Image = imageUrl,
                     FileContent = pdfUrl,
-                    DopNumber = updatedCertificate.DopNumber ?? existingCertificate.DopNumber
+                    DopNumber = updatedCertificate.DopNumber 
                 };
 
                 var updatedCert = _certificateService.UpdateCertificate(certificate);
