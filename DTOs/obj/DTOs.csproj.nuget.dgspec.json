@@ -76,7 +76,7 @@
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.3, )"
             }
           },
           "imports": [
@@ -174,7 +174,7 @@
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[9.0.2, )"
+              "version": "[9.0.3, )"
             }
           },
           "imports": [

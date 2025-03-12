@@ -18,5 +18,6 @@ namespace CmkCable.Entities
         public int TypeId {  get; set; }
         public string FileContent { get; set; }
         public string Image { get; set; } 
+        public string DopNumber { get; set; }
     }
 }

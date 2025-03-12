@@ -7,8 +7,10 @@ using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CmkCable.API.Controllers
@@ -60,7 +62,8 @@ namespace CmkCable.API.Controllers
                 Name = _certificate.Name,
                 Image = imageUrl,
                 FileContent = pdfUrl,
-                TypeId = _certificate.TypeId
+                TypeId = _certificate.TypeId,
+                DopNumber = _certificate.DopNumber
             };
 
             var createdCertificate = _certificateService.CreateCertificate(certificate);
@@ -126,7 +129,8 @@ namespace CmkCable.API.Controllers
                     Name = updatedCertificate.Name ?? existingCertificate.Name,
                     TypeId = updatedCertificate.TypeId,
                     Image = imageUrl,
-                    FileContent = pdfUrl
+                    FileContent = pdfUrl,
+                    DopNumber = updatedCertificate.DopNumber ?? existingCertificate.DopNumber
                 };
 
                 var updatedCert = _certificateService.UpdateCertificate(certificate);
@@ -138,6 +142,17 @@ namespace CmkCable.API.Controllers
             }
         }
 
+        [HttpGet("search/dop")]
+        public IActionResult SearchByDopNumber([FromQuery] string dopNumber)
+        {
+            if (string.IsNullOrWhiteSpace(dopNumber))
+                return BadRequest("DOP number is required.");
 
+            var certificates = _certificateService.GetAllCertifacets()
+                .Where(c => c.DopNumber != null && c.DopNumber.Contains(dopNumber, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return Ok(certificates);
+        }
     }
 }

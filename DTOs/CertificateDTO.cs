@@ -12,6 +12,7 @@ namespace DTOs
         public CertificateTypeDTO CertificateType { get; set; }
         public string FileContent {  get; set; }    
         public string Image {  get; set; }  
+        public string DopNumber { get; set; }
         public List<string> ProductNames { get; set; }
     }
 }

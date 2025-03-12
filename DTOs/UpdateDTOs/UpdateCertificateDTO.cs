@@ -12,5 +12,6 @@ namespace DTOs.UpdateDTOs
         public int TypeId { get; set; } 
         public IFormFile Image { get; set; }
         public IFormFile FileContent { get; set; }
+        public string DopNumber { get; set; }
     }
 }
