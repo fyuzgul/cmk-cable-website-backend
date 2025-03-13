@@ -34,7 +34,22 @@ namespace CmkCable.DataAccess.Concrete
         {
             using(var context = new CmkCableDbContext())
             {
-                return context.ContactRequests.ToList();
+                return context.ContactRequests
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Select(c => new ContactRequest
+                    {
+                        Id = c.Id,
+                        FullName = c.FullName,
+                        Street = c.Street,
+                        City = c.City,
+                        Postcode = c.Postcode,
+                        TelephoneNumber = c.TelephoneNumber,
+                        Email = c.Email,
+                        Message = c.Message,
+                        Consent = c.Consent,
+                        CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc)
+                    })
+                    .ToList();
             }
         }
 

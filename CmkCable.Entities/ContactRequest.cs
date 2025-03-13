@@ -18,6 +18,6 @@ namespace CmkCable.Entities
         public string Email { get; set; }
         public string Message { get; set; }
         public bool Consent { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

@@ -13,13 +13,14 @@ namespace CmkCable.Business.Concrete
     {
         private IContactInformationRepository _contactInformationRepository;
 
-        public ContactInfromationManager ()
+        public ContactInfromationManager()
         {
             _contactInformationRepository = new ContactInformationRepository();
         }
-        public ContactInformation CreateContactInformation(ContactInformation contactInformation)
+
+        public ContactInformationDetailDTO CreateContactInformation(ContactInformationCreateDTO dto)
         {
-            return _contactInformationRepository.CreateContactInformation(contactInformation);
+            return _contactInformationRepository.CreateContactInformation(dto);
         }
 
         public void DeleteContactInformation(int id)
@@ -32,14 +33,19 @@ namespace CmkCable.Business.Concrete
             return _contactInformationRepository.GetAllContactInformations(languageId);
         }
 
-        public ContactInformation GetContactInformation(int id)
+        public ContactInformationDetailDTO GetContactInformation(int id)
         {
             return _contactInformationRepository.GetContactInformation(id);
         }
 
-        public ContactInformation UpdateContactInformation(ContactInformation contactInformation)
+        public ContactInformationDetailDTO UpdateContactInformation(ContactInformationCreateDTO dto, int id)
         {
-           return _contactInformationRepository.UpdateContactInformation(contactInformation);   
+            return _contactInformationRepository.UpdateContactInformation(dto, id);
+        }
+
+        public List<ContactInformationDetailDTO> GetAllContactInformationsWithTranslations()
+        {
+            return _contactInformationRepository.GetAllContactInformationsWithTranslations();
         }
     }
 }

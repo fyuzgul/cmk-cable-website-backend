@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CmkCable.Entities")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+06d05fdd3a05af9f07fa43ef0e9d578f3e6ae4d8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96f2a3571c4d1e03814981438d06c997e5a5a2aa")]
 [assembly: System.Reflection.AssemblyProductAttribute("CmkCable.Entities")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CmkCable.Entities")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

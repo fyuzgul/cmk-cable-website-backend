@@ -24,7 +24,7 @@ namespace CmkCable.Entities
         public string OdemeSekli { get; set; }
         public string Ambalajlama { get; set; }
         public bool AcikRiza { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public override string ToString()
         {

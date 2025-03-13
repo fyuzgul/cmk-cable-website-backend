@@ -47,21 +47,44 @@ namespace CmkCable.Business.Concrete
 
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = $"<h1>Teklif Detayları</h1>" +
-                           $"<p><strong>Ad Soyad:</strong> {offerDetails.AdSoyad}</p>" +
-                           $"<p><strong>Firma Adı:</strong> {offerDetails.FirmaAdi}</p>" +
-                           $"<p><strong>Telefon:</strong> {offerDetails.Telefon}</p>" +
-                           $"<p><strong>Email:</strong> {offerDetails.Email}</p>" +
-                           $"<p><strong>Ülke:</strong> {offerDetails.Ulke}</p>" +
-                           $"<p><strong>Kablolar:</strong> {offerDetails.Kablolar}</p>" +
-                           $"<p><strong>Açıklama:</strong> {offerDetails.Aciklama}</p>" +
-                           $"<p><strong>LME:</strong> {offerDetails.Lme}</p>" +
-                           $"<p><strong>Para Birimleri:</strong> {string.Join(", ", offerDetails.ParaBirimleri)}</p>" +
-                           $"<p><strong>Teslim Şekli:</strong> {offerDetails.TeslimSekli}</p>" +
-                           $"<p><strong>Teslim Yeri:</strong> {offerDetails.TeslimYeri}</p>" +
-                           $"<p><strong>Ödeme Şekli:</strong> {offerDetails.OdemeSekli}</p>" +
-                           $"<p><strong>Ambalajlama:</strong> {offerDetails.Ambalajlama}</p>" +
-                           $"<p><strong>Açık Rıza:</strong> {(offerDetails.AcikRiza ? "Evet" : "Hayır")}</p>"
+                HtmlBody = $@"
+                    <style>
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }}
+                        th, td {{
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }}
+                        th {{
+                            background-color: #f5f5f5;
+                        }}
+                        tr:nth-child(even) {{
+                            background-color: #f9f9f9;
+                        }}
+                    </style>
+                    <h1>Teklif Detayları</h1>
+                    <table>
+                        <tr><th>Alan</th><th>Değer</th></tr>
+                        <tr><td>Ad Soyad</td><td>{offerDetails.AdSoyad}</td></tr>
+                        <tr><td>Firma Adı</td><td>{offerDetails.FirmaAdi}</td></tr>
+                        <tr><td>Telefon</td><td>{offerDetails.Telefon}</td></tr>
+                        <tr><td>Email</td><td>{offerDetails.Email}</td></tr>
+                        <tr><td>Ülke</td><td>{offerDetails.Ulke}</td></tr>
+                        <tr><td>Kablolar</td><td>{offerDetails.Kablolar}</td></tr>
+                        <tr><td>Açıklama</td><td>{offerDetails.Aciklama}</td></tr>
+                        <tr><td>LME</td><td>{offerDetails.Lme}</td></tr>
+                        <tr><td>Para Birimleri</td><td>{string.Join(", ", offerDetails.ParaBirimleri)}</td></tr>
+                        <tr><td>Teslim Şekli</td><td>{offerDetails.TeslimSekli}</td></tr>
+                        <tr><td>Teslim Yeri</td><td>{offerDetails.TeslimYeri}</td></tr>
+                        <tr><td>Ödeme Şekli</td><td>{offerDetails.OdemeSekli}</td></tr>
+                        <tr><td>Ambalajlama</td><td>{offerDetails.Ambalajlama}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                    </table>"
             };
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
@@ -87,14 +110,38 @@ namespace CmkCable.Business.Concrete
             emailMessage.Subject = subject;
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = $"<h1>İletişim Detayları</h1>" +
-                           $"<p><strong>Ad Soyad:</strong> {message.FullName}</p>" +
-                           $"<p><strong>Adres:</strong> {message.Street}</p>" +
-                           $"<p><strong>Posta Kodu:</strong> {message.Postcode}</p>" +
-                           $"<p><strong>Telefon:</strong> {message.TelephoneNumber}</p>" +
-                           $"<p><strong>Mail:</strong> {message.Email}</p>" +
-                           $"<p><strong>Mesaj:</strong> {message.Message}</p>" +
-                           $"<p><strong>Açık Rıza:</strong> {(message.Consent ? "Evet" : "Hayır")}</p>"
+                HtmlBody = $@"
+                    <style>
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }}
+                        th, td {{
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }}
+                        th {{
+                            background-color: #f5f5f5;
+                        }}
+                        tr:nth-child(even) {{
+                            background-color: #f9f9f9;
+                        }}
+                    </style>
+                    <h1>İletişim Detayları</h1>
+                    <table>
+                        <tr><th>Alan</th><th>Değer</th></tr>
+                        <tr><td>Ad Soyad</td><td>{message.FullName}</td></tr>
+                        <tr><td>Adres</td><td>{message.Street}</td></tr>
+                        <tr><td>Şehir</td><td>{message.City}</td></tr>
+                        <tr><td>Posta Kodu</td><td>{message.Postcode}</td></tr>
+                        <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
+                        <tr><td>Email</td><td>{message.Email}</td></tr>
+                        <tr><td>Mesaj</td><td>{message.Message}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                    </table>"
             };
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
@@ -137,29 +184,63 @@ namespace CmkCable.Business.Concrete
 
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = $"<h1>Kariyer Detayları</h1>" +
-           $"<p><strong>Ad Soyad:</strong> {careerInformation.FullName}</p>" +
-           $"<p><strong>Telefon:</strong> {careerInformation.TelephoneNumber}</p>" +
-           $"<p><strong>Email:</strong> {careerInformation.Email}</p>" +
-           $"<p><strong>Cinsiyet:</strong> {careerInformation.Gender}</p>" +
-           $"<p><strong>Medeni Durum:</strong> {careerInformation.MaritalStatus}</p>" +
-           $"<p><strong>Askerlik Durumu:</strong> {careerInformation.MilitaryStatus}</p>" +
-           $"<p><strong>Sürücü Belgesi:</strong> {careerInformation.DriverLicense}</p>" +
-           $"<p><strong>Seyahat Durumu:</strong> {careerInformation.TravelAvailability}</p>" +
-           $"<p><strong>Okulu:</strong> {careerInformation.School?.ToString()}</p>" + // Assuming Education has a ToString() method or you can format it accordingly
-           $"<p><strong>Fakülte:</strong> {careerInformation.Faculty}</p>" +
-           $"<p><strong>Mezuniyet Tarihi:</strong> {careerInformation.GraduationDate}</p>" +
-           $"<p><strong>Diller:</strong> {careerInformation.Languages}</p>" +
-           $"<p><strong>Yazılım Bilgisi:</strong> {careerInformation.SoftwareSkills}</p>" +
-           $"<p><strong>Seminerler:</strong> {careerInformation.Seminars}</p>" +
-           $"<p><strong>Deneyimler:</strong> {string.Join(", ", experiences.Select(e => e.ToString()))}</p>" + // Assuming Experience has a ToString() method
-           $"<p><strong>Bölüm:</strong> {careerInformation.Department}</p>" +
-           $"<p><strong>Referans Kaynağı:</strong> {careerInformation.ReferenceSource}</p>" +
-           $"<p><strong>Açıklama:</strong> {careerInformation.Description}</p>" +
-           $"<p><strong>CV:</strong> {careerInformation.Cv?.FileName}</p>" + // Assuming Cv is an IFormFile, you may want to display the filename
-           $"<p><strong>Açık Rıza:</strong> {(careerInformation.Consent ? "Evet" : "Hayır")}</p>" +
-           $"<p><strong>Oluşturulma Tarihi:</strong> {careerInformation.CreatedAt}</p>"
-
+                HtmlBody = $@"
+                    <style>
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }}
+                        th, td {{
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }}
+                        th {{
+                            background-color: #f5f5f5;
+                        }}
+                        tr:nth-child(even) {{
+                            background-color: #f9f9f9;
+                        }}
+                    </style>
+                    <h1>Kariyer Detayları</h1>
+                    <table>
+                        <tr><th>Alan</th><th>Değer</th></tr>
+                        <tr><td>Ad Soyad</td><td>{careerInformation.FullName}</td></tr>
+                        <tr><td>Email</td><td>{careerInformation.Email}</td></tr>
+                        <tr><td>Cinsiyet</td><td>{careerInformation.Gender}</td></tr>
+                        <tr><td>Medeni Durum</td><td>{careerInformation.MaritalStatus}</td></tr>
+                        <tr><td>Askerlik Durumu</td><td>{careerInformation.MilitaryStatus}</td></tr>
+                        <tr><td>Sürücü Belgesi</td><td>{careerInformation.DriverLicense}</td></tr>
+                        <tr><td>Seyahat Durumu</td><td>{careerInformation.TravelAvailability}</td></tr>
+                        <tr><td>Okul</td><td>{careerInformation.School}</td></tr>
+                        <tr><td>Fakülte</td><td>{careerInformation.Faculty}</td></tr>
+                        <tr><td>Mezuniyet Tarihi</td><td>{careerInformation.GraduationDate}</td></tr>
+                        <tr><td>Diller</td><td>{careerInformation.Languages}</td></tr>
+                        <tr><td>Yazılım Bilgisi</td><td>{careerInformation.SoftwareSkills}</td></tr>
+                        <tr><td>Seminerler</td><td>{careerInformation.Seminars}</td></tr>
+                        <tr><td>Bölüm</td><td>{careerInformation.Department}</td></tr>
+                        <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource}</td></tr>
+                        <tr><td>Açıklama</td><td>{careerInformation.Description}</td></tr>
+                        <tr><td>CV</td><td>{careerInformation.Cv?.FileName}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                    </table>
+                    <h2>Deneyimler</h2>
+                    <table>
+                        <tr>
+                            <th>Şirket</th>
+                            <th>Süre</th>
+                            <th>Pozisyon</th>
+                        </tr>
+                        {string.Join("", experiences.Select(e => $@"
+                            <tr>
+                                <td>{e.Company}</td>
+                                <td>{e.Duration}</td>
+                                <td>{e.Position}</td>
+                            </tr>
+                        "))}
+                    </table>"
             };
 
             if (attachmentFile != null)

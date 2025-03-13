@@ -20,21 +20,64 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpGet("bylanguage/{languageId}")]
-        public List<ContactInformationDTO> GetAllContactInformations(int languageId) { return _contactInformationService.GetAllContactInformations(languageId);}
+        public ActionResult<List<ContactInformationDTO>> GetAllContactInformations(int languageId)
+        {
+            return Ok(_contactInformationService.GetAllContactInformations(languageId));
+        }
 
-        [HttpPost("create")]
+        [HttpPost]
         [Authorize]
-        public ContactInformation CreateContactInformation(ContactInformation contactInformation) { return _contactInformationService.CreateContactInformation(contactInformation); }
+        public ActionResult<ContactInformationDetailDTO> CreateContactInformation([FromBody] ContactInformationCreateDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = _contactInformationService.CreateContactInformation(dto);
+            return Ok(result);
+        }
 
         [HttpGet("{id}")]
-        public ContactInformation GetContactInformation(int id) { return _contactInformationService.GetContactInformation(id); }
-        [HttpDelete("delete")]
-        [Authorize]
-        public void DeleteContactInformation(int id) {_contactInformationService.DeleteContactInformation(id);}
-        [HttpPut("update")]
-        [Authorize]
-        public ContactInformation UpdateContactInformation(ContactInformation contactInformation) { return _contactInformationService.UpdateContactInformation(contactInformation); }
+        public ActionResult<ContactInformationDetailDTO> GetContactInformation(int id)
+        {
+            var result = _contactInformationService.GetContactInformation(id);
+            if (result == null)
+                return NotFound();
 
+            return Ok(result);
+        }
 
+        [HttpDelete("{id}")]
+        [Authorize]
+        public ActionResult DeleteContactInformation(int id)
+        {
+            var existing = _contactInformationService.GetContactInformation(id);
+            if (existing == null)
+                return NotFound();
+
+            _contactInformationService.DeleteContactInformation(id);
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public ActionResult<ContactInformationDetailDTO> UpdateContactInformation(int id, [FromBody] ContactInformationCreateDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existing = _contactInformationService.GetContactInformation(id);
+            if (existing == null)
+                return NotFound();
+
+            var result = _contactInformationService.UpdateContactInformation(dto, id);
+            return Ok(result);
+        }
+
+        [HttpGet("all")]
+        public ActionResult<List<ContactInformationDetailDTO>> GetAllContactInformationsWithTranslations()
+        {
+            var result = _contactInformationService.GetAllContactInformationsWithTranslations();
+            return Ok(result);
+        }
     }
 }

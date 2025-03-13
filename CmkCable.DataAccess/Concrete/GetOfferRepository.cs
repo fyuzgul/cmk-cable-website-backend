@@ -33,7 +33,29 @@ namespace CmkCable.DataAccess.Concrete
         {
             using(var context = new CmkCableDbContext())
             {
-                return context.GetOffers.ToList();
+                return context.GetOffers
+                    .OrderByDescending(o => o.CreatedAt)
+                    .Select(o => new GetOffer
+                    {
+                        Id = o.Id,
+                        AdSoyad = o.AdSoyad,
+                        FirmaAdi = o.FirmaAdi,
+                        Telefon = o.Telefon,
+                        Email = o.Email,
+                        Unvan = o.Unvan,
+                        Ulke = o.Ulke,
+                        Kablolar = o.Kablolar,
+                        Aciklama = o.Aciklama,
+                        Lme = o.Lme,
+                        ParaBirimleri = o.ParaBirimleri,
+                        TeslimSekli = o.TeslimSekli,
+                        TeslimYeri = o.TeslimYeri,
+                        OdemeSekli = o.OdemeSekli,
+                        Ambalajlama = o.Ambalajlama,
+                        AcikRiza = o.AcikRiza,
+                        CreatedAt = DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc)
+                    })
+                    .ToList();
             }
         }
         public GetOffer GetOfferById(int id)

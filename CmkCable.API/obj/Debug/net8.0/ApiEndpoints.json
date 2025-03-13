@@ -827,6 +827,32 @@
   },
   {
     "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
+    "Method": "CreateContactInformation",
+    "RelativePath": "api/ContactInformations",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DTOs.ContactInformationCreateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DTOs.ContactInformationDetailDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
     "Method": "GetContactInformation",
     "RelativePath": "api/ContactInformations/{id}",
     "HttpMethod": "GET",
@@ -841,7 +867,74 @@
     ],
     "ReturnTypes": [
       {
-        "Type": "CmkCable.Entities.ContactInformation",
+        "Type": "DTOs.ContactInformationDetailDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
+    "Method": "DeleteContactInformation",
+    "RelativePath": "api/ContactInformations/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
+    "Method": "UpdateContactInformation",
+    "RelativePath": "api/ContactInformations/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "DTOs.ContactInformationCreateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "DTOs.ContactInformationDetailDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
+    "Method": "GetAllContactInformationsWithTranslations",
+    "RelativePath": "api/ContactInformations/all",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[DTOs.ContactInformationDetailDTO, DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -868,80 +961,6 @@
     "ReturnTypes": [
       {
         "Type": "System.Collections.Generic.List\u00601[[DTOs.ContactInformationDTO, DTOs, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
-    "Method": "CreateContactInformation",
-    "RelativePath": "api/ContactInformations/create",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "contactInformation",
-        "Type": "CmkCable.Entities.ContactInformation",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "CmkCable.Entities.ContactInformation",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
-    "Method": "DeleteContactInformation",
-    "RelativePath": "api/ContactInformations/delete",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Void",
-        "MediaTypes": [],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "CmkCable.API.Controllers.ContactInformationsController",
-    "Method": "UpdateContactInformation",
-    "RelativePath": "api/ContactInformations/update",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "contactInformation",
-        "Type": "CmkCable.Entities.ContactInformation",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "CmkCable.Entities.ContactInformation",
         "MediaTypes": [
           "text/plain",
           "application/json",

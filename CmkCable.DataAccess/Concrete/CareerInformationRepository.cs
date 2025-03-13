@@ -66,7 +66,8 @@ namespace CmkCable.DataAccess.Concrete
             using (var context = new CmkCableDbContext())
             {
                 var careerInformations = context.CareerInformations
-                    .Include(c => c.Experiences) // İlişkili Experience kayıtlarını dahil ediyoruz
+                    .Include(c => c.Experiences)
+                    .OrderByDescending(c => c.CreatedAt) // En son eklenenler üstte olacak
                     .Select(c => new CareerInformationDTO
                     {
                         Id = c.Id,
@@ -78,7 +79,6 @@ namespace CmkCable.DataAccess.Concrete
                         MilitaryStatus = c.MilitaryStatus,
                         DriverLicense = c.DriverLicense,
                         TravelAvailability = c.TravelAvailability,
-                        Experiences = c.Experiences.ToList(), // Deneyimleri CareerInformationDTO'ya ekliyoruz
                         School = c.School,
                         Faculty = c.Faculty,
                         GraduationDate = c.GraduationDate,
@@ -90,7 +90,7 @@ namespace CmkCable.DataAccess.Concrete
                         Description = c.Description,
                         CvPath = c.CvPath,
                         Consent = c.Consent,
-                        CreatedAt = c.CreatedAt
+                        CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc) // UTC olarak belirtiyoruz
                     })
                     .ToList();
 
