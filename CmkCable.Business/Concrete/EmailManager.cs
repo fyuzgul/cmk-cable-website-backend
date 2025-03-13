@@ -36,7 +36,7 @@ namespace CmkCable.Business.Concrete
             var to_emails = _managerMailRepository.GetByType("offer");
 
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "muhammedfthyzgl@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
 
             foreach (var emailRecord in to_emails)
             {
@@ -91,7 +91,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("muhammedfthyzgl@gmail.com", "fplflbpsyemswkoo");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
@@ -101,7 +101,7 @@ namespace CmkCable.Business.Concrete
             _contactRequestRepository.CreateContactRequest(message);
             var to_mails = _managerMailRepository.GetByType("contact");
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "muhammedfthyzgl@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
 
             foreach (var emailRecord in to_mails)
             {
@@ -149,7 +149,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("muhammedfthyzgl@gmail.com", "fplflbpsyemswkoo");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
@@ -174,7 +174,7 @@ namespace CmkCable.Business.Concrete
             _careerInformationRepository.CreateCareerInformation(careerInformation, experiences);
             var to_mails = _managerMailRepository.GetByType("career");
             var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "muhammedfthyzgl@gmail.com"));
+            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
 
             foreach (var emailRecord in to_mails)
             {
@@ -258,7 +258,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("muhammedfthyzgl@gmail.com", "fplflbpsyemswkoo");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
