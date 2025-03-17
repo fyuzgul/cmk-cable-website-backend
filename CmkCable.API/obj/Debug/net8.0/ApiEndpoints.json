@@ -259,6 +259,11 @@
         "IsRequired": false
       },
       {
+        "Name": "IpAddress",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Consent",
         "Type": "System.Boolean",
         "IsRequired": false
@@ -1079,6 +1084,11 @@
         "IsRequired": false
       },
       {
+        "Name": "IpAddress",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "Consent",
         "Type": "System.Boolean",
         "IsRequired": false
@@ -1197,6 +1207,11 @@
       },
       {
         "Name": "Ambalajlama",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IpAddress",
         "Type": "System.String",
         "IsRequired": false
       },
