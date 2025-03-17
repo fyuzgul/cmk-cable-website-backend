@@ -84,6 +84,7 @@ namespace CmkCable.DataAccess.Concrete
                         GraduationDate = c.GraduationDate,
                         Languages = c.Languages,
                         SoftwareSkills = c.SoftwareSkills,
+                        IpAddress = c.IpAddress,
                         Seminars = c.Seminars,
                         Department = c.Department,
                         ReferenceSource = c.ReferenceSource,

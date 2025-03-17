@@ -32,6 +32,7 @@ namespace DTOs
         public string ReferenceSource { get; set; }
         public string Description { get; set; }
         public string CvPath { get; set; }
+        public string IpAddress { get; set; }
 
         public bool Consent { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;

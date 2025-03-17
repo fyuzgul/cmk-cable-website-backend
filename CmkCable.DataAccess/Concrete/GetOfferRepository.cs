@@ -47,6 +47,7 @@ namespace CmkCable.DataAccess.Concrete
                         Kablolar = o.Kablolar,
                         Aciklama = o.Aciklama,
                         Lme = o.Lme,
+                        IpAddress= o.IpAddress,
                         ParaBirimleri = o.ParaBirimleri,
                         TeslimSekli = o.TeslimSekli,
                         TeslimYeri = o.TeslimYeri,

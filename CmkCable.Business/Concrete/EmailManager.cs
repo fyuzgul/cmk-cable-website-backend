@@ -82,6 +82,8 @@ namespace CmkCable.Business.Concrete
                         <tr><td>Teslim Yeri</td><td>{offerDetails.TeslimYeri}</td></tr>
                         <tr><td>Ödeme Şekli</td><td>{offerDetails.OdemeSekli}</td></tr>
                         <tr><td>Ambalajlama</td><td>{offerDetails.Ambalajlama}</td></tr>
+                        <tr><td>IP Adresi</td><td>{offerDetails.IpAddress}</td></tr>
+
                         <tr><td>Açık Rıza</td><td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td></tr>
                         <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
                     </table>"
@@ -96,7 +98,7 @@ namespace CmkCable.Business.Concrete
             await client.DisconnectAsync(true);
         }
 
-        public async Task SendEmailAsync( string subject, ContactRequest message)
+        public async Task SendEmailAsync(string subject, ContactRequest message)
         {
             _contactRequestRepository.CreateContactRequest(message);
             var to_mails = _managerMailRepository.GetByType("contact");
@@ -139,6 +141,7 @@ namespace CmkCable.Business.Concrete
                         <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
                         <tr><td>Email</td><td>{message.Email}</td></tr>
                         <tr><td>Mesaj</td><td>{message.Message}</td></tr>
+                        <tr><td>IP Adresi</td><td>{message.IpAddress}</td></tr>
                         <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
                         <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
                     </table>"
@@ -223,6 +226,7 @@ namespace CmkCable.Business.Concrete
                         <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource}</td></tr>
                         <tr><td>Açıklama</td><td>{careerInformation.Description}</td></tr>
                         <tr><td>CV</td><td>{careerInformation.Cv?.FileName}</td></tr>
+                        <tr><td>IP Adresi</td><td>{careerInformation.IpAddress}</td></tr>
                         <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
                         <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
                     </table>

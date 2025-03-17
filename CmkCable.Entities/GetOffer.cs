@@ -23,6 +23,10 @@ namespace CmkCable.Entities
         public string TeslimYeri { get; set; }
         public string OdemeSekli { get; set; }
         public string Ambalajlama { get; set; }
+
+        [MaxLength(45)]  // IPv6 adresleri için yeterli uzunluk
+        public string? IpAddress { get; set; }
+
         public bool AcikRiza { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

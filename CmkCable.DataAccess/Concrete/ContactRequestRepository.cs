@@ -42,6 +42,7 @@ namespace CmkCable.DataAccess.Concrete
                         FullName = c.FullName,
                         Street = c.Street,
                         City = c.City,
+                        IpAddress = c.IpAddress,
                         Postcode = c.Postcode,
                         TelephoneNumber = c.TelephoneNumber,
                         Email = c.Email,

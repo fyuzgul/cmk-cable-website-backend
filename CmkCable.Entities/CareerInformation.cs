@@ -35,6 +35,9 @@ namespace CmkCable.Entities
         public IFormFile Cv { get; set; }
         public string CvPath { get; set; }
 
+        [MaxLength(45)]  // IPv6 adresleri için yeterli uzunluk
+        public string? IpAddress { get; set; }
+
         public bool Consent { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual List<Experience> Experiences { get; set; } = new List<Experience>();

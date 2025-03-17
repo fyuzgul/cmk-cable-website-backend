@@ -17,6 +17,10 @@ namespace CmkCable.Entities
         public string TelephoneNumber { get; set; }
         public string Email { get; set; }
         public string Message { get; set; }
+
+        [MaxLength(45)]  // IPv6 adresleri için yeterli uzunluk
+        public string? IpAddress { get; set; }
+
         public bool Consent { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
