@@ -2,6 +2,7 @@ using CmkCable.API;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 public class Program
 {
@@ -21,7 +22,15 @@ public class Program
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {
-                webBuilder.UseUrls("http://*:1000");
+                webBuilder.UseUrls("https://*:1000");
+                webBuilder.ConfigureKestrel(options =>
+                {
+                    // Sertifikayý ekleyin
+                    options.ListenAnyIP(1000, listenOptions =>
+                    {
+                        listenOptions.UseHttps("/etc/ssl/certs/server.crt", "/etc/ssl/private/server.key");
+                    });
+                });
                 webBuilder.UseStartup<Startup>();
             });
 }
