@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Sertifikaları kopyala
-COPY ./ssl/server.crt /etc/ssl/certs/
-COPY ./ssl/server.key /etc/ssl/private/
+COPY ./ssl/cert.crt /etc/ssl/certs/
+COPY ./ssl/cert.key /etc/ssl/private/
 
 # Uygulama dosyalarını kopyala ve derle
 COPY CmkCable.sln ./
