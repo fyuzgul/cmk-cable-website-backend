@@ -28,7 +28,7 @@ public class Program
                     // Sertifikayý ekleyin
                     options.ListenAnyIP(1000, listenOptions =>
                     {
-                        listenOptions.UseHttps("/etc/ssl/certs/server.crt", "/etc/ssl/private/server.key");
+                        listenOptions.UseHttps("/etc/ssl/certs/cert.crt", "/etc/ssl/private/cert.key");
                     });
                 });
                 webBuilder.UseStartup<Startup>();
