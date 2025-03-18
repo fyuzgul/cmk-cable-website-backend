@@ -62,12 +62,7 @@ namespace CmkCable.API
 
                                 listenOptions.UseHttps(new HttpsConnectionAdapterOptions
                                 {
-                                    ServerCertificate = certificate,
-                                    ServerCertificateSelectionCallback = (connectionContext, name) =>
-                                    {
-                                        logger.LogInformation($"Certificate selection callback invoked for name: {name}");
-                                        return certificate;
-                                    }
+                                    ServerCertificate = certificate
                                 });
                             }
                             catch (Exception ex)
