@@ -10,6 +10,9 @@ namespace CmkCable.API
 {
     public class Program
     {
+        private static readonly string CertPath = "/etc/ssl/certs/cert.crt";
+        private static readonly string KeyPath = "/etc/ssl/private/cert.key";
+
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -31,39 +34,46 @@ namespace CmkCable.API
                     {
                         options.ListenAnyIP(1000, listenOptions =>
                         {
-                            var certPath = "/etc/ssl/certs/cert.crt";
-                            var keyPath = "/etc/ssl/private/cert.key";
-
-                            // Dosyaların varlığını kontrol et
-                            if (!File.Exists(certPath))
-                                throw new FileNotFoundException($"SSL sertifika dosyası bulunamadı: {certPath}");
-                            if (!File.Exists(keyPath))
-                                throw new FileNotFoundException($"SSL anahtar dosyası bulunamadı: {keyPath}");
-
-                            // Dosya izinlerini kontrol et ve içerikleri oku
-                            var certFileInfo = new FileInfo(certPath);
-                            var keyFileInfo = new FileInfo(keyPath);
-                            
-                            System.Console.WriteLine($"Sertifika dosyası izinleri: {certFileInfo.Attributes}");
-                            System.Console.WriteLine($"Anahtar dosyası izinleri: {keyFileInfo.Attributes}");
-
                             try
                             {
-                                // Sertifika ve özel anahtarı yükle
-                                var certContent = File.ReadAllText(certPath);
-                                var keyContent = File.ReadAllText(keyPath);
+                                var logger = options.ApplicationServices.GetService(typeof(ILogger<Program>)) as ILogger<Program>;
 
-                                // PEM formatındaki sertifika ve özel anahtarı birleştir
-                                var certAndKeyContent = $"{certContent}\n{keyContent}";
-                                var certBytes = System.Text.Encoding.UTF8.GetBytes(certAndKeyContent);
+                                logger.LogInformation("Checking SSL certificate files...");
+                                if (!File.Exists(CertPath))
+                                {
+                                    logger.LogError($"Certificate file not found at {CertPath}");
+                                    throw new FileNotFoundException($"Certificate file not found at {CertPath}");
+                                }
 
-                                using var cert = new X509Certificate2(certBytes);
-                                listenOptions.UseHttps(cert);
+                                if (!File.Exists(KeyPath))
+                                {
+                                    logger.LogError($"Private key file not found at {KeyPath}");
+                                    throw new FileNotFoundException($"Private key file not found at {KeyPath}");
+                                }
+
+                                logger.LogInformation("Reading certificate and private key...");
+                                var certPem = File.ReadAllText(CertPath);
+                                var keyPem = File.ReadAllText(KeyPath);
+
+                                var certBytes = System.Text.Encoding.UTF8.GetBytes(certPem + keyPem);
+                                var certificate = new X509Certificate2(certBytes);
+
+                                logger.LogInformation($"Successfully loaded certificate. Subject: {certificate.Subject}");
+
+                                listenOptions.UseHttps(new HttpsConnectionAdapterOptions
+                                {
+                                    ServerCertificate = certificate,
+                                    ServerCertificateSelectionCallback = (connectionContext, name) =>
+                                    {
+                                        logger.LogInformation($"Certificate selection callback invoked for name: {name}");
+                                        return certificate;
+                                    }
+                                });
                             }
-                            catch (System.Exception ex)
+                            catch (Exception ex)
                             {
-                                System.Console.WriteLine($"SSL yapılandırma hatası: {ex.Message}");
-                                System.Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                                var logger = options.ApplicationServices.GetService(typeof(ILogger<Program>)) as ILogger<Program>;
+                                logger.LogError(ex, "Failed to configure HTTPS");
                                 throw;
                             }
                         });
