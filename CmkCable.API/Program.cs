@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
 
 namespace CmkCable.API
 {
@@ -52,13 +53,22 @@ namespace CmkCable.API
                                 }
 
                                 logger.LogInformation("Reading certificate and private key...");
+                                
+                                // Read certificate and private key
                                 var certPem = File.ReadAllText(CertPath);
                                 var keyPem = File.ReadAllText(KeyPath);
 
-                                var certBytes = System.Text.Encoding.UTF8.GetBytes(certPem + keyPem);
-                                var certificate = new X509Certificate2(certBytes);
+                                // Create certificate with private key
+                                var certificate = X509Certificate2.CreateFromPem(
+                                    certPem,
+                                    keyPem
+                                );
+
+                                // Create a copy with exportable private key
+                                certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx), "", X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
 
                                 logger.LogInformation($"Successfully loaded certificate. Subject: {certificate.Subject}");
+                                logger.LogInformation($"Certificate has private key: {certificate.HasPrivateKey}");
 
                                 listenOptions.UseHttps(new HttpsConnectionAdapterOptions
                                 {
