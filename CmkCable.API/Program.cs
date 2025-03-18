@@ -40,7 +40,7 @@ namespace CmkCable.API
                             if (!File.Exists(keyPath))
                                 throw new FileNotFoundException($"SSL anahtar dosyası bulunamadı: {keyPath}");
 
-                            // Dosya izinlerini kontrol et
+                            // Dosya izinlerini kontrol et ve içerikleri oku
                             var certFileInfo = new FileInfo(certPath);
                             var keyFileInfo = new FileInfo(keyPath);
                             
@@ -49,7 +49,16 @@ namespace CmkCable.API
 
                             try
                             {
-                                listenOptions.UseHttps(certPath, keyPath);
+                                // Sertifika ve özel anahtarı yükle
+                                var certContent = File.ReadAllText(certPath);
+                                var keyContent = File.ReadAllText(keyPath);
+
+                                // PEM formatındaki sertifika ve özel anahtarı birleştir
+                                var certAndKeyContent = $"{certContent}\n{keyContent}";
+                                var certBytes = System.Text.Encoding.UTF8.GetBytes(certAndKeyContent);
+
+                                using var cert = new X509Certificate2(certBytes);
+                                listenOptions.UseHttps(cert);
                             }
                             catch (System.Exception ex)
                             {
