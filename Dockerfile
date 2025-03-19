@@ -27,7 +27,7 @@ WORKDIR /app
 
 # SSL sertifikalarını kopyala ve izinleri ayarla
 COPY ./ssl/cert.crt /etc/ssl/certs/
-COPY ./ssl/cert.key /etc/ssl/private/
+COPY ./ssl/cert.key /etc/ssl/private/ 
 
 # Sertifika izinlerini ayarla
 RUN chmod 644 /etc/ssl/certs/cert.crt \
