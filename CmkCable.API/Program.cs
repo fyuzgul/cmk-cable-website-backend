@@ -11,8 +11,8 @@ namespace CmkCable.API
 {
     public class Program
     {
-        private static readonly string CertPath = "/etc/ssl/certs/cert.crt";
-        private static readonly string KeyPath = "/etc/ssl/private/cert.key";
+        private static readonly string CertPath = "/etc/letsencrypt/live/cmkkablo.com/fullchain.pem";
+        private static readonly string KeyPath = "/etc/letsencrypt/live/cmkkablo.com/privkey.pem";
 
         public static void Main(string[] args)
         {
