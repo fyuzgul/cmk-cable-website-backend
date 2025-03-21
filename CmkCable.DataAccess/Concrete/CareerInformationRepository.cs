@@ -91,7 +91,15 @@ namespace CmkCable.DataAccess.Concrete
                         Description = c.Description,
                         CvPath = c.CvPath,
                         Consent = c.Consent,
-                        CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc) // UTC olarak belirtiyoruz
+                        CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc), // UTC olarak belirtiyoruz
+                        Experiences = c.Experiences.Select(e => new Experience
+                        {
+                            Id = e.Id,
+                            Company = e.Company,
+                            Duration = e.Duration,
+                            Position = e.Position,
+                            CareerInformationId = e.CareerInformationId
+                        }).ToList()
                     })
                     .ToList();
 

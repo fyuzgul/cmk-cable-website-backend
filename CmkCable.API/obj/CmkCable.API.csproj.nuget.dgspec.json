@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\CmkCable.API.csproj": {}
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\CmkCable.API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\CmkCable.API.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\CmkCable.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
         "projectName": "CmkCable.API",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.API\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -29,11 +29,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj"
               },
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
               }
             }
           }
@@ -115,14 +115,14 @@
         }
       }
     },
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
         "projectName": "CmkCable.Business",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -140,11 +140,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj"
               },
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
               }
             }
           }
@@ -225,14 +225,14 @@
         }
       }
     },
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj",
         "projectName": "CmkCable.DataAccess",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -250,11 +250,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
               },
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\DTOs.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\DTOs.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj"
               }
             }
           }
@@ -323,14 +323,14 @@
         }
       }
     },
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
         "projectName": "CmkCable.Entities",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -421,14 +421,14 @@
         }
       }
     },
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\DTOs.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\DTOs.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj",
         "projectName": "DTOs",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\DTOs.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\DTOs\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -446,8 +446,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
-                "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+              "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+                "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
               }
             }
           }

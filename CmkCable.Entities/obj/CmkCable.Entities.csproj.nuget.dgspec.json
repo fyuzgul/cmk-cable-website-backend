@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {}
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {}
   },
   "projects": {
-    "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+    "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
+        "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
         "projectName": "CmkCable.Entities",
-        "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
+        "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj",
         "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\obj\\",
+        "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",

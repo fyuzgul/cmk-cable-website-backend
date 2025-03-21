@@ -4796,11 +4796,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
+      "projectUniqueName": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
       "projectName": "CmkCable.Business",
-      "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
+      "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\CmkCable.Business.csproj",
       "packagesPath": "C:\\Users\\mfyuzgul\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Business\\obj\\",
+      "outputPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Business\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mfyuzgul\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -4818,11 +4818,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
-              "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj"
+            "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj": {
+              "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.DataAccess\\CmkCable.DataAccess.csproj"
             },
-            "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
-              "projectPath": "C:\\Users\\mfyuzgul\\source\\repos\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+            "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
+              "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
             }
           }
         }
