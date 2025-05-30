@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CmkCable.API.Controllers
 {
@@ -40,19 +42,25 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpPost("send-email")]
+        [AllowAnonymous]
         public async Task<IActionResult> SendEmail([FromBody] ContactRequest contactRequest)
         {
             if (!ModelState.IsValid)
             {
+                Console.WriteLine($"Model validation failed: {string.Join(", ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage))}");
                 return BadRequest(ModelState);
             }
             try
             {
-                await _emailManager.SendEmailAsync( "İletişim", contactRequest);
+                Console.WriteLine($"Attempting to send email to contact request: {contactRequest.Email}");
+                await _emailManager.SendEmailAsync("İletişim", contactRequest);
+                Console.WriteLine("Email sent successfully");
                 return Ok(new { message = "Email sent successfully" });
             }
             catch (System.Exception ex)
             {
+                Console.WriteLine($"Error sending email: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return StatusCode(500, $"E-posta gönderilirken bir hata oluştu: {ex.Message}");
             }
         }
