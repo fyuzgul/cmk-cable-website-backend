@@ -93,7 +93,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
@@ -152,7 +152,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
@@ -262,7 +262,7 @@ namespace CmkCable.Business.Concrete
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
             await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "fqwlquybhjbwwtit");
+            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
             await client.SendAsync(emailMessage);
             await client.DisconnectAsync(true);
         }
