@@ -91,11 +91,19 @@ namespace CmkCable.Business.Concrete
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-            await client.SendAsync(emailMessage);
-            await client.DisconnectAsync(true);
+            try
+            {
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                await client.ConnectAsync("smtp.gmail.com", 587, false);
+                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                await client.SendAsync(emailMessage);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                // Hata mesajını loglara yazdır
+                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+            }
         }
 
         public async Task SendEmailAsync(string subject, ContactRequest message)
@@ -149,12 +157,19 @@ namespace CmkCable.Business.Concrete
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
-
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-            await client.SendAsync(emailMessage);
-            await client.DisconnectAsync(true);
+            try
+            {
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                await client.ConnectAsync("smtp.gmail.com", 587, false);
+                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                await client.SendAsync(emailMessage);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                // Hata mesajını loglara yazdır
+                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+            }
         }
 
         public string ConvertCvToBase64(IFormFile cvFile)
@@ -260,11 +275,19 @@ namespace CmkCable.Business.Concrete
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
-            using var client = new MailKit.Net.Smtp.SmtpClient();
-            await client.ConnectAsync("smtp.gmail.com", 587, false);
-            await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-            await client.SendAsync(emailMessage);
-            await client.DisconnectAsync(true);
+            try
+            {
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                await client.ConnectAsync("smtp.gmail.com", 587, false);
+                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                await client.SendAsync(emailMessage);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                // Hata mesajını loglara yazdır
+                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+            }
         }
 
 
