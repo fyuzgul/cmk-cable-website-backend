@@ -12,7 +12,7 @@ namespace CmkCable.Business.Abstract
     {
         List<CareerInformationDTO> GetAllCareerInformation();
         CareerInformation GetCareerInformationById(int id);
-        CareerInformation CreateCareerInformation(CareerInformation careerInformation, List<Experience> experience);
+        CareerInformation CreateCareerInformation(CareerInformation careerInformation);
         void DeleteCareerInformation(int id);
     }
 }

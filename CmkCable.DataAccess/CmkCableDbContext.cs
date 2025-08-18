@@ -15,7 +15,8 @@ namespace CmkCable.DataAccess
         {
             base.OnConfiguring(optionsBuilder);
 
-            optionsBuilder.UseNpgsql("Host=165.22.95.181;Port=5432;Database=CmkCable;Username=postgres;Password=20analyzer16");
+            // Local PostgreSQL 17 database connection
+            optionsBuilder.UseNpgsql("Host=165.22.95.181;Port=5432;Database=CmkCableProd;Username=postgres;Password=20analyzer16");
 
         }
 
@@ -54,9 +55,16 @@ namespace CmkCable.DataAccess
         public DbSet<GetOffer> GetOffers { get; set; }
         public DbSet<ContactRequest> ContactRequests { get; set; }
         public DbSet<CareerInformation> CareerInformations { get; set; }
-        public DbSet<Experience> Experiences { get; set; }
         public DbSet<ManagerMail> ManagerMails { get; set; }
         public DbSet<MailFormType> MailFormTypes { get; set; }
         public DbSet<FormType> FormTypes { get; set; }
+        
+        // New entities for contact form with translations
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<RoleTranslation> RoleTranslations { get; set; }
+        public DbSet<CompanyType> CompanyTypes { get; set; }
+        public DbSet<CompanyTypeTranslation> CompanyTypeTranslations { get; set; }
+        public DbSet<HelpType> HelpTypes { get; set; }
+        public DbSet<HelpTypeTranslation> HelpTypeTranslations { get; set; }
     }
 }

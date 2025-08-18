@@ -20,12 +20,17 @@ namespace CmkCable.Business.Concrete
 
         public ContactRequest CreateContactRequest(ContactRequest contactRequest)
         {
-               return _contactRequestRepository.CreateContactRequest(contactRequest);   
+               _contactRequestRepository.Add(contactRequest);
+               return contactRequest;   
         }
 
         public void DeleteContactRequest(int id)
         {
-            _contactRequestRepository.DeleteContactRequest(id);
+            var contactRequest = _contactRequestRepository.GetContactRequestById(id);
+            if (contactRequest != null)
+            {
+                _contactRequestRepository.Delete(contactRequest);
+            }
         }
 
         public List<ContactRequest> GetAllContactRequests()

@@ -1,6 +1,7 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
 using DTOs;
+using DTOs.CreateDTOs;
 using DTOs.Translations;
 using DTOs.UpdateDTOs;
 using System;
@@ -72,7 +73,95 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var cmkCableDbContext = new CmkCableDbContext())
             {
-                throw new NotImplementedException();
+                var text = cmkCableDbContext.HomePageTexts.FirstOrDefault(t => t.Name == name);
+                if (text == null)
+                    return null;
+
+                var translation = cmkCableDbContext.HomePageTextTranslations
+                    .Where(t => t.TextId == text.Id && t.LanguageId == languageId)
+                    .Select(t => new HomePageTextTranslationDTO
+                    {
+                        LanguageId = t.LanguageId,
+                        Value = t.Value ?? "Çevirisi yok"
+                    })
+                    .FirstOrDefault();
+
+                if (translation == null)
+                {
+                    // Try alternative language
+                    translation = cmkCableDbContext.HomePageTextTranslations
+                        .Where(t => t.TextId == text.Id && t.LanguageId == 2)
+                        .Select(t => new HomePageTextTranslationDTO
+                        {
+                            LanguageId = t.LanguageId,
+                            Value = t.Value ?? "Çevirisi yok"
+                        })
+                        .FirstOrDefault();
+
+                    if (translation == null)
+                    {
+                        translation = new HomePageTextTranslationDTO
+                        {
+                            LanguageId = 2,
+                            Value = "Çevirisi yok"
+                        };
+                    }
+                }
+
+                return new HomePageTextDTO
+                {
+                    Id = text.Id,
+                    Name = text.Name,
+                    Values = new List<HomePageTextTranslationDTO> { translation }
+                };
+            }
+        }
+
+        public HomePageTextDTO GetHomePageTextById(int id, int languageId)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                var text = cmkCableDbContext.HomePageTexts.FirstOrDefault(t => t.Id == id);
+                if (text == null)
+                    return null;
+
+                var translation = cmkCableDbContext.HomePageTextTranslations
+                    .Where(t => t.TextId == id && t.LanguageId == languageId)
+                    .Select(t => new HomePageTextTranslationDTO
+                    {
+                        LanguageId = t.LanguageId,
+                        Value = t.Value ?? "Çevirisi yok"
+                    })
+                    .FirstOrDefault();
+
+                if (translation == null)
+                {
+                    // Try alternative language
+                    translation = cmkCableDbContext.HomePageTextTranslations
+                        .Where(t => t.TextId == id && t.LanguageId == 2)
+                        .Select(t => new HomePageTextTranslationDTO
+                        {
+                            LanguageId = t.LanguageId,
+                            Value = t.Value ?? "Çevirisi yok"
+                        })
+                        .FirstOrDefault();
+
+                    if (translation == null)
+                    {
+                        translation = new HomePageTextTranslationDTO
+                        {
+                            LanguageId = 2,
+                            Value = "Çevirisi yok"
+                        };
+                    }
+                }
+
+                return new HomePageTextDTO
+                {
+                    Id = text.Id,
+                    Name = text.Name,
+                    Values = new List<HomePageTextTranslationDTO> { translation }
+                };
             }
         }
 
@@ -131,6 +220,64 @@ namespace CmkCable.DataAccess.Concrete
             return homePageTextUpdateDTOs;
         }
 
+        public HomePageTextDTO CreateHomePageText(CreateHomePageTextWithTranslationsDTO createDto)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                // Create the main HomePageText entity
+                var homePageText = new HomePageText
+                {
+                    Name = createDto.Name
+                };
 
+                cmkCableDbContext.HomePageTexts.Add(homePageText);
+                cmkCableDbContext.SaveChanges(); // Save to get the ID
+
+                // Create translations
+                if (createDto.Translations != null && createDto.Translations.Any())
+                {
+                    foreach (var translationDto in createDto.Translations)
+                    {
+                        var translation = new HomePageTextTranslation
+                        {
+                            TextId = homePageText.Id,
+                            LanguageId = translationDto.LanguageId,
+                            Value = translationDto.Value
+                        };
+
+                        cmkCableDbContext.HomePageTextTranslations.Add(translation);
+                    }
+                    cmkCableDbContext.SaveChanges();
+                }
+
+                // Return the created DTO
+                return new HomePageTextDTO
+                {
+                    Id = homePageText.Id,
+                    Name = homePageText.Name,
+                    Values = createDto.Translations ?? new List<HomePageTextTranslationDTO>()
+                };
+            }
+        }
+
+        public bool DeleteHomePageText(int id)
+        {
+            using (var cmkCableDbContext = new CmkCableDbContext())
+            {
+                var homePageText = cmkCableDbContext.HomePageTexts.FirstOrDefault(ht => ht.Id == id);
+                if (homePageText == null)
+                    return false;
+
+                // Delete related translations first
+                var translations = cmkCableDbContext.HomePageTextTranslations.Where(t => t.TextId == id);
+                cmkCableDbContext.HomePageTextTranslations.RemoveRange(translations);
+
+                // Delete the main entity
+                cmkCableDbContext.HomePageTexts.Remove(homePageText);
+                cmkCableDbContext.SaveChanges();
+
+                return true;
+            }
+        }
     }
 }

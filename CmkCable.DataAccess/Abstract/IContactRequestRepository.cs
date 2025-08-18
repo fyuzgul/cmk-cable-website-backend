@@ -9,9 +9,10 @@ namespace CmkCable.DataAccess.Abstract
 {
     public interface IContactRequestRepository
     {
+        void Add(ContactRequest entity);
+        void Delete(ContactRequest entity);
         List<ContactRequest> GetAllContactRequests();
         ContactRequest GetContactRequestById(int id);
-        ContactRequest CreateContactRequest(ContactRequest contactRequest);
-        void DeleteContactRequest(int id);
+        void Update(ContactRequest entity);
     }
 }

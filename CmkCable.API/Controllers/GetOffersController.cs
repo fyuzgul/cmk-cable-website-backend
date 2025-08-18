@@ -4,6 +4,10 @@ using CmkCable.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using DTOs.CreateDTOs;
+using System;
+using System.Threading.Tasks;
 
 
 namespace CmkCable.API.Controllers
@@ -19,25 +23,106 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpGet]
-        public List<GetOffer> GetAllGetOffers()
+        public IActionResult GetAllGetOffers()
         {
-            return _getOfferService.GetAllGetOffers();
+            var offers = _getOfferService.GetAllGetOffers();
+            return Ok(offers);
         }
 
-        [HttpGet("{id}")]
-        public GetOffer Get(int id)
+        [HttpGet("get/{id}")]
+        public IActionResult Get(int id)
         {
-            return _getOfferService.GetOfferById(id);
+            var offer = _getOfferService.GetOfferById(id);
+            if (offer == null)
+                return NotFound();
+            return Ok(offer);
         }
-        [HttpPost("create")]
-        public GetOffer Post([FromBody] GetOffer getOffer)
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateGetOfferDTO createGetOfferDTO)
         {
-            return _getOfferService.CreateGetOffer(getOffer);
+            var getOffer = new GetOffer
+            {
+                FirstName = createGetOfferDTO.FirstName,
+                LastName = createGetOfferDTO.LastName,
+                WorkEmail = createGetOfferDTO.WorkEmail,
+                RoleId = createGetOfferDTO.RoleId,
+                Country = createGetOfferDTO.Country,
+                Company = createGetOfferDTO.Company,
+                CompanyTypeId = createGetOfferDTO.CompanyTypeId,
+                TelephoneNumber = createGetOfferDTO.TelephoneNumber,
+                HelpTypeId = createGetOfferDTO.HelpTypeId,
+                Message = createGetOfferDTO.Message,
+                IpAddress = createGetOfferDTO.IpAddress,
+                AcikRiza = createGetOfferDTO.AcikRiza
+            };
+
+            var result = _getOfferService.CreateGetOffer(getOffer);
+            
+            // Mail gönder
+            try
+            {
+                Console.WriteLine($"Mail gönderimi başlıyor... GetOffer ID: {result.Id}");
+                
+                // GetOffer'ı navigation property'ler ile yükle
+                var offerWithDetails = _getOfferService.GetOfferById(result.Id);
+                
+                var emailManager = new EmailManager();
+                await emailManager.SendOfferEmailAsync("Yeni Teklif Talebi", offerWithDetails);
+                Console.WriteLine("Mail gönderimi tamamlandı!");
+            }
+            catch (Exception ex)
+            {
+                // Mail gönderim hatası loglansın ama işlem devam etsin
+                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+            
+            return Ok(result);
         }
         [HttpDelete("delete/{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
             _getOfferService.DeleteGetOffer(id);
+            return NoContent();
+        }
+
+        [HttpGet("dropdowns")]
+        public IActionResult GetDropdownData()
+        {
+            var roleService = new RoleManager();
+            var companyTypeService = new CompanyTypeManager();
+            var helpTypeService = new HelpTypeManager();
+
+            var dropdownData = new
+            {
+                roles = roleService.GetActiveRoles().Select(r => new { 
+                    Id = r.Id, 
+                    Name = r.Name,
+                    Translations = r.Translations?.Select(t => new { 
+                        LanguageId = t.LanguageId, 
+                        Name = t.Name 
+                    }).ToList()
+                }),
+                companyTypes = companyTypeService.GetActiveCompanyTypes().Select(ct => new { 
+                    Id = ct.Id, 
+                    Name = ct.Name,
+                    Translations = ct.Translations?.Select(t => new { 
+                        LanguageId = t.LanguageId, 
+                        Name = t.Name 
+                    }).ToList()
+                }),
+                helpTypes = helpTypeService.GetActiveHelpTypes().Select(ht => new { 
+                    Id = ht.Id, 
+                    Name = ht.Name,
+                    Translations = ht.Translations?.Select(t => new { 
+                        LanguageId = t.LanguageId, 
+                        Name = t.Name 
+                    }).ToList()
+                })
+            };
+
+            return Ok(dropdownData);
         }
     }
 }

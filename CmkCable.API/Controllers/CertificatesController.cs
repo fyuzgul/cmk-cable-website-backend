@@ -89,12 +89,18 @@ namespace CmkCable.API.Controllers
                 return BadRequest("No file uploaded.");
 
             string imageUrl = await _cloudinaryManager.UploadImage(_certificate.Image, "document-images/" + typeName);
-            string pdfUrl = await _cloudinaryManager.UploadPdf(_certificate.FileContent, "document-pdfs/" + typeName);
+            string pdfBase64;
+            using (var memoryStream = new MemoryStream())
+            {
+                await _certificate.FileContent.CopyToAsync(memoryStream);
+                byte[] pdfBytes = memoryStream.ToArray();
+                pdfBase64 = Convert.ToBase64String(pdfBytes);
+            }
             var certificate = new Certificate
             {
                 Name = _certificate.Name,
                 Image = imageUrl,
-                FileContent = pdfUrl,
+                FileContent = pdfBase64,
                 TypeId = _certificate.TypeId,
                 DopNumber = _certificate.DopNumber
             };

@@ -87,6 +87,10 @@
               "target": "Package",
               "version": "[9.0.4, )"
             },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            },
             "System.Text.Json": {
               "target": "Package",
               "version": "[9.0.3, )"
@@ -287,6 +291,12 @@
               "version": "[9.0.3, )"
             },
             "Microsoft.EntityFrameworkCore.Analyzers": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[9.0.3, )"
             },

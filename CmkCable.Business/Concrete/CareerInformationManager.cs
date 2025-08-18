@@ -15,9 +15,9 @@ namespace CmkCable.Business.Concrete
             _careerInformationRepository = new CareerInformationRepository();
         }
 
-        public CareerInformation CreateCareerInformation(CareerInformation careerInformation, List<Experience> experience)
+        public CareerInformation CreateCareerInformation(CareerInformation careerInformation)
         {
-               return _careerInformationRepository.CreateCareerInformation(careerInformation, experience);
+               return _careerInformationRepository.CreateCareerInformation(careerInformation);
         }
 
         public void DeleteCareerInformation(int id)

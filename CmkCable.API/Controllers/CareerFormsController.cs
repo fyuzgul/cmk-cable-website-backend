@@ -29,7 +29,7 @@ namespace CmkCable.API.Controllers
         public IActionResult Get(int id) {_careerInformationService.GetCareerInformationById(id); return Ok(); }
 
         [HttpPost]
-        public IActionResult Post([FromForm] CareerInformation careerInformation,[FromForm] List<Experience>experience) { _careerInformationService.CreateCareerInformation(careerInformation, experience); return Ok(); }
+        public IActionResult Post([FromForm] CareerInformation careerInformation) { _careerInformationService.CreateCareerInformation(careerInformation); return Ok(); }
 
         [HttpDelete("delete/{id}")]
         public IActionResult Delete(int id) { _careerInformationService.DeleteCareerInformation(id); return Ok(); }

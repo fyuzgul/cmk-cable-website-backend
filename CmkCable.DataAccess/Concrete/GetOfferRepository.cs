@@ -1,5 +1,6 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,28 +35,10 @@ namespace CmkCable.DataAccess.Concrete
             using(var context = new CmkCableDbContext())
             {
                 return context.GetOffers
+                    .Include(o => o.Role)
+                    .Include(o => o.CompanyType)
+                    .Include(o => o.HelpType)
                     .OrderByDescending(o => o.CreatedAt)
-                    .Select(o => new GetOffer
-                    {
-                        Id = o.Id,
-                        AdSoyad = o.AdSoyad,
-                        FirmaAdi = o.FirmaAdi,
-                        Telefon = o.Telefon,
-                        Email = o.Email,
-                        Unvan = o.Unvan,
-                        Ulke = o.Ulke,
-                        Kablolar = o.Kablolar,
-                        Aciklama = o.Aciklama,
-                        Lme = o.Lme,
-                        IpAddress= o.IpAddress,
-                        ParaBirimleri = o.ParaBirimleri,
-                        TeslimSekli = o.TeslimSekli,
-                        TeslimYeri = o.TeslimYeri,
-                        OdemeSekli = o.OdemeSekli,
-                        Ambalajlama = o.Ambalajlama,
-                        AcikRiza = o.AcikRiza,
-                        CreatedAt = DateTime.SpecifyKind(o.CreatedAt, DateTimeKind.Utc)
-                    })
                     .ToList();
             }
         }
@@ -63,7 +46,11 @@ namespace CmkCable.DataAccess.Concrete
         {
             using (var context = new CmkCableDbContext())
             {
-                return context.GetOffers.Find(id);
+                return context.GetOffers
+                    .Include(o => o.Role)
+                    .Include(o => o.CompanyType)
+                    .Include(o => o.HelpType)
+                    .FirstOrDefault(o => o.Id == id);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using CmkCable.DataAccess.Abstract;
 using CmkCable.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,22 +11,20 @@ namespace CmkCable.DataAccess.Concrete
 {
     public class ContactRequestRepository : IContactRequestRepository
     {
-        public ContactRequest CreateContactRequest(ContactRequest contactRequest)
+        public void Add(ContactRequest entity)
         {
             using(var context = new CmkCableDbContext())
             {
-                context.ContactRequests.Add(contactRequest);
+                context.ContactRequests.Add(entity);
                 context.SaveChanges();
-                return contactRequest;
             }
         }
 
-        public void DeleteContactRequest(int id)
+        public void Delete(ContactRequest entity)
         {
             using(var context = new CmkCableDbContext())
             {
-                var contactRequest = context.ContactRequests.Find(id);
-                context.ContactRequests.Remove(contactRequest);
+                context.ContactRequests.Remove(entity);
                 context.SaveChanges();
             }
         }
@@ -36,20 +35,6 @@ namespace CmkCable.DataAccess.Concrete
             {
                 return context.ContactRequests
                     .OrderByDescending(c => c.CreatedAt)
-                    .Select(c => new ContactRequest
-                    {
-                        Id = c.Id,
-                        FullName = c.FullName,
-                        Street = c.Street,
-                        City = c.City,
-                        IpAddress = c.IpAddress,
-                        Postcode = c.Postcode,
-                        TelephoneNumber = c.TelephoneNumber,
-                        Email = c.Email,
-                        Message = c.Message,
-                        Consent = c.Consent,
-                        CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc)
-                    })
                     .ToList();
             }
         }
@@ -58,7 +43,17 @@ namespace CmkCable.DataAccess.Concrete
         {
             using(var context = new CmkCableDbContext())
             {
-                return context.ContactRequests.Find(id);
+                return context.ContactRequests
+                    .FirstOrDefault(c => c.Id == id);
+            }
+        }
+
+        public void Update(ContactRequest entity)
+        {
+            using(var context = new CmkCableDbContext())
+            {
+                context.ContactRequests.Update(entity);
+                context.SaveChanges();
             }
         }
     }

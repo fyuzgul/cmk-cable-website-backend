@@ -135,7 +135,48 @@ namespace CmkCable.API
                 options.AddPolicy("Bearer", policy => policy.RequireAuthenticatedUser());
             });
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.MaxDepth = 32;
+                });
+
+            // Swagger/OpenAPI configuration
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo 
+                { 
+                    Title = "CmkCable API", 
+                    Version = "v1",
+                    Description = "CmkCable Contact Form API with multi-language support"
+                });
+
+                // JWT Authentication için Swagger UI'da Authorization header ekleme
+                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
+            });
 
             services.AddCors(options =>
             {
@@ -212,6 +253,14 @@ namespace CmkCable.API
             app.UseRouting();
 
             app.UseCors("AllowAll");
+
+            // Swagger middleware
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "CmkCable API V1");
+                c.RoutePrefix = string.Empty; // Swagger UI'ı root URL'de göster
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

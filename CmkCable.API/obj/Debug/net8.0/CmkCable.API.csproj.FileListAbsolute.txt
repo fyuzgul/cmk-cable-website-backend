@@ -308,3 +308,8 @@ C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\re
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\CmkCable.API.pdb
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\CmkCable.API.genruntimeconfig.cache
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\ref\CmkCable.API.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\CmkCable.API.MvcApplicationPartsAssemblyInfo.cs

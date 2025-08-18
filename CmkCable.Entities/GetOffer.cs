@@ -2,40 +2,65 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CmkCable.Entities
 {
-    public class GetOffer
-    {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-        public string AdSoyad { get; set; }
-        public string FirmaAdi { get; set; }
-        public string Telefon { get; set; }
-        public string Email { get; set; }
-        public string Unvan { get; set; }
-        public string Ulke { get; set; }
-        public string Kablolar { get; set; }
-        public string Aciklama { get; set; }
-        public string Lme { get; set; }
-        public List<string> ParaBirimleri { get; set; } = new List<string>();
-        public string TeslimSekli { get; set; }
-        public string TeslimYeri { get; set; }
-        public string OdemeSekli { get; set; }
-        public string Ambalajlama { get; set; }
+	public class GetOffer
+	{
+		[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public int Id { get; set; }
 
-        [MaxLength(45)]  // IPv6 adresleri için yeterli uzunluk
-        public string? IpAddress { get; set; }
+		[Required]
+		[MaxLength(50)]
+		public string FirstName { get; set; }
 
-        public bool AcikRiza { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		[Required]
+		[MaxLength(50)]
+		public string LastName { get; set; }
 
-        public override string ToString()
-        {
-            return $"AdSoyad: {AdSoyad}, FirmaAdi: {FirmaAdi}, Telefon: {Telefon}, Email: {Email}, " +
-                   $"Unvan: {Unvan}, Ulke: {Ulke}, Kablolar: {Kablolar}, Aciklama: {Aciklama}, " +
-                   $"Lme: {Lme}, ParaBirimleri: [{string.Join(", ", ParaBirimleri)}], TeslimSekli: {TeslimSekli}, " +
-                   $"TeslimYeri: {TeslimYeri}, OdemeSekli: {OdemeSekli}, Ambalajlama: {Ambalajlama}, AcikRiza: {AcikRiza}";
-        }
-    }
+		[Required]
+		[MaxLength(100)]
+		[EmailAddress]
+		public string WorkEmail { get; set; }
+
+		[ForeignKey("Role")]
+		public int RoleId { get; set; }
+		public virtual Role Role { get; set; }
+
+		[Required]
+		[MaxLength(100)]
+		public string Country { get; set; }
+
+		[Required]
+		[MaxLength(150)]
+		public string Company { get; set; }
+
+		[ForeignKey("CompanyType")]
+		public int CompanyTypeId { get; set; }
+		public virtual CompanyType CompanyType { get; set; }
+
+		[Required]
+		[MaxLength(20)]
+		public string TelephoneNumber { get; set; }
+
+		[ForeignKey("HelpType")]
+		public int HelpTypeId { get; set; }
+		public virtual HelpType HelpType { get; set; }
+
+		[Required]
+		[MaxLength(2000)]
+		public string Message { get; set; }
+
+		[MaxLength(45)]
+		public string? IpAddress { get; set; }
+
+		public bool AcikRiza { get; set; }
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+		public override string ToString()
+		{
+			return $"FirstName: {FirstName}, LastName: {LastName}, WorkEmail: {WorkEmail}, RoleId: {RoleId}, Country: {Country}, Company: {Company}, CompanyTypeId: {CompanyTypeId}, TelephoneNumber: {TelephoneNumber}, HelpTypeId: {HelpTypeId}, Message: {Message}";
+		}
+	}
 }

@@ -67,7 +67,7 @@ namespace CmkCable.API.Controllers
 
         
         [HttpPost("career-email")]
-        public async Task<IActionResult> SubmitCareerForm([FromForm] CareerInformation model,[FromForm] List<Experience> experiences)
+        public async Task<IActionResult> SubmitCareerForm([FromForm] CareerInformation model)
         {
 
 
@@ -77,7 +77,7 @@ namespace CmkCable.API.Controllers
             }
             try
             {
-                await _emailManager.SendCareerEmailAsync("fyuzgul@cmkkablo.com", "Kariyer", model, experiences, model.Cv);
+                await _emailManager.SendCareerEmailAsync("fyuzgul@cmkkablo.com", "Kariyer", model, model.Cv);
                 return Ok(new { message = "Email sent successfully" });
             }
             catch (System.Exception ex)

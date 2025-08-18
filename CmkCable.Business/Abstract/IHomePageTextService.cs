@@ -1,5 +1,6 @@
 ﻿using CmkCable.Entities;
 using DTOs;
+using DTOs.CreateDTOs;
 using DTOs.UpdateDTOs;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,11 @@ namespace CmkCable.Business.Abstract
     public interface IHomePageTextService
     {
         HomePageTextDTO GetHomePageTextByName(string name, int languageId);
+        HomePageTextDTO GetHomePageTextById(int id, int languageId);
         List<HomePageTextDTO> GetHomeAllPageTexts(int languageId);
         List<HomePageTextDTO> GetHomePageTextsWithAllTranslations();
         List<HomePageTextUpdateDTO> UpdateHomeText(List<HomePageTextUpdateDTO> homePageTextUpdateDTOs);
-
+        HomePageTextDTO CreateHomePageText(CreateHomePageTextWithTranslationsDTO createDto);
+        bool DeleteHomePageText(int id);
     }
 }

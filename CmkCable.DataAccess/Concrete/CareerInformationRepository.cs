@@ -28,28 +28,18 @@ namespace CmkCable.DataAccess.Concrete
             return null;
         }
 
-        public CareerInformation CreateCareerInformation(CareerInformation careerInformation, List<Experience> experience)
+        public CareerInformation CreateCareerInformation(CareerInformation careerInformation)
         {
             using (var context = new CmkCableDbContext())
             {
                 careerInformation.CvPath = ConvertCvToBase64(careerInformation.Cv);
 
                 context.CareerInformations.Add(careerInformation);
-                context.SaveChanges(); // ID burada oluşuyor
-
-                foreach (var exp in experience)
-                {
-                    exp.CareerInformationId = careerInformation.Id;
-                    context.Experiences.Add(exp);
-                }
-
                 context.SaveChanges();
 
                 return careerInformation;
             }
         }
-
-
 
         public void DeleteCareerInformation(int id)
         {
@@ -66,7 +56,6 @@ namespace CmkCable.DataAccess.Concrete
             using (var context = new CmkCableDbContext())
             {
                 var careerInformations = context.CareerInformations
-                    .Include(c => c.Experiences)
                     .OrderByDescending(c => c.CreatedAt) // En son eklenenler üstte olacak
                     .Select(c => new CareerInformationDTO
                     {
@@ -79,35 +68,19 @@ namespace CmkCable.DataAccess.Concrete
                         MilitaryStatus = c.MilitaryStatus,
                         DriverLicense = c.DriverLicense,
                         TravelAvailability = c.TravelAvailability,
-                        School = c.School,
-                        Faculty = c.Faculty,
-                        GraduationDate = c.GraduationDate,
-                        Languages = c.Languages,
-                        SoftwareSkills = c.SoftwareSkills,
-                        IpAddress = c.IpAddress,
-                        Seminars = c.Seminars,
                         Department = c.Department,
                         ReferenceSource = c.ReferenceSource,
                         Description = c.Description,
                         CvPath = c.CvPath,
                         Consent = c.Consent,
                         CreatedAt = DateTime.SpecifyKind(c.CreatedAt, DateTimeKind.Utc), // UTC olarak belirtiyoruz
-                        Experiences = c.Experiences.Select(e => new Experience
-                        {
-                            Id = e.Id,
-                            Company = e.Company,
-                            Duration = e.Duration,
-                            Position = e.Position,
-                            CareerInformationId = e.CareerInformationId
-                        }).ToList()
+                        IpAddress = c.IpAddress
                     })
                     .ToList();
 
                 return careerInformations;
             }
         }
-
-
 
         public CareerInformation GetCareerInformationById(int id)
         {
