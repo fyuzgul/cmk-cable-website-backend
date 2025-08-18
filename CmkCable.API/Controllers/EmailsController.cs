@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 
 namespace CmkCable.API.Controllers
 {
@@ -216,6 +219,69 @@ namespace CmkCable.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        [HttpGet("health-check")]
+        public async Task<IActionResult> EmailHealthCheck()
+        {
+            try
+            {
+                var testMessage = new MimeMessage();
+                testMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
+                testMessage.To.Add(new MailboxAddress("Test", "test@example.com"));
+                testMessage.Subject = "Email Health Check";
+                testMessage.Body = new TextPart("plain") { Text = "This is a test email to check SMTP connectivity." };
+
+                var emailManager = new EmailManager();
+                
+                // Test SMTP connectivity without actually sending
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                client.Timeout = 10000; // 10 seconds for health check
+                
+                var healthResults = new List<object>();
+                
+                // Test Gmail TLS
+                try
+                {
+                    await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                    await client.DisconnectAsync(true);
+                    healthResults.Add(new { Method = "Gmail SMTP (TLS)", Status = "Success", Port = 587 });
+                }
+                catch (Exception ex)
+                {
+                    healthResults.Add(new { Method = "Gmail SMTP (TLS)", Status = "Failed", Port = 587, Error = ex.Message });
+                }
+
+                // Test Gmail SSL
+                try
+                {
+                    await client.ConnectAsync("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.SslOnConnect);
+                    await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                    await client.DisconnectAsync(true);
+                    healthResults.Add(new { Method = "Gmail SMTP (SSL)", Status = "Success", Port = 465 });
+                }
+                catch (Exception ex)
+                {
+                    healthResults.Add(new { Method = "Gmail SMTP (SSL)", Status = "Failed", Port = 465, Error = ex.Message });
+                }
+
+                var overallStatus = healthResults.Any(r => r.GetType().GetProperty("Status")?.GetValue(r)?.ToString() == "Success") ? "Healthy" : "Unhealthy";
+                
+                return Ok(new { 
+                    status = overallStatus,
+                    timestamp = DateTime.UtcNow,
+                    results = healthResults
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    status = "Error", 
+                    error = ex.Message, 
+                    timestamp = DateTime.UtcNow 
+                });
             }
         }
     }

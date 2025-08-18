@@ -66,145 +66,119 @@ namespace CmkCable.Business.Concrete
                     </style>
                     <h1>Teklif Detayları</h1>
                     <table>
-                        <tr>
-                            <th>Alan</th>
-                            <th>Değer</th>
-                        </tr>
-                        <tr>
-                            <td>Ad</td>
-                            <td>{offerDetails.FirstName}</td>
-                        </tr>
-                        <tr>
-                            <td>Soyad</td>
-                            <td>{offerDetails.LastName}</td>
-                        </tr>
-                        <tr>
-                            <td>Work Email</td>
-                            <td>{offerDetails.WorkEmail}</td>
-                        </tr>
-                        <tr>
-                            <td>Rol</td>
-                            <td>{offerDetails.Role?.Name}</td>
-                        </tr>
-                        <tr>
-                            <td>Ülke</td>
-                            <td>{offerDetails.Country}</td>
-                        </tr>
-                        <tr>
-                            <td>Şirket</td>
-                            <td>{offerDetails.Company}</td>
-                        </tr>
-                        <tr>
-                            <td>Şirket Türü</td>
-                            <td>{offerDetails.CompanyType?.Name}</td>
-                        </tr>
-                        <tr>
-                            <td>Telefon</td>
-                            <td>{offerDetails.TelephoneNumber}</td>
-                        </tr>
-                        <tr>
-                            <td>Yardım Türü</td>
-                            <td>{offerDetails.HelpType?.Name}</td>
-                        </tr>
-                        <tr>
-                            <td>Mesaj</td>
-                            <td>{offerDetails.Message}</td>
-                        </tr>
-                        <tr>
-                            <td>IP Adresi</td>
-                            <td>{offerDetails.IpAddress ?? "Belirtilmemiş"}</td>
-                        </tr>
-                        <tr>
-                            <td>Açık Rıza</td>
-                            <td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td>
-                        </tr>
-                        <tr>
-                            <td>Oluşturulma Tarihi</td>
-                            <td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td>
-                        </tr>
+                        <tr><th>Alan</th><th>Değer</th></tr>
+                        <tr><td>Ad Soyad</td><td>{offerDetails.AdSoyad}</td></tr>
+                        <tr><td>Email</td><td>{offerDetails.Email}</td></tr>
+                        <tr><td>Firma Adı</td><td>{offerDetails.FirmaAdi}</td></tr>
+                        <tr><td>Telefon</td><td>{offerDetails.TelephoneNumber}</td></tr>
+                        <tr><td>Kablolar</td><td>{offerDetails.Kablolar}</td></tr>
+                        <tr><td>LME</td><td>{offerDetails.Lme}</td></tr>
+                        <tr><td>Ödeme Şekli</td><td>{offerDetails.OdemeSekli}</td></tr>
+                        <tr><td>Ambalajlama</td><td>{offerDetails.Ambalajlama}</td></tr>
+                        <tr><td>Açıklama</td><td>{offerDetails.Aciklama}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
                     </table>"
             };
 
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
-            try
+            // Use the helper method for reliable email sending
+            bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
+
+            if (!emailSent)
             {
-                using var client = new MailKit.Net.Smtp.SmtpClient();
-                await client.ConnectAsync("smtp.gmail.com", 587, false);
-                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
-            }
-            catch (Exception ex)
-            {
-                // Hata mesajını loglara yazdır
-                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+                throw new Exception("All SMTP configurations failed. Please check your email configuration.");
             }
         }
 
         public async Task SendEmailAsync(string subject, ContactRequest message)
         {
-            _contactRequestRepository.Add(message);
-            var to_mails = _managerMailRepository.GetByType("contact");
-            var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
-
-            foreach (var emailRecord in to_mails)
-            {
-                emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
-            }
-            emailMessage.Subject = subject;
-            var bodyBuilder = new BodyBuilder
-            {
-                HtmlBody = $@"
-                    <style>
-                        table {{
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 20px 0;
-                        }}
-                        th, td {{
-                            border: 1px solid #ddd;
-                            padding: 12px;
-                            text-align: left;
-                        }}
-                        th {{
-                            background-color: #f5f5f5;
-                        }}
-                        tr:nth-child(even) {{
-                            background-color: #f9f9f9;
-                        }}
-                    </style>
-                    <h1>İletişim Detayları</h1>
-                    <table>
-                        <tr><th>Alan</th><th>Değer</th></tr>
-                        <tr><td>Ad Soyad</td><td>{message.FullName}</td></tr>
-                        <tr><td>Adres</td><td>{message.Street}</td></tr>
-                        <tr><td>Şehir</td><td>{message.City}</td></tr>
-                        <tr><td>Posta Kodu</td><td>{message.Postcode}</td></tr>
-                        <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
-                        <tr><td>Email</td><td>{message.Email}</td></tr>
-                        <tr><td>Mesaj</td><td>{message.Message}</td></tr>
-                        <tr><td>IP Adresi</td><td>{message.IpAddress}</td></tr>
-                        <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
-                        <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
-                    </table>"
-            };
-
-            emailMessage.Body = bodyBuilder.ToMessageBody();
-
+            ContactRequest savedContactRequest = null;
+            
             try
             {
-                using var client = new MailKit.Net.Smtp.SmtpClient();
-                await client.ConnectAsync("smtp.gmail.com", 587, false);
-                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
+                _contactRequestRepository.Add(message);
+                savedContactRequest = message; // Keep reference for potential deletion
+                Console.WriteLine($"Contact request saved to database");
+                
+                var to_mails = _managerMailRepository.GetByType("contact");
+                var emailMessage = new MimeMessage();
+                emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
+
+                foreach (var emailRecord in to_mails)
+                {
+                    emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
+                }
+                emailMessage.Subject = subject;
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = $@"
+                        <style>
+                            table {{
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 20px 0;
+                            }}
+                            th, td {{
+                                border: 1px solid #ddd;
+                                padding: 12px;
+                                text-align: left;
+                            }}
+                            th {{
+                                background-color: #f5f5f5;
+                            }}
+                            tr:nth-child(even) {{
+                                background-color: #f9f9f9;
+                            }}
+                        </style>
+                        <h1>İletişim Detayları</h1>
+                        <table>
+                            <tr><th>Alan</th><th>Değer</th></tr>
+                            <tr><td>Ad Soyad</td><td>{message.FullName}</td></tr>
+                            <tr><td>Email</td><td>{message.Email}</td></tr>
+                            <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
+                            <tr><td>Adres</td><td>{message.Street}, {message.City} {message.Postcode}</td></tr>
+                            <tr><td>Mesaj</td><td>{message.Message}</td></tr>
+                            <tr><td>IP Adresi</td><td>{message.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
+                            <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                        </table>"
+                };
+
+                emailMessage.Body = bodyBuilder.ToMessageBody();
+
+                // Use the helper method for reliable email sending
+                bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
+
+                if (!emailSent)
+                {
+                    throw new Exception("All SMTP configurations failed. Please check your email configuration.");
+                }
+
+                Console.WriteLine("Contact email process completed successfully");
             }
             catch (Exception ex)
             {
-                // Hata mesajını loglara yazdır
-                Console.WriteLine($"Mail gönderim hatası: {ex.Message}");
+                Console.WriteLine($"Contact email error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // If we saved contact request but email failed, we should delete it
+                if (savedContactRequest != null && savedContactRequest.Id > 0)
+                {
+                    try
+                    {
+                        Console.WriteLine($"Deleting contact request with ID {savedContactRequest.Id} due to email failure");
+                        // Note: You'll need to implement DeleteContactRequest method in repository
+                        // _contactRequestRepository.DeleteContactRequest(savedContactRequest.Id);
+                        Console.WriteLine("Contact request deletion not implemented yet");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Console.WriteLine($"Failed to delete contact request: {deleteEx.Message}");
+                    }
+                }
+                
+                throw new Exception($"Email gönderilirken hata oluştu: {ex.Message}");
             }
         }
 
@@ -222,13 +196,81 @@ namespace CmkCable.Business.Concrete
             return null;
         }
 
-
-        public async Task SendCareerEmailAsync(string toEmail, string subject, CareerInformation careerInformation, IFormFile attachmentFile)
+        private async Task<bool> TrySendEmailAsync(MimeMessage emailMessage, string smtpHost, int port, MailKit.Security.SecureSocketOptions securityOption, string description)
         {
             try
             {
+                using var client = new MailKit.Net.Smtp.SmtpClient();
+                
+                // Set timeout for production reliability
+                client.Timeout = 30000; // 30 seconds
+                
+                await client.ConnectAsync(smtpHost, port, securityOption);
+                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
+                await client.SendAsync(emailMessage);
+                await client.DisconnectAsync(true);
+                
+                Console.WriteLine($"Email sent successfully via {description}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{description} failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> SendEmailWithFallbackAsync(MimeMessage emailMessage)
+        {
+            // Try multiple SMTP configurations for production reliability
+            var configurations = new[]
+            {
+                new { Host = "smtp.gmail.com", Port = 587, Security = MailKit.Security.SecureSocketOptions.StartTls, Description = "Gmail SMTP (TLS)" },
+                new { Host = "smtp.gmail.com", Port = 465, Security = MailKit.Security.SecureSocketOptions.SslOnConnect, Description = "Gmail SMTP (SSL)" }
+            };
+
+            foreach (var config in configurations)
+            {
+                if (await TrySendEmailAsync(emailMessage, config.Host, config.Port, config.Security, config.Description))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void LogFailedEmail(string emailType, string recipient, string error, object data = null)
+        {
+            try
+            {
+                var logMessage = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Failed to send {emailType} email to {recipient}. Error: {error}";
+                if (data != null)
+                {
+                    logMessage += $" Data: {System.Text.Json.JsonSerializer.Serialize(data)}";
+                }
+                
+                Console.WriteLine(logMessage);
+                
+                // In production, you might want to log to a file or database
+                // File.AppendAllText("failed_emails.log", logMessage + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to log failed email: {ex.Message}");
+            }
+        }
+
+
+        public async Task SendCareerEmailAsync(string toEmail, string subject, CareerInformation careerInformation, IFormFile attachmentFile)
+        {
+            CareerInformation savedCareerInfo = null;
+            
+            try
+            {
                 // First, save the career information to database
-                _careerInformationRepository.CreateCareerInformation(careerInformation);
+                savedCareerInfo = _careerInformationRepository.CreateCareerInformation(careerInformation);
+                Console.WriteLine($"Career information saved to database with ID: {savedCareerInfo.Id}");
                 
                 // Get manager emails for career type
                 var to_mails = _managerMailRepository.GetByType("career");
@@ -240,6 +282,7 @@ namespace CmkCable.Business.Concrete
                     if (!string.IsNullOrEmpty(toEmail))
                     {
                         to_mails = new List<ManagerMail> { new ManagerMail { Email = toEmail } };
+                        Console.WriteLine($"Using fallback email: {toEmail}");
                     }
                     else
                     {
@@ -255,6 +298,7 @@ namespace CmkCable.Business.Concrete
                     if (!string.IsNullOrEmpty(emailRecord.Email))
                     {
                         emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
+                        Console.WriteLine($"Adding recipient: {emailRecord.Email}");
                     }
                 }
 
@@ -316,22 +360,54 @@ namespace CmkCable.Business.Concrete
                         memoryStream.Position = 0;
 
                         bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
+                        Console.WriteLine($"CV attachment added: {attachmentFile.FileName}");
                     }
                 }
 
                 emailMessage.Body = bodyBuilder.ToMessageBody();
 
-                using var client = new MailKit.Net.Smtp.SmtpClient();
-                await client.ConnectAsync("smtp.gmail.com", 587, false);
-                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
+                Console.WriteLine("Attempting to send email via SMTP...");
+                
+                // Use the helper method for reliable email sending
+                bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
+
+                if (!emailSent)
+                {
+                    throw new Exception("All SMTP configurations failed. Please check your email configuration.");
+                }
+
+                Console.WriteLine("Career email process completed successfully");
             }
             catch (Exception ex)
             {
                 // Log the error details for debugging
                 Console.WriteLine($"Career email error: {ex.Message}");
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Log failed email attempt
+                var recipients = to_mails?.Select(m => m.Email).ToList() ?? new List<string> { toEmail };
+                LogFailedEmail("career", string.Join(", ", recipients), ex.Message, new { 
+                    CareerId = savedCareerInfo?.Id, 
+                    FullName = careerInformation?.FullName,
+                    Email = careerInformation?.Email 
+                });
+                
+                // If we saved career info but email failed, we should delete it
+                if (savedCareerInfo != null && savedCareerInfo.Id > 0)
+                {
+                    try
+                    {
+                        Console.WriteLine($"Deleting career information with ID {savedCareerInfo.Id} due to email failure");
+                        _careerInformationRepository.DeleteCareerInformation(savedCareerInfo.Id);
+                        Console.WriteLine("Career information deleted successfully");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Console.WriteLine($"Failed to delete career information: {deleteEx.Message}");
+                        LogFailedEmail("career", "SYSTEM", $"Failed to delete career info: {deleteEx.Message}");
+                    }
+                }
+                
                 throw new Exception($"Email gönderilirken hata oluştu: {ex.Message}");
             }
         }
