@@ -82,17 +82,48 @@ namespace CmkCable.DataAccess.Concrete
 
         public List<ManagerMail> GetByType(string type)
         {
-            using(var context = new CmkCableDbContext())
+            try
             {
-                var mailFormTypes = context.MailFormTypes.Where(mft => mft.FormType.FormTypes == type).ToList();
-                var managerMails = new List<ManagerMail>();
-
-                foreach (var mailFormType in mailFormTypes)
+                using (var context = new CmkCableDbContext())
                 {
-                    var managerMail = context.ManagerMails.Find(mailFormType.MailId);
-                    managerMails.Add(managerMail);
+                    if (string.IsNullOrEmpty(type))
+                    {
+                        Console.WriteLine("GetByType called with null or empty type parameter");
+                        return new List<ManagerMail>();
+                    }
+
+                    var mailFormTypes = context.MailFormTypes
+                        .Where(mft => mft.FormType != null && mft.FormType.FormTypes == type)
+                        .ToList();
+
+                    if (!mailFormTypes.Any())
+                    {
+                        Console.WriteLine($"No MailFormTypes found for type: {type}");
+                        return new List<ManagerMail>();
+                    }
+
+                    var managerMails = new List<ManagerMail>();
+
+                    foreach (var mailFormType in mailFormTypes)
+                    {
+                        if (mailFormType.MailId > 0)
+                        {
+                            var managerMail = context.ManagerMails.Find(mailFormType.MailId);
+                            if (managerMail != null && !string.IsNullOrEmpty(managerMail.Email))
+                            {
+                                managerMails.Add(managerMail);
+                            }
+                        }
+                    }
+
+                    Console.WriteLine($"Found {managerMails.Count} manager emails for type: {type}");
+                    return managerMails;
                 }
-                return managerMails;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetByType for type '{type}': {ex.Message}");
+                return new List<ManagerMail>();
             }
         }
 

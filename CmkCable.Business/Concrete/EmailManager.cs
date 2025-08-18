@@ -225,74 +225,102 @@ namespace CmkCable.Business.Concrete
 
         public async Task SendCareerEmailAsync(string toEmail, string subject, CareerInformation careerInformation, IFormFile attachmentFile)
         {
-            _careerInformationRepository.CreateCareerInformation(careerInformation);
-            var to_mails = _managerMailRepository.GetByType("career");
-            var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
-
-            foreach (var emailRecord in to_mails)
-            {
-                emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
-            }
-            emailMessage.Subject = subject;
-
-            var bodyBuilder = new BodyBuilder
-            {
-                HtmlBody = $@"
-                    <style>
-                        table {{
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 20px 0;
-                        }}
-                        th, td {{
-                            border: 1px solid #ddd;
-                            padding: 12px;
-                            text-align: left;
-                        }}
-                        th {{
-                            background-color: #f5f5f5;
-                        }}
-                        tr:nth-child(even) {{
-                            background-color: #f9f9f9;
-                        }}
-                    </style>
-                    <h1>Kariyer Detayları</h1>
-                    <table>
-                        <tr><th>Alan</th><th>Değer</th></tr>
-                        <tr><td>Ad Soyad</td><td>{careerInformation.FullName}</td></tr>
-                        <tr><td>Telefon</td><td>{careerInformation.TelephoneNumber}</td></tr>
-                        <tr><td>Email</td><td>{careerInformation.Email}</td></tr>
-                        <tr><td>Cinsiyet</td><td>{careerInformation.Gender}</td></tr>
-                        <tr><td>Medeni Durum</td><td>{careerInformation.MaritalStatus}</td></tr>
-                        <tr><td>Askerlik Durumu</td><td>{careerInformation.MilitaryStatus}</td></tr>
-                        <tr><td>Sürücü Belgesi</td><td>{careerInformation.DriverLicense}</td></tr>
-                        <tr><td>Seyahat Durumu</td><td>{careerInformation.TravelAvailability}</td></tr>
-                        <tr><td>Başvurulan Departman</td><td>{careerInformation.Department}</td></tr>
-                        <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource}</td></tr>
-                        <tr><td>Açıklama</td><td>{careerInformation.Description}</td></tr>
-                        <tr><td>CV</td><td>{careerInformation.Cv?.FileName}</td></tr>
-                        <tr><td>IP Adresi</td><td>{careerInformation.IpAddress}</td></tr>
-                        <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
-                        <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
-                    </table>"
-            };
-
-            if (attachmentFile != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await attachmentFile.CopyToAsync(memoryStream);
-                    memoryStream.Position = 0;
-
-                    bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
-                }
-            }
-
-            emailMessage.Body = bodyBuilder.ToMessageBody();
-
             try
             {
+                // First, save the career information to database
+                _careerInformationRepository.CreateCareerInformation(careerInformation);
+                
+                // Get manager emails for career type
+                var to_mails = _managerMailRepository.GetByType("career");
+                
+                // Check if any manager emails are found
+                if (to_mails == null || !to_mails.Any())
+                {
+                    // Fallback to the provided email if no manager emails are configured
+                    if (!string.IsNullOrEmpty(toEmail))
+                    {
+                        to_mails = new List<ManagerMail> { new ManagerMail { Email = toEmail } };
+                    }
+                    else
+                    {
+                        throw new Exception("No recipient emails configured for career applications. Please configure manager emails for 'career' type.");
+                    }
+                }
+
+                var emailMessage = new MimeMessage();
+                emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
+
+                foreach (var emailRecord in to_mails)
+                {
+                    if (!string.IsNullOrEmpty(emailRecord.Email))
+                    {
+                        emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
+                    }
+                }
+
+                // Check if we have any valid recipients
+                if (!emailMessage.To.Any())
+                {
+                    throw new Exception("No valid recipient emails found for career application.");
+                }
+
+                emailMessage.Subject = subject;
+
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = $@"
+                        <style>
+                            table {{
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin: 20px 0;
+                            }}
+                            th, td {{
+                                border: 1px solid #ddd;
+                                padding: 12px;
+                                text-align: left;
+                            }}
+                            th {{
+                                background-color: #f5f5f5;
+                            }}
+                            tr:nth-child(even) {{
+                                background-color: #f9f9f9;
+                            }}
+                        </style>
+                        <h1>Kariyer Detayları</h1>
+                        <table>
+                            <tr><th>Alan</th><th>Değer</th></tr>
+                            <tr><td>Ad Soyad</td><td>{careerInformation.FullName ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Telefon</td><td>{careerInformation.TelephoneNumber ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Email</td><td>{careerInformation.Email ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Cinsiyet</td><td>{careerInformation.Gender ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Medeni Durum</td><td>{careerInformation.MaritalStatus ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Askerlik Durumu</td><td>{careerInformation.MilitaryStatus ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Sürücü Belgesi</td><td>{careerInformation.DriverLicense ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Seyahat Durumu</td><td>{careerInformation.TravelAvailability ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Başvurulan Departman</td><td>{careerInformation.Department ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Açıklama</td><td>{careerInformation.Description ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>CV</td><td>{careerInformation.Cv?.FileName ?? "Dosya yüklenmemiş"}</td></tr>
+                            <tr><td>IP Adresi</td><td>{careerInformation.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                            <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
+                            <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                        </table>"
+                };
+
+                if (attachmentFile != null)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await attachmentFile.CopyToAsync(memoryStream);
+                        memoryStream.Position = 0;
+
+                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
+                    }
+                }
+
+                emailMessage.Body = bodyBuilder.ToMessageBody();
+
                 using var client = new MailKit.Net.Smtp.SmtpClient();
                 await client.ConnectAsync("smtp.gmail.com", 587, false);
                 await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
@@ -301,6 +329,9 @@ namespace CmkCable.Business.Concrete
             }
             catch (Exception ex)
             {
+                // Log the error details for debugging
+                Console.WriteLine($"Career email error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 throw new Exception($"Email gönderilirken hata oluştu: {ex.Message}");
             }
         }

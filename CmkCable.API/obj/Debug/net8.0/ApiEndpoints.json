@@ -1133,6 +1133,26 @@
   },
   {
     "ContainingType": "CmkCable.API.Controllers.EmailsController",
+    "Method": "GetEmailConfiguration",
+    "RelativePath": "api/Emails/debug-config",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.EmailsController",
+    "Method": "SeedEmailData",
+    "RelativePath": "api/Emails/seed-data",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.EmailsController",
     "Method": "SendEmail",
     "RelativePath": "api/Emails/send-email",
     "HttpMethod": "POST",

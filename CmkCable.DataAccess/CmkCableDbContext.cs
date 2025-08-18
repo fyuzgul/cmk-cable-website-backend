@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 
 namespace CmkCable.DataAccess
@@ -17,11 +18,67 @@ namespace CmkCable.DataAccess
 
             // Local PostgreSQL 17 database connection
             optionsBuilder.UseNpgsql("Host=165.22.95.181;Port=5432;Database=CmkCableProd;Username=postgres;Password=20analyzer16");
-
+            //optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=CmkCable;Username=postgres;Password=postgres");
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            
+            // Ensure required data exists
+            SeedRequiredData();
+        }
 
-        
+        private void SeedRequiredData()
+        {
+            try
+            {
+                // Check if FormTypes exist, if not create them
+                if (!FormTypes.Any())
+                {
+                    var formTypes = new List<FormType>
+                    {
+                        new FormType { FormTypes = "career" },
+                        new FormType { FormTypes = "offer" },
+                        new FormType { FormTypes = "contact" }
+                    };
+                    FormTypes.AddRange(formTypes);
+                    SaveChanges();
+                }
+
+                // Check if ManagerMails exist for career type, if not create default
+                var careerFormType = FormTypes.FirstOrDefault(ft => ft.FormTypes == "career");
+                if (careerFormType != null)
+                {
+                    var existingCareerMails = MailFormTypes
+                        .Where(mft => mft.FormTypeId == careerFormType.Id)
+                        .Select(mft => mft.MailId)
+                        .ToList();
+
+                    if (!existingCareerMails.Any())
+                    {
+                        // Create default manager mail for career
+                        var defaultManagerMail = new ManagerMail { Email = "fyuzgul@cmkkablo.com" };
+                        ManagerMails.Add(defaultManagerMail);
+                        SaveChanges();
+
+                        // Create MailFormType relationship
+                        var mailFormType = new MailFormType
+                        {
+                            MailId = defaultManagerMail.Id,
+                            FormTypeId = careerFormType.Id
+                        };
+                        MailFormTypes.Add(mailFormType);
+                        SaveChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't fail the application startup
+                Console.WriteLine($"Error seeding required data: {ex.Message}");
+            }
+        }
 
 
         public DbSet<Category> Categories { get; set; }
