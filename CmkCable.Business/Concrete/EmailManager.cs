@@ -6,14 +6,12 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Collections.Generic;
 using CmkCable.Entities;
-using System.Net.Mail;
 using System.Net;
 using System.Text;
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
 using System;
-using MimeKit.ContentType;
 
 namespace CmkCable.Business.Concrete
 {
@@ -201,7 +199,7 @@ namespace CmkCable.Business.Concrete
             return null;
         }
 
-        private async Task<bool> TrySendEmailAsync(MimeMessage emailMessage, string smtpHost, int port, MailKit.Security.SecureSocketOptions securityOption, string description)
+        private async Task<bool> TrySendEmailAsync(MimeMessage emailMessage, string smtpHost, int port, SecureSocketOptions securityOption, string description)
         {
             try
             {
@@ -230,8 +228,8 @@ namespace CmkCable.Business.Concrete
             // Try multiple SMTP configurations for production reliability
             var configurations = new[]
             {
-                new { Host = "smtp.gmail.com", Port = 587, Security = MailKit.Security.SecureSocketOptions.StartTls, Description = "Gmail SMTP (TLS)" },
-                new { Host = "smtp.gmail.com", Port = 465, Security = MailKit.Security.SecureSocketOptions.SslOnConnect, Description = "Gmail SMTP (SSL)" }
+                new { Host = "smtp.gmail.com", Port = 587, Security = SecureSocketOptions.StartTls, Description = "Gmail SMTP (TLS)" },
+                new { Host = "smtp.gmail.com", Port = 465, Security = SecureSocketOptions.SslOnConnect, Description = "Gmail SMTP (SSL)" }
             };
 
             foreach (var config in configurations)
@@ -365,7 +363,7 @@ namespace CmkCable.Business.Concrete
                         await attachmentFile.CopyToAsync(memoryStream);
                         memoryStream.Position = 0;
 
-                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), MimeKit.ContentType.Parse(attachmentFile.ContentType));
+                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
                         Console.WriteLine($"CV attachment added: {attachmentFile.FileName}");
                     }
                 }

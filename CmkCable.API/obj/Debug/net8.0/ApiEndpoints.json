@@ -1143,6 +1143,16 @@
   },
   {
     "ContainingType": "CmkCable.API.Controllers.EmailsController",
+    "Method": "EmailHealthCheck",
+    "RelativePath": "api/Emails/health-check",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.EmailsController",
     "Method": "SeedEmailData",
     "RelativePath": "api/Emails/seed-data",
     "HttpMethod": "POST",
