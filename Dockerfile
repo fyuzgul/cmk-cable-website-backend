@@ -37,7 +37,7 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/letsencrypt/live/cmkkab
 ENV ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/etc/letsencrypt/live/cmkkablo.com/privkey.pem
 
 # SendGrid Configuration
-ENV SENDGRID_API_KEY=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
+ENV SENDGRID_API_KEY=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
 ENV SENDGRID_FROM_EMAIL=webcmkkablo@gmail.com
 ENV SENDGRID_FROM_NAME="CMK KABLO"
 
