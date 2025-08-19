@@ -15,13 +15,13 @@ namespace CmkCable.API.Controllers
     [ApiController]
     public class GetOffersController : ControllerBase
     {
-        private readonly IGetOfferService _getOfferService;
+        private readonly GetOfferManager _getOfferService;
         private readonly EmailManager _emailManager;
 
-        public GetOffersController(IGetOfferService getOfferService, EmailManager emailManager)
+        public GetOffersController()
         {
-            _getOfferService = getOfferService;
-            _emailManager = emailManager;
+            _getOfferService = new GetOfferManager();
+            _emailManager = new EmailManager();
         }
 
         [HttpGet]

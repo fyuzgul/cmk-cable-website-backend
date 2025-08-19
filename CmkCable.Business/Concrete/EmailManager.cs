@@ -43,6 +43,16 @@ namespace CmkCable.Business.Concrete
             _managerMailRepository = new ManagerMailRepository();
         }
 
+        // Parameterless constructor for use without dependency injection
+        public EmailManager()
+        {
+            _configuration = null; // Will use environment variables only
+            _getOfferRepository = new GetOfferRepository();
+            _contactRequestRepository = new ContactRequestRepository();
+            _careerInformationRepository = new CareerInformationRepository();
+            _managerMailRepository = new ManagerMailRepository();
+        }
+
         public async Task SendOfferEmailAsync(string subject, GetOffer offerDetails)
         {
             var to_emails = _managerMailRepository.GetByType("offer");
