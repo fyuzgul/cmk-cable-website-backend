@@ -9,6 +9,7 @@ using System.Linq;
 using System;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Microsoft.Extensions.Configuration;
 
 namespace CmkCable.Business.Concrete
 {
@@ -18,16 +19,24 @@ namespace CmkCable.Business.Concrete
         private IContactRequestRepository _contactRequestRepository;
         private ICareerInformationRepository _careerInformationRepository;
         private IManagerMailRepository _managerMailRepository;
+        private readonly IConfiguration _configuration;
         
-        // SendGrid Configuration
-        // TODO: Move these to environment variables or configuration files for security
-        // Current hardcoded values are not secure and should be changed
-        private const string SENDGRID_API_KEY = "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";
-        private const string FROM_EMAIL = "webcmkkablo@gmail.com";
-        private const string FROM_NAME = "CMK KABLO";
+        // SendGrid Configuration - Artık configuration'dan okunuyor
+        private string SendGridApiKey => 
+            Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? 
+            _configuration["SendGrid:ApiKey"];
+        private string FromEmail => 
+            Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL") ?? 
+            _configuration["SendGrid:FromEmail"] ?? 
+            "webcmkkablo@gmail.com";
+        private string FromName => 
+            Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME") ?? 
+            _configuration["SendGrid:FromName"] ?? 
+            "CMK KABLO";
         
-        public EmailManager()
+        public EmailManager(IConfiguration configuration)
         {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _getOfferRepository = new GetOfferRepository();
             _contactRequestRepository = new ContactRequestRepository();
             _careerInformationRepository = new CareerInformationRepository();
@@ -228,25 +237,25 @@ namespace CmkCable.Business.Concrete
                     return false;
                 }
 
-                if (string.IsNullOrEmpty(SENDGRID_API_KEY))
+                if (string.IsNullOrEmpty(SendGridApiKey))
                 {
-                    Console.WriteLine("SendGrid API Key not configured. Please set SENDGRID_API_KEY environment variable.");
+                    Console.WriteLine("SendGrid API Key not configured. Please set SendGrid:ApiKey in appsettings.json.");
                     return false;
                 }
 
-                if (string.IsNullOrEmpty(FROM_EMAIL))
+                if (string.IsNullOrEmpty(FromEmail))
                 {
                     Console.WriteLine("FROM_EMAIL is not configured");
                     return false;
                 }
                 
                 Console.WriteLine($"Preparing to send email to: {toEmail}");
-                Console.WriteLine($"From: {FROM_EMAIL} ({FROM_NAME})");
+                Console.WriteLine($"From: {FromEmail} ({FromName})");
                 Console.WriteLine($"Subject: {subject}");
                 Console.WriteLine($"Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
                 
-                var client = new SendGridClient(SENDGRID_API_KEY);
-                var from = new EmailAddress(FROM_EMAIL, FROM_NAME);
+                var client = new SendGridClient(SendGridApiKey);
+                var from = new EmailAddress(FromEmail, FromName);
                 var to = new EmailAddress(toEmail);
                 
                 var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);

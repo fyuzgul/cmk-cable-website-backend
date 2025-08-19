@@ -11,6 +11,7 @@
           "CloudinaryDotNet": "1.27.4",
           "CmkCable.Business": "1.0.0",
           "CmkCable.Entities": "1.0.0",
+          "DTOs": "1.0.0",
           "MailKit": "4.10.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "8.0.1",
           "Microsoft.EntityFrameworkCore": "9.0.3",

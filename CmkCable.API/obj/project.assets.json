@@ -7303,6 +7303,7 @@
       "CloudinaryDotNet >= 1.27.4",
       "CmkCable.Business >= 1.0.0",
       "CmkCable.Entities >= 1.0.0",
+      "DTOs >= 1.0.0",
       "MailKit >= 4.10.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.1",
       "Microsoft.EntityFrameworkCore >= 9.0.3",
@@ -7347,6 +7348,9 @@
             },
             "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj": {
               "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.Entities\\CmkCable.Entities.csproj"
+            },
+            "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj": {
+              "projectPath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\DTOs\\DTOs.csproj"
             }
           }
         }

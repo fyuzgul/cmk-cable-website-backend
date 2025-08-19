@@ -19,8 +19,12 @@ namespace CmkCable.API.Controllers
     [ApiController]
     public class EmailsController : ControllerBase
     {
-        private EmailManager _emailManager;
-        public EmailsController() { _emailManager = new EmailManager(); }
+        private readonly EmailManager _emailManager;
+        
+        public EmailsController(EmailManager emailManager) 
+        { 
+            _emailManager = emailManager; 
+        }
         [HttpPost("send-offer")]
         public async Task<IActionResult> SendOffer([FromForm] GetOffer offerDetails)
         {

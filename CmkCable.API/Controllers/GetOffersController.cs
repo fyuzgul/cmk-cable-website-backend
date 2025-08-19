@@ -1,12 +1,11 @@
 ﻿using CmkCable.Business.Abstract;
 using CmkCable.Business.Concrete;
+using CmkCable.DataAccess.Concrete;
 using CmkCable.Entities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using DTOs.CreateDTOs;
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 
@@ -16,10 +15,13 @@ namespace CmkCable.API.Controllers
     [ApiController]
     public class GetOffersController : ControllerBase
     {
-        private IGetOfferService _getOfferService;
-        public GetOffersController()
+        private readonly IGetOfferService _getOfferService;
+        private readonly EmailManager _emailManager;
+
+        public GetOffersController(IGetOfferService getOfferService, EmailManager emailManager)
         {
-            _getOfferService = new GetOfferManager();
+            _getOfferService = getOfferService;
+            _emailManager = emailManager;
         }
 
         [HttpGet]
@@ -67,8 +69,7 @@ namespace CmkCable.API.Controllers
                 // GetOffer'ı navigation property'ler ile yükle
                 var offerWithDetails = _getOfferService.GetOfferById(result.Id);
                 
-                var emailManager = new EmailManager();
-                await emailManager.SendOfferEmailAsync("Yeni Teklif Talebi", offerWithDetails);
+                await _emailManager.SendOfferEmailAsync("Yeni Teklif Talebi", offerWithDetails);
                 Console.WriteLine("Mail gönderimi tamamlandı!");
             }
             catch (Exception ex)

@@ -1,1 +1,30 @@
 .vs/
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+.env.development
+appsettings.*.json
+!appsettings.json
+!appsettings.Example.json
+
+# Build outputs
+publish/
+packages/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db

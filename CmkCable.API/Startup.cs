@@ -199,6 +199,9 @@ namespace CmkCable.API
 
             services.AddSingleton(cloudinary);
 
+            // EmailManager'ı dependency injection container'a ekle
+            services.AddScoped<EmailManager>();
+
             services.Configure<KestrelServerOptions>(options =>
             {
                 options.Limits.MaxRequestBodySize = 1073741824; // 1 GB

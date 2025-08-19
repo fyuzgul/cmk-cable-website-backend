@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CmkCable.Business\CmkCable.Business.csproj" />
     <ProjectReference Include="..\CmkCable.Entities\CmkCable.Entities.csproj" />
+    <ProjectReference Include="..\DTOs\DTOs.csproj" />
   </ItemGroup>
 
 </Project>
