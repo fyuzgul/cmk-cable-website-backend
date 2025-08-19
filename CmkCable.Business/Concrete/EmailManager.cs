@@ -24,8 +24,7 @@ namespace CmkCable.Business.Concrete
         // SendGrid Configuration - Artık configuration'dan okunuyor
         private string SendGridApiKey => 
             Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? 
-            _configuration?["SendGrid:ApiKey"] ??
-            "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";
+            _configuration?["SendGrid:ApiKey"];
         private string FromEmail => 
             Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL") ?? 
             _configuration?["SendGrid:FromEmail"] ?? 
