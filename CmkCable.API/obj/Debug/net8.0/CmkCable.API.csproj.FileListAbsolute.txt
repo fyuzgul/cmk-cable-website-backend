@@ -313,3 +313,5 @@ C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Sw
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\obj\Debug\net8.0\CmkCable.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\SendGrid.dll
+C:\Users\mfyuzgul\Desktop\Yeni klasör\CmkCable\CmkCable.API\bin\Debug\net8.0\StarkbankEcdsa.dll

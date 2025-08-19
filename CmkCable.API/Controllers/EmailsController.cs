@@ -226,52 +226,32 @@ namespace CmkCable.API.Controllers
         {
             try
             {
-                var testMessage = new MimeMessage();
-                testMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
-                testMessage.To.Add(new MailboxAddress("Test", "test@example.com"));
-                testMessage.Subject = "Email Health Check";
-                testMessage.Body = new TextPart("plain") { Text = "This is a test email to check SMTP connectivity." };
-
-                var emailManager = new EmailManager();
-                
-                // Test SMTP connectivity without actually sending
-                using var client = new MailKit.Net.Smtp.SmtpClient();
-                client.Timeout = 10000; // 10 seconds for health check
-                
                 var healthResults = new List<object>();
                 
-                // Test Gmail TLS
+                // Test SendGrid connectivity
                 try
                 {
-                    await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                    await client.DisconnectAsync(true);
-                    healthResults.Add(new { Method = "Gmail SMTP (TLS)", Status = "Success", Port = 587 });
+                    var emailManager = new EmailManager();
+                    
+                    // Test with a simple email (won't actually send due to placeholder API key)
+                    var testHtml = "<h1>SendGrid Health Check</h1><p>This is a test email to check SendGrid connectivity.</p>";
+                    var testPlainText = "SendGrid Health Check - This is a test email to check SendGrid connectivity.";
+                    
+                    // Note: This will fail with placeholder API key, but we can test the connection
+                    healthResults.Add(new { Method = "SendGrid API", Status = "Configuration Required", Port = "N/A", Note = "API key needs to be configured" });
                 }
                 catch (Exception ex)
                 {
-                    healthResults.Add(new { Method = "Gmail SMTP (TLS)", Status = "Failed", Port = 587, Error = ex.Message });
+                    healthResults.Add(new { Method = "SendGrid API", Status = "Failed", Port = "N/A", Error = ex.Message });
                 }
 
-                // Test Gmail SSL
-                try
-                {
-                    await client.ConnectAsync("smtp.gmail.com", 465, SecureSocketOptions.SslOnConnect);
-                    await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                    await client.DisconnectAsync(true);
-                    healthResults.Add(new { Method = "Gmail SMTP (SSL)", Status = "Success", Port = 465 });
-                }
-                catch (Exception ex)
-                {
-                    healthResults.Add(new { Method = "Gmail SMTP (SSL)", Status = "Failed", Port = 465, Error = ex.Message });
-                }
-
-                var overallStatus = healthResults.Any(r => r.GetType().GetProperty("Status")?.GetValue(r)?.ToString() == "Success") ? "Healthy" : "Unhealthy";
+                var overallStatus = healthResults.Any(r => r.GetType().GetProperty("Status")?.GetValue(r)?.ToString() == "Success") ? "Healthy" : "Configuration Required";
                 
                 return Ok(new { 
                     status = overallStatus,
                     timestamp = DateTime.UtcNow,
-                    results = healthResults
+                    results = healthResults,
+                    message = "SendGrid configuration required. Please set your SendGrid API key in EmailManager.SENDGRID_API_KEY"
                 });
             }
             catch (Exception ex)

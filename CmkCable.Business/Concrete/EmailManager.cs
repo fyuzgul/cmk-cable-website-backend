@@ -12,6 +12,8 @@ using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
 using System;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 namespace CmkCable.Business.Concrete
 {
@@ -21,6 +23,12 @@ namespace CmkCable.Business.Concrete
         private IContactRequestRepository _contactRequestRepository;
         private ICareerInformationRepository _careerInformationRepository;
         private IManagerMailRepository _managerMailRepository;
+        
+        // SendGrid Configuration
+        private const string SENDGRID_API_KEY = "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";
+        private const string FROM_EMAIL = "webcmkkablo@gmail.com";
+        private const string FROM_NAME = "CMK KABLO";
+        
         public EmailManager()
         {
             _getOfferRepository = new GetOfferRepository();
@@ -33,19 +41,87 @@ namespace CmkCable.Business.Concrete
         {
             var to_emails = _managerMailRepository.GetByType("offer");
 
-            var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
+            var htmlBody = $@"
+                <style>
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 20px 0;
+                    }}
+                    th, td {{
+                        border: 1px solid #ddd;
+                        padding: 12px;
+                        text-align: left;
+                    }}
+                    th {{
+                        background-color: #f5f5f5;
+                    }}
+                    tr:nth-child(even) {{
+                        background-color: #f9f9f9;
+                    }}
+                </style>
+                <h1>Teklif Detayları</h1>
+                <table>
+                    <tr><th>Alan</th><th>Değer</th></tr>
+                    <tr><td>Ad</td><td>{offerDetails.FirstName}</td></tr>
+                    <tr><td>Soyad</td><td>{offerDetails.LastName}</td></tr>
+                    <tr><td>Work Email</td><td>{offerDetails.WorkEmail}</td></tr>
+                    <tr><td>Rol</td><td>{offerDetails.Role?.Name ?? "Belirtilmemiş"}</td></tr>
+                    <tr><td>Ülke</td><td>{offerDetails.Country}</td></tr>
+                    <tr><td>Şirket</td><td>{offerDetails.Company}</td></tr>
+                    <tr><td>Şirket Türü</td><td>{offerDetails.CompanyType?.Name ?? "Belirtilmemiş"}</td></tr>
+                    <tr><td>Telefon</td><td>{offerDetails.TelephoneNumber}</td></tr>
+                    <tr><td>Yardım Türü</td><td>{offerDetails.HelpType?.Name ?? "Belirtilmemiş"}</td></tr>
+                    <tr><td>Mesaj</td><td>{offerDetails.Message}</td></tr>
+                    <tr><td>IP Adresi</td><td>{offerDetails.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                    <tr><td>Açık Rıza</td><td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td></tr>
+                    <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                </table>";
 
+            var plainTextBody = $"Teklif Detayları - {offerDetails.FirstName} {offerDetails.LastName}\nEmail: {offerDetails.WorkEmail}\nŞirket: {offerDetails.Company}";
+
+            // Send emails to all recipients using SendGrid
+            bool allEmailsSent = true;
             foreach (var emailRecord in to_emails)
             {
-                emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
+                if (!string.IsNullOrEmpty(emailRecord.Email))
+                {
+                    bool emailSent = await SendEmailWithSendGridAsync(
+                        emailRecord.Email, 
+                        subject, 
+                        htmlBody, 
+                        plainTextBody
+                    );
+                    
+                    if (!emailSent)
+                    {
+                        allEmailsSent = false;
+                        Console.WriteLine($"Failed to send offer email to {emailRecord.Email}");
+                    }
+                }
             }
 
-            emailMessage.Subject = subject;
-
-            var bodyBuilder = new BodyBuilder
+            if (!allEmailsSent)
             {
-                HtmlBody = $@"
+                throw new Exception("Some offer emails failed to send via SendGrid. Please check your SendGrid configuration.");
+            }
+
+            Console.WriteLine("Offer email process completed successfully via SendGrid");
+        }
+
+        public async Task SendEmailAsync(string subject, ContactRequest message)
+        {
+            ContactRequest savedContactRequest = null;
+            
+            try
+            {
+                _contactRequestRepository.Add(message);
+                savedContactRequest = message; // Keep reference for potential deletion
+                Console.WriteLine($"Contact request saved to database");
+                
+                var to_mails = _managerMailRepository.GetByType("contact");
+                
+                var htmlBody = $@"
                     <style>
                         table {{
                             width: 100%;
@@ -64,101 +140,48 @@ namespace CmkCable.Business.Concrete
                             background-color: #f9f9f9;
                         }}
                     </style>
-                    <h1>Teklif Detayları</h1>
+                    <h1>İletişim Detayları</h1>
                     <table>
                         <tr><th>Alan</th><th>Değer</th></tr>
-                        <tr><td>Ad</td><td>{offerDetails.FirstName}</td></tr>
-                        <tr><td>Soyad</td><td>{offerDetails.LastName}</td></tr>
-                        <tr><td>Work Email</td><td>{offerDetails.WorkEmail}</td></tr>
-                        <tr><td>Rol</td><td>{offerDetails.Role?.Name ?? "Belirtilmemiş"}</td></tr>
-                        <tr><td>Ülke</td><td>{offerDetails.Country}</td></tr>
-                        <tr><td>Şirket</td><td>{offerDetails.Company}</td></tr>
-                        <tr><td>Şirket Türü</td><td>{offerDetails.CompanyType?.Name ?? "Belirtilmemiş"}</td></tr>
-                        <tr><td>Telefon</td><td>{offerDetails.TelephoneNumber}</td></tr>
-                        <tr><td>Yardım Türü</td><td>{offerDetails.HelpType?.Name ?? "Belirtilmemiş"}</td></tr>
-                        <tr><td>Mesaj</td><td>{offerDetails.Message}</td></tr>
-                        <tr><td>IP Adresi</td><td>{offerDetails.IpAddress ?? "Belirtilmemiş"}</td></tr>
-                        <tr><td>Açık Rıza</td><td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td></tr>
-                        <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
-                    </table>"
-            };
+                        <tr><td>Ad Soyad</td><td>{message.FullName}</td></tr>
+                        <tr><td>Email</td><td>{message.Email}</td></tr>
+                        <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
+                        <tr><td>Adres</td><td>{message.Street}, {message.City} {message.Postcode}</td></tr>
+                        <tr><td>Mesaj</td><td>{message.Message}</td></tr>
+                        <tr><td>IP Adresi</td><td>{message.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                    </table>";
 
-            emailMessage.Body = bodyBuilder.ToMessageBody();
+                var plainTextBody = $"İletişim Mesajı - {message.FullName}\nEmail: {message.Email}\nTelefon: {message.TelephoneNumber}\nMesaj: {message.Message}";
 
-            // Use the helper method for reliable email sending
-            bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
-
-            if (!emailSent)
-            {
-                throw new Exception("All SMTP configurations failed. Please check your email configuration.");
-            }
-        }
-
-        public async Task SendEmailAsync(string subject, ContactRequest message)
-        {
-            ContactRequest savedContactRequest = null;
-            
-            try
-            {
-                _contactRequestRepository.Add(message);
-                savedContactRequest = message; // Keep reference for potential deletion
-                Console.WriteLine($"Contact request saved to database");
-                
-                var to_mails = _managerMailRepository.GetByType("contact");
-                var emailMessage = new MimeMessage();
-                emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
-
+                // Send emails to all recipients using SendGrid
+                bool allEmailsSent = true;
                 foreach (var emailRecord in to_mails)
                 {
-                    emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
-                }
-                emailMessage.Subject = subject;
-                var bodyBuilder = new BodyBuilder
-                {
-                    HtmlBody = $@"
-                        <style>
-                            table {{
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin: 20px 0;
-                            }}
-                            th, td {{
-                                border: 1px solid #ddd;
-                                padding: 12px;
-                                text-align: left;
-                            }}
-                            th {{
-                                background-color: #f5f5f5;
-                            }}
-                            tr:nth-child(even) {{
-                                background-color: #f9f9f9;
-                            }}
-                        </style>
-                        <h1>İletişim Detayları</h1>
-                        <table>
-                            <tr><th>Alan</th><th>Değer</th></tr>
-                            <tr><td>Ad Soyad</td><td>{message.FullName}</td></tr>
-                            <tr><td>Email</td><td>{message.Email}</td></tr>
-                            <tr><td>Telefon</td><td>{message.TelephoneNumber}</td></tr>
-                            <tr><td>Adres</td><td>{message.Street}, {message.City} {message.Postcode}</td></tr>
-                            <tr><td>Mesaj</td><td>{message.Message}</td></tr>
-                            <tr><td>IP Adresi</td><td>{message.IpAddress ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Açık Rıza</td><td>{(message.Consent ? "Evet" : "Hayır")}</td></tr>
-                            <tr><td>Oluşturulma Tarihi</td><td>{message.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
-                        </table>"
-                };
-
-                emailMessage.Body = bodyBuilder.ToMessageBody();
-
-                // Use the helper method for reliable email sending
-                bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
-
-                if (!emailSent)
-                {
-                    throw new Exception("All SMTP configurations failed. Please check your email configuration.");
+                    if (!string.IsNullOrEmpty(emailRecord.Email))
+                    {
+                        bool emailSent = await SendEmailWithSendGridAsync(
+                            emailRecord.Email, 
+                            subject, 
+                            htmlBody, 
+                            plainTextBody
+                        );
+                        
+                        if (!emailSent)
+                        {
+                            allEmailsSent = false;
+                            Console.WriteLine($"Failed to send contact email to {emailRecord.Email}");
+                        }
+                    }
                 }
 
-                Console.WriteLine("Contact email process completed successfully");
+                if (!allEmailsSent)
+                {
+                    throw new Exception("Some contact emails failed to send via SendGrid. Please check your SendGrid configuration.");
+                }
+
+                Console.WriteLine("Contact email process completed successfully via SendGrid");
             }
             catch (Exception ex)
             {
@@ -243,6 +266,42 @@ namespace CmkCable.Business.Concrete
             return false;
         }
 
+        private async Task<bool> SendEmailWithSendGridAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
+        {
+            try
+            {
+                var client = new SendGridClient(SENDGRID_API_KEY);
+                var from = new EmailAddress(FROM_EMAIL, FROM_NAME);
+                var to = new EmailAddress(toEmail);
+                
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+                
+                // Add attachment if provided
+                if (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
+                {
+                    msg.AddAttachment(attachmentName, Convert.ToBase64String(attachmentData), attachmentType ?? "application/octet-stream");
+                }
+                
+                var response = await client.SendEmailAsync(msg);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"SendGrid email sent successfully to {toEmail}");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"SendGrid email failed: {response.StatusCode} - {await response.Body.ReadAsStringAsync()}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"SendGrid email error: {ex.Message}");
+                return false;
+            }
+        }
+
         private void LogFailedEmail(string emailType, string recipient, string error, object data = null)
         {
             try
@@ -294,93 +353,96 @@ namespace CmkCable.Business.Concrete
                     }
                 }
 
-                var emailMessage = new MimeMessage();
-                emailMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
+                var htmlBody = $@"
+                    <style>
+                        table {{
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }}
+                        th, td {{
+                            border: 1px solid #ddd;
+                            padding: 12px;
+                            text-align: left;
+                        }}
+                        th {{
+                            background-color: #f5f5f5;
+                        }}
+                        tr:nth-child(even) {{
+                            background-color: #f9f9f9;
+                        }}
+                    </style>
+                    <h1>Kariyer Detayları</h1>
+                    <table>
+                        <tr><th>Alan</th><th>Değer</th></tr>
+                        <tr><td>Ad Soyad</td><td>{careerInformation.FullName ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Telefon</td><td>{careerInformation.TelephoneNumber ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Email</td><td>{careerInformation.Email ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Cinsiyet</td><td>{careerInformation.Gender ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Medeni Durum</td><td>{careerInformation.MaritalStatus ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Askerlik Durumu</td><td>{careerInformation.MilitaryStatus ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Sürücü Belgesi</td><td>{careerInformation.DriverLicense ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Seyahat Durumu</td><td>{careerInformation.TravelAvailability ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Başvurulan Departman</td><td>{careerInformation.Department ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Açıklama</td><td>{careerInformation.Description ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>CV</td><td>{careerInformation.Cv?.FileName ?? "Dosya yüklenmemiş"}</td></tr>
+                        <tr><td>IP Adresi</td><td>{careerInformation.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
+                        <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
+                    </table>";
 
-                foreach (var emailRecord in to_mails)
-                {
-                    if (!string.IsNullOrEmpty(emailRecord.Email))
-                    {
-                        emailMessage.To.Add(new MailboxAddress("Recipient", emailRecord.Email));
-                        Console.WriteLine($"Adding recipient: {emailRecord.Email}");
-                    }
-                }
+                var plainTextBody = $"Kariyer Başvurusu - {careerInformation.FullName}\nEmail: {careerInformation.Email}\nTelefon: {careerInformation.TelephoneNumber}";
 
-                // Check if we have any valid recipients
-                if (!emailMessage.To.Any())
-                {
-                    throw new Exception("No valid recipient emails found for career application.");
-                }
-
-                emailMessage.Subject = subject;
-
-                var bodyBuilder = new BodyBuilder
-                {
-                    HtmlBody = $@"
-                        <style>
-                            table {{
-                                width: 100%;
-                                border-collapse: collapse;
-                                margin: 20px 0;
-                            }}
-                            th, td {{
-                                border: 1px solid #ddd;
-                                padding: 12px;
-                                text-align: left;
-                            }}
-                            th {{
-                                background-color: #f5f5f5;
-                            }}
-                            tr:nth-child(even) {{
-                                background-color: #f9f9f9;
-                            }}
-                        </style>
-                        <h1>Kariyer Detayları</h1>
-                        <table>
-                            <tr><th>Alan</th><th>Değer</th></tr>
-                            <tr><td>Ad Soyad</td><td>{careerInformation.FullName ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Telefon</td><td>{careerInformation.TelephoneNumber ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Email</td><td>{careerInformation.Email ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Cinsiyet</td><td>{careerInformation.Gender ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Medeni Durum</td><td>{careerInformation.MaritalStatus ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Askerlik Durumu</td><td>{careerInformation.MilitaryStatus ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Sürücü Belgesi</td><td>{careerInformation.DriverLicense ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Seyahat Durumu</td><td>{careerInformation.TravelAvailability ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Başvurulan Departman</td><td>{careerInformation.Department ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Referans Kaynağı</td><td>{careerInformation.ReferenceSource ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Açıklama</td><td>{careerInformation.Description ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>CV</td><td>{careerInformation.Cv?.FileName ?? "Dosya yüklenmemiş"}</td></tr>
-                            <tr><td>IP Adresi</td><td>{careerInformation.IpAddress ?? "Belirtilmemiş"}</td></tr>
-                            <tr><td>Açık Rıza</td><td>{(careerInformation.Consent ? "Evet" : "Hayır")}</td></tr>
-                            <tr><td>Oluşturulma Tarihi</td><td>{careerInformation.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
-                        </table>"
-                };
+                // Prepare attachment data
+                byte[] attachmentData = null;
+                string attachmentName = null;
+                string attachmentType = null;
 
                 if (attachmentFile != null)
                 {
                     using (var memoryStream = new MemoryStream())
                     {
                         await attachmentFile.CopyToAsync(memoryStream);
-                        memoryStream.Position = 0;
-
-                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
-                        Console.WriteLine($"CV attachment added: {attachmentFile.FileName}");
+                        attachmentData = memoryStream.ToArray();
+                        attachmentName = attachmentFile.FileName;
+                        attachmentType = attachmentFile.ContentType;
+                        Console.WriteLine($"CV attachment prepared: {attachmentFile.FileName}");
                     }
                 }
 
-                emailMessage.Body = bodyBuilder.ToMessageBody();
-
-                Console.WriteLine("Attempting to send email via SMTP...");
+                Console.WriteLine("Attempting to send email via SendGrid...");
                 
-                // Use the helper method for reliable email sending
-                bool emailSent = await SendEmailWithFallbackAsync(emailMessage);
-
-                if (!emailSent)
+                // Send emails to all recipients using SendGrid
+                bool allEmailsSent = true;
+                foreach (var emailRecord in to_mails)
                 {
-                    throw new Exception("All SMTP configurations failed. Please check your email configuration.");
+                    if (!string.IsNullOrEmpty(emailRecord.Email))
+                    {
+                        bool emailSent = await SendEmailWithSendGridAsync(
+                            emailRecord.Email, 
+                            subject, 
+                            htmlBody, 
+                            plainTextBody,
+                            attachmentData,
+                            attachmentName,
+                            attachmentType
+                        );
+                        
+                        if (!emailSent)
+                        {
+                            allEmailsSent = false;
+                            Console.WriteLine($"Failed to send email to {emailRecord.Email}");
+                        }
+                    }
                 }
 
-                Console.WriteLine("Career email process completed successfully");
+                if (!allEmailsSent)
+                {
+                    throw new Exception("Some emails failed to send via SendGrid. Please check your SendGrid configuration.");
+                }
+
+                Console.WriteLine("Career email process completed successfully via SendGrid");
             }
             catch (Exception ex)
             {
