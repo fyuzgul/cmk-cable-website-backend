@@ -16,6 +16,14 @@ namespace CmkCable.API
 
         public static void Main(string[] args)
         {
+            // Log environment variables for debugging
+            var sendGridKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
+            Console.WriteLine($"SendGrid API Key configured: {!string.IsNullOrEmpty(sendGridKey)}");
+            if (!string.IsNullOrEmpty(sendGridKey))
+            {
+                Console.WriteLine($"SendGrid API Key length: {sendGridKey.Length}");
+            }
+            
             CreateHostBuilder(args).Build().Run();
         }
 
