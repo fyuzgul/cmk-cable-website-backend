@@ -22,7 +22,7 @@ namespace CmkCable.Business.Concrete
         // SendGrid Configuration
         // TODO: Move these to environment variables or configuration files for security
         // Current hardcoded values are not secure and should be changed
-        private const string SENDGRID_API_KEY = "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";
+        private const string SENDGRID_API_KEY = "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";
         private const string FROM_EMAIL = "webcmkkablo@gmail.com";
         private const string FROM_NAME = "CMK KABLO";
         
