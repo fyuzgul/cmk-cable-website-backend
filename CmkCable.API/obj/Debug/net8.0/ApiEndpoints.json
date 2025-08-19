@@ -1037,102 +1037,6 @@
   },
   {
     "ContainingType": "CmkCable.API.Controllers.EmailsController",
-    "Method": "SubmitCareerForm",
-    "RelativePath": "api/Emails/career-email",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "Id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "FullName",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "TelephoneNumber",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Email",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Gender",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "MaritalStatus",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "MilitaryStatus",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "DriverLicense",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "TravelAvailability",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Department",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "ReferenceSource",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Description",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Cv",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      },
-      {
-        "Name": "CvPath",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "IpAddress",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Consent",
-        "Type": "System.Boolean",
-        "IsRequired": false
-      },
-      {
-        "Name": "CreatedAt",
-        "Type": "System.DateTime",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CmkCable.API.Controllers.EmailsController",
     "Method": "GetEmailConfiguration",
     "RelativePath": "api/Emails/debug-config",
     "HttpMethod": "GET",
@@ -1143,7 +1047,7 @@
   },
   {
     "ContainingType": "CmkCable.API.Controllers.EmailsController",
-    "Method": "EmailHealthCheck",
+    "Method": "HealthCheck",
     "RelativePath": "api/Emails/health-check",
     "HttpMethod": "GET",
     "IsController": true,
@@ -1351,6 +1255,112 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.EmailsController",
+    "Method": "SubmitCareerForm",
+    "RelativePath": "api/Emails/submit-career-form",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "FullName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "TelephoneNumber",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Gender",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "MaritalStatus",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "MilitaryStatus",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DriverLicense",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "TravelAvailability",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Department",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReferenceSource",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Description",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Cv",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "CvPath",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IpAddress",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Consent",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "CreatedAt",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CmkCable.API.Controllers.EmailsController",
+    "Method": "TestEmail",
+    "RelativePath": "api/Emails/test-email",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

@@ -69,15 +69,19 @@ namespace CmkCable.API.Controllers
         }
 
         
-        [HttpPost("career-email")]
+        [HttpPost("submit-career-form")]
         public async Task<IActionResult> SubmitCareerForm([FromForm] CareerInformation model)
         {
             try
             {
-                // Log the incoming request
-                Console.WriteLine($"Career form submission received for: {model?.FullName ?? "Unknown"}");
-                Console.WriteLine($"Email: {model?.Email ?? "Unknown"}");
+                Console.WriteLine("=== SubmitCareerForm called ===");
+                Console.WriteLine($"Model received: {model != null}");
+                Console.WriteLine($"Full name: {model?.FullName ?? "NULL"}");
+                Console.WriteLine($"Email: {model?.Email ?? "NULL"}");
+                Console.WriteLine($"Telephone: {model?.TelephoneNumber ?? "NULL"}");
                 Console.WriteLine($"CV file: {model?.Cv?.FileName ?? "No CV"}");
+                Console.WriteLine($"CV file size: {model?.Cv?.Length ?? 0} bytes");
+                Console.WriteLine($"CV content type: {model?.Cv?.ContentType ?? "NULL"}");
 
                 if (!ModelState.IsValid)
                 {
@@ -97,25 +101,62 @@ namespace CmkCable.API.Controllers
                 // Validate required fields
                 if (string.IsNullOrEmpty(model.FullName))
                 {
+                    Console.WriteLine("Full name validation failed");
                     return BadRequest(new { message = "Full name is required" });
                 }
 
                 if (string.IsNullOrEmpty(model.Email))
                 {
+                    Console.WriteLine("Email validation failed");
                     return BadRequest(new { message = "Email is required" });
+                }
+
+                // Validate email format
+                try
+                {
+                    var email = new System.Net.Mail.MailAddress(model.Email);
+                    Console.WriteLine($"Email format validated: {email.Address}");
+                }
+                catch (FormatException)
+                {
+                    Console.WriteLine("Email format validation failed");
+                    return BadRequest(new { message = "Invalid email format" });
                 }
 
                 // Set default values for missing fields
                 if (model.CreatedAt == default)
                 {
                     model.CreatedAt = DateTime.UtcNow;
+                    Console.WriteLine($"Set CreatedAt to: {model.CreatedAt}");
                 }
 
-                Console.WriteLine("Attempting to send career email...");
-                await _emailManager.SendCareerEmailAsync("fyuzgul@cmkkablo.com", "Kariyer", model, model.Cv);
-                Console.WriteLine("Career email sent successfully");
+                // Set IP address if not provided
+                if (string.IsNullOrEmpty(model.IpAddress))
+                {
+                    model.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+                    Console.WriteLine($"Set IP address to: {model.IpAddress}");
+                }
+
+                Console.WriteLine("All validations passed, attempting to send career email...");
                 
-                return Ok(new { message = "Career application submitted successfully" });
+                try
+                {
+                    await _emailManager.SendCareerEmailAsync("fyuzgul@cmkkablo.com", "Kariyer", model, model.Cv);
+                    Console.WriteLine("Career email sent successfully");
+                    
+                    return Ok(new { message = "Career application submitted successfully" });
+                }
+                catch (Exception emailEx)
+                {
+                    Console.WriteLine($"Email sending failed: {emailEx.Message}");
+                    Console.WriteLine($"Email exception stack trace: {emailEx.StackTrace}");
+                    
+                    // Return a specific error for email failures
+                    return StatusCode(500, new { 
+                        message = "Career application received but email notification failed. Please contact support.",
+                        error = emailEx.Message 
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -126,6 +167,42 @@ namespace CmkCable.API.Controllers
                 return StatusCode(500, new { 
                     message = "Career application submission failed. Please try again later.",
                     error = ex.Message 
+                });
+            }
+        }
+
+        [HttpGet("test-email")]
+        public async Task<IActionResult> TestEmail()
+        {
+            try
+            {
+                Console.WriteLine("=== TestEmail called ===");
+                
+                // Test basic email sending without attachment
+                var testCareerInfo = new CareerInformation
+                {
+                    FullName = "Test User",
+                    Email = "test@example.com",
+                    TelephoneNumber = "1234567890",
+                    Consent = true,
+                    CreatedAt = DateTime.UtcNow,
+                    IpAddress = "127.0.0.1"
+                };
+
+                Console.WriteLine("Sending test email...");
+                await _emailManager.SendCareerEmailAsync("fyuzgul@cmkkablo.com", "Test Email", testCareerInfo, null);
+                
+                return Ok(new { message = "Test email sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Test email failed: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                return StatusCode(500, new { 
+                    message = "Test email failed",
+                    error = ex.Message,
+                    stackTrace = ex.StackTrace
                 });
             }
         }
@@ -222,44 +299,72 @@ namespace CmkCable.API.Controllers
         }
 
         [HttpGet("health-check")]
-        public async Task<IActionResult> EmailHealthCheck()
+        public IActionResult HealthCheck()
         {
             try
             {
-                var healthResults = new List<object>();
+                Console.WriteLine("=== HealthCheck called ===");
                 
-                // Test SendGrid connectivity
-                try
+                using (var context = new CmkCable.DataAccess.CmkCableDbContext())
                 {
-                    var emailManager = new EmailManager();
+                    // Test database connection
+                    var canConnect = context.Database.CanConnect();
+                    Console.WriteLine($"Database connection: {canConnect}");
                     
-                    // Test with a simple email (won't actually send due to placeholder API key)
-                    var testHtml = "<h1>SendGrid Health Check</h1><p>This is a test email to check SendGrid connectivity.</p>";
-                    var testPlainText = "SendGrid Health Check - This is a test email to check SendGrid connectivity.";
-                    
-                    // Note: This will fail with placeholder API key, but we can test the connection
-                    healthResults.Add(new { Method = "SendGrid API", Status = "Configuration Required", Port = "N/A", Note = "API key needs to be configured" });
-                }
-                catch (Exception ex)
-                {
-                    healthResults.Add(new { Method = "SendGrid API", Status = "Failed", Port = "N/A", Error = ex.Message });
-                }
+                    if (!canConnect)
+                    {
+                        return StatusCode(500, new { 
+                            status = "unhealthy",
+                            database = "disconnected",
+                            message = "Cannot connect to database"
+                        });
+                    }
 
-                var overallStatus = healthResults.Any(r => r.GetType().GetProperty("Status")?.GetValue(r)?.ToString() == "Success") ? "Healthy" : "Configuration Required";
-                
-                return Ok(new { 
-                    status = overallStatus,
-                    timestamp = DateTime.UtcNow,
-                    results = healthResults,
-                    message = "SendGrid configuration required. Please set your SendGrid API key in EmailManager.SENDGRID_API_KEY"
-                });
+                    // Test basic queries
+                    var formTypesCount = context.FormTypes.Count();
+                    var managerMailsCount = context.ManagerMails.Count();
+                    var mailFormTypesCount = context.MailFormTypes.Count();
+                    var careerInfoCount = context.CareerInformations.Count();
+                    
+                    Console.WriteLine($"FormTypes: {formTypesCount}");
+                    Console.WriteLine($"ManagerMails: {managerMailsCount}");
+                    Console.WriteLine($"MailFormTypes: {mailFormTypesCount}");
+                    Console.WriteLine($"CareerInformations: {careerInfoCount}");
+
+                    // Check if required data exists
+                    var careerFormType = context.FormTypes.FirstOrDefault(ft => ft.FormTypes == "career");
+                    var careerManagerMails = context.MailFormTypes
+                        .Where(mft => mft.FormTypeId == careerFormType.Id)
+                        .Select(mft => mft.MailId)
+                        .ToList();
+
+                    var healthStatus = new
+                    {
+                        status = "healthy",
+                        database = "connected",
+                        formTypes = formTypesCount,
+                        managerMails = managerMailsCount,
+                        mailFormTypes = mailFormTypesCount,
+                        careerInfo = careerInfoCount,
+                        careerFormTypeExists = careerFormType != null,
+                        careerManagerMailsCount = careerManagerMails.Count,
+                        timestamp = DateTime.UtcNow
+                    };
+
+                    Console.WriteLine($"Health check completed: {healthStatus.status}");
+                    return Ok(healthStatus);
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Health check failed: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                
                 return StatusCode(500, new { 
-                    status = "Error", 
-                    error = ex.Message, 
-                    timestamp = DateTime.UtcNow 
+                    status = "unhealthy",
+                    error = ex.Message,
+                    stackTrace = ex.StackTrace,
+                    timestamp = DateTime.UtcNow
                 });
             }
         }

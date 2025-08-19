@@ -1,13 +1,8 @@
-﻿using MimeKit;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Collections.Generic;
 using CmkCable.Entities;
-using System.Net;
-using System.Text;
 using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
@@ -23,8 +18,11 @@ namespace CmkCable.Business.Concrete
         private IContactRequestRepository _contactRequestRepository;
         private ICareerInformationRepository _careerInformationRepository;
         private IManagerMailRepository _managerMailRepository;
+        
         // SendGrid Configuration
-        private const string SENDGRID_API_KEY = "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";
+        // TODO: Move these to environment variables or configuration files for security
+        // Current hardcoded values are not secure and should be changed
+        private const string SENDGRID_API_KEY = "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";
         private const string FROM_EMAIL = "webcmkkablo@gmail.com";
         private const string FROM_NAME = "CMK KABLO";
         
@@ -207,73 +205,45 @@ namespace CmkCable.Business.Concrete
             }
         }
 
-        public string ConvertCvToBase64(IFormFile cvFile)
-        {
-            if (cvFile != null)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    cvFile.CopyTo(memoryStream);
-                    byte[] fileBytes = memoryStream.ToArray();
-                    return Convert.ToBase64String(fileBytes);
-                }
-            }
-            return null;
-        }
-
-        private async Task<bool> TrySendEmailAsync(MimeMessage emailMessage, string smtpHost, int port, SecureSocketOptions securityOption, string description)
-        {
-            try
-            {
-                using var client = new MailKit.Net.Smtp.SmtpClient();
-                
-                // Set timeout for production reliability
-                client.Timeout = 30000; // 30 seconds
-                
-                await client.ConnectAsync(smtpHost, port, securityOption);
-                await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
-                
-                Console.WriteLine($"Email sent successfully via {description}");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"{description} failed: {ex.Message}");
-                return false;
-            }
-        }
-
-        private async Task<bool> SendEmailWithFallbackAsync(MimeMessage emailMessage)
-        {
-            // Try multiple SMTP configurations for production reliability
-            var configurations = new[]
-            {
-                new { Host = "smtp.gmail.com", Port = 587, Security = SecureSocketOptions.StartTls, Description = "Gmail SMTP (TLS)" },
-                new { Host = "smtp.gmail.com", Port = 465, Security = SecureSocketOptions.SslOnConnect, Description = "Gmail SMTP (SSL)" }
-            };
-
-            foreach (var config in configurations)
-            {
-                if (await TrySendEmailAsync(emailMessage, config.Host, config.Port, config.Security, config.Description))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private async Task<bool> SendEmailWithSendGridAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
         {
             try
             {
+                // Validate input parameters
+                if (string.IsNullOrEmpty(toEmail))
+                {
+                    Console.WriteLine("SendEmailWithSendGridAsync: toEmail is null or empty");
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(subject))
+                {
+                    Console.WriteLine("SendEmailWithSendGridAsync: subject is null or empty");
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(htmlContent))
+                {
+                    Console.WriteLine("SendEmailWithSendGridAsync: htmlContent is null or empty");
+                    return false;
+                }
+
                 if (string.IsNullOrEmpty(SENDGRID_API_KEY))
                 {
                     Console.WriteLine("SendGrid API Key not configured. Please set SENDGRID_API_KEY environment variable.");
                     return false;
                 }
+
+                if (string.IsNullOrEmpty(FROM_EMAIL))
+                {
+                    Console.WriteLine("FROM_EMAIL is not configured");
+                    return false;
+                }
+                
+                Console.WriteLine($"Preparing to send email to: {toEmail}");
+                Console.WriteLine($"From: {FROM_EMAIL} ({FROM_NAME})");
+                Console.WriteLine($"Subject: {subject}");
+                Console.WriteLine($"Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
                 
                 var client = new SendGridClient(SENDGRID_API_KEY);
                 var from = new EmailAddress(FROM_EMAIL, FROM_NAME);
@@ -284,9 +254,19 @@ namespace CmkCable.Business.Concrete
                 // Add attachment if provided
                 if (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
                 {
-                    msg.AddAttachment(attachmentName, Convert.ToBase64String(attachmentData), attachmentType ?? "application/octet-stream");
+                    try
+                    {
+                        msg.AddAttachment(attachmentName, Convert.ToBase64String(attachmentData), attachmentType ?? "application/octet-stream");
+                        Console.WriteLine($"Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
+                    }
+                    catch (Exception attachEx)
+                    {
+                        Console.WriteLine($"Failed to add attachment: {attachEx.Message}");
+                        // Continue without attachment rather than failing completely
+                    }
                 }
                 
+                Console.WriteLine("Sending email via SendGrid...");
                 var response = await client.SendEmailAsync(msg);
                 
                 if (response.IsSuccessStatusCode)
@@ -296,13 +276,15 @@ namespace CmkCable.Business.Concrete
                 }
                 else
                 {
-                    Console.WriteLine($"SendGrid email failed: {response.StatusCode} - {await response.Body.ReadAsStringAsync()}");
+                    var responseBody = await response.Body.ReadAsStringAsync();
+                    Console.WriteLine($"SendGrid email failed: {response.StatusCode} - {responseBody}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"SendGrid email error: {ex.Message}");
+                Console.WriteLine($"SendGrid email error for {toEmail}: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
@@ -328,7 +310,6 @@ namespace CmkCable.Business.Concrete
             }
         }
 
-
         public async Task SendCareerEmailAsync(string toEmail, string subject, CareerInformation careerInformation, IFormFile attachmentFile)
         {
             CareerInformation savedCareerInfo = null;
@@ -336,12 +317,49 @@ namespace CmkCable.Business.Concrete
             
             try
             {
+                // Validate input parameters
+                if (careerInformation == null)
+                {
+                    throw new ArgumentNullException(nameof(careerInformation), "Career information cannot be null");
+                }
+
+                if (string.IsNullOrEmpty(careerInformation.FullName))
+                {
+                    throw new ArgumentException("Full name is required", nameof(careerInformation));
+                }
+
+                if (string.IsNullOrEmpty(careerInformation.Email))
+                {
+                    throw new ArgumentException("Email is required", nameof(careerInformation));
+                }
+
+                Console.WriteLine($"Starting career email process for: {careerInformation.FullName} ({careerInformation.Email})");
+
                 // First, save the career information to database
-                savedCareerInfo = _careerInformationRepository.CreateCareerInformation(careerInformation);
-                Console.WriteLine($"Career information saved to database with ID: {savedCareerInfo.Id}");
+                try
+                {
+                    savedCareerInfo = _careerInformationRepository.CreateCareerInformation(careerInformation);
+                    Console.WriteLine($"Career information saved to database with ID: {savedCareerInfo?.Id}");
+                }
+                catch (Exception dbEx)
+                {
+                    Console.WriteLine($"Failed to save career information to database: {dbEx.Message}");
+                    Console.WriteLine($"Stack trace: {dbEx.StackTrace}");
+                    throw new Exception($"Failed to save career information: {dbEx.Message}", dbEx);
+                }
                 
                 // Get manager emails for career type
-                to_mails = _managerMailRepository.GetByType("career");
+                try
+                {
+                    to_mails = _managerMailRepository.GetByType("career");
+                    Console.WriteLine($"Retrieved {to_mails?.Count ?? 0} manager emails for career type");
+                }
+                catch (Exception repoEx)
+                {
+                    Console.WriteLine($"Failed to retrieve manager emails: {repoEx.Message}");
+                    Console.WriteLine($"Stack trace: {repoEx.StackTrace}");
+                    throw new Exception($"Failed to retrieve manager emails: {repoEx.Message}", repoEx);
+                }
                 
                 // Check if any manager emails are found
                 if (to_mails == null || !to_mails.Any())
@@ -357,6 +375,15 @@ namespace CmkCable.Business.Concrete
                         throw new Exception("No recipient emails configured for career applications. Please configure manager emails for 'career' type.");
                     }
                 }
+
+                // Validate that we have valid email addresses
+                var validEmails = to_mails.Where(m => !string.IsNullOrEmpty(m?.Email)).ToList();
+                if (!validEmails.Any())
+                {
+                    throw new Exception("No valid email addresses found in manager emails");
+                }
+
+                Console.WriteLine($"Will send emails to: {string.Join(", ", validEmails.Select(m => m.Email))}");
 
                 var htmlBody = $@"
                     <style>
@@ -406,13 +433,21 @@ namespace CmkCable.Business.Concrete
 
                 if (attachmentFile != null)
                 {
-                    using (var memoryStream = new MemoryStream())
+                    try
                     {
-                        await attachmentFile.CopyToAsync(memoryStream);
-                        attachmentData = memoryStream.ToArray();
-                        attachmentName = attachmentFile.FileName;
-                        attachmentType = attachmentFile.ContentType;
-                        Console.WriteLine($"CV attachment prepared: {attachmentFile.FileName}");
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await attachmentFile.CopyToAsync(memoryStream);
+                            attachmentData = memoryStream.ToArray();
+                            attachmentName = attachmentFile.FileName;
+                            attachmentType = attachmentFile.ContentType;
+                            Console.WriteLine($"CV attachment prepared: {attachmentFile.FileName} ({attachmentData.Length} bytes)");
+                        }
+                    }
+                    catch (Exception fileEx)
+                    {
+                        Console.WriteLine($"Failed to process attachment file: {fileEx.Message}");
+                        // Continue without attachment rather than failing completely
                     }
                 }
 
@@ -420,24 +455,36 @@ namespace CmkCable.Business.Concrete
                 
                 // Send emails to all recipients using SendGrid
                 bool allEmailsSent = true;
-                foreach (var emailRecord in to_mails)
+                foreach (var emailRecord in validEmails)
                 {
-                    if (!string.IsNullOrEmpty(emailRecord.Email))
+                    if (!string.IsNullOrEmpty(emailRecord?.Email))
                     {
-                        bool emailSent = await SendEmailWithSendGridAsync(
-                            emailRecord.Email, 
-                            subject, 
-                            htmlBody, 
-                            plainTextBody,
-                            attachmentData,
-                            attachmentName,
-                            attachmentType
-                        );
-                        
-                        if (!emailSent)
+                        try
+                        {
+                            bool emailSent = await SendEmailWithSendGridAsync(
+                                emailRecord.Email, 
+                                subject, 
+                                htmlBody, 
+                                plainTextBody,
+                                attachmentData,
+                                attachmentName,
+                                attachmentType
+                            );
+                            
+                            if (!emailSent)
+                            {
+                                allEmailsSent = false;
+                                Console.WriteLine($"Failed to send email to {emailRecord.Email}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Successfully sent email to {emailRecord.Email}");
+                            }
+                        }
+                        catch (Exception emailEx)
                         {
                             allEmailsSent = false;
-                            Console.WriteLine($"Failed to send email to {emailRecord.Email}");
+                            Console.WriteLine($"Exception while sending email to {emailRecord.Email}: {emailEx.Message}");
                         }
                     }
                 }
@@ -456,7 +503,12 @@ namespace CmkCable.Business.Concrete
                 Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 
                 // Log failed email attempt
-                var recipients = to_mails?.Select(m => m.Email).ToList() ?? new List<string> { toEmail };
+                var recipients = to_mails?.Select(m => m?.Email).Where(e => !string.IsNullOrEmpty(e)).ToList() ?? new List<string>();
+                if (!string.IsNullOrEmpty(toEmail) && !recipients.Contains(toEmail))
+                {
+                    recipients.Add(toEmail);
+                }
+                
                 LogFailedEmail("career", string.Join(", ", recipients), ex.Message, new { 
                     CareerId = savedCareerInfo?.Id, 
                     FullName = careerInformation?.FullName,
@@ -479,10 +531,8 @@ namespace CmkCable.Business.Concrete
                     }
                 }
                 
-                throw new Exception($"Email gönderilirken hata oluştu: {ex.Message}");
+                throw new Exception($"Email gönderilirken hata oluştu: {ex.Message}", ex);
             }
         }
-
-
     }
 }

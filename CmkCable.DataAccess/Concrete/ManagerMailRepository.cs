@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace CmkCable.DataAccess.Concrete
 {
@@ -92,9 +93,23 @@ namespace CmkCable.DataAccess.Concrete
                         return new List<ManagerMail>();
                     }
 
+                    Console.WriteLine($"Searching for manager emails with type: {type}");
+
+                    // First check if FormTypes exist
+                    var formTypes = context.FormTypes.ToList();
+                    Console.WriteLine($"Found {formTypes.Count} form types in database");
+                    
+                    foreach (var ft in formTypes)
+                    {
+                        Console.WriteLine($"FormType: ID={ft.Id}, Name={ft.FormTypes}");
+                    }
+
                     var mailFormTypes = context.MailFormTypes
+                        .Include(mft => mft.FormType)
                         .Where(mft => mft.FormType != null && mft.FormType.FormTypes == type)
                         .ToList();
+
+                    Console.WriteLine($"Found {mailFormTypes.Count} MailFormTypes for type '{type}'");
 
                     if (!mailFormTypes.Any())
                     {
@@ -106,13 +121,24 @@ namespace CmkCable.DataAccess.Concrete
 
                     foreach (var mailFormType in mailFormTypes)
                     {
+                        Console.WriteLine($"Processing MailFormType: ID={mailFormType.Id}, MailId={mailFormType.MailId}, FormTypeId={mailFormType.FormTypeId}");
+                        
                         if (mailFormType.MailId > 0)
                         {
                             var managerMail = context.ManagerMails.Find(mailFormType.MailId);
                             if (managerMail != null && !string.IsNullOrEmpty(managerMail.Email))
                             {
                                 managerMails.Add(managerMail);
+                                Console.WriteLine($"Added manager mail: ID={managerMail.Id}, Email={managerMail.Email}");
                             }
+                            else
+                            {
+                                Console.WriteLine($"ManagerMail not found or has invalid email for MailId: {mailFormType.MailId}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Invalid MailId in MailFormType: {mailFormType.MailId}");
                         }
                     }
 
@@ -123,6 +149,7 @@ namespace CmkCable.DataAccess.Concrete
             catch (Exception ex)
             {
                 Console.WriteLine($"Error in GetByType for type '{type}': {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return new List<ManagerMail>();
             }
         }
