@@ -14,7 +14,6 @@ using System.Linq;
 using System;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using Microsoft.Extensions.Configuration;
 
 namespace CmkCable.Business.Concrete
 {
@@ -24,16 +23,13 @@ namespace CmkCable.Business.Concrete
         private IContactRequestRepository _contactRequestRepository;
         private ICareerInformationRepository _careerInformationRepository;
         private IManagerMailRepository _managerMailRepository;
-        private readonly IConfiguration _configuration;
-        
         // SendGrid Configuration
-        private string SENDGRID_API_KEY => _configuration["SendGrid:ApiKey"] ?? Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? "";
+        private const string SENDGRID_API_KEY = "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";
         private const string FROM_EMAIL = "webcmkkablo@gmail.com";
         private const string FROM_NAME = "CMK KABLO";
         
-        public EmailManager(IConfiguration configuration = null)
+        public EmailManager()
         {
-            _configuration = configuration;
             _getOfferRepository = new GetOfferRepository();
             _contactRequestRepository = new ContactRequestRepository();
             _careerInformationRepository = new CareerInformationRepository();
