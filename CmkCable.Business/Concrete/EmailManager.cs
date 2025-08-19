@@ -24,14 +24,15 @@ namespace CmkCable.Business.Concrete
         // SendGrid Configuration - Artık configuration'dan okunuyor
         private string SendGridApiKey => 
             Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? 
-            _configuration["SendGrid:ApiKey"];
+            _configuration?["SendGrid:ApiKey"] ??
+            "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";
         private string FromEmail => 
             Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL") ?? 
-            _configuration["SendGrid:FromEmail"] ?? 
+            _configuration?["SendGrid:FromEmail"] ?? 
             "webcmkkablo@gmail.com";
         private string FromName => 
             Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME") ?? 
-            _configuration["SendGrid:FromName"] ?? 
+            _configuration?["SendGrid:FromName"] ?? 
             "CMK KABLO";
         
         public EmailManager(IConfiguration configuration)
@@ -46,7 +47,7 @@ namespace CmkCable.Business.Concrete
         // Parameterless constructor for use without dependency injection
         public EmailManager()
         {
-            _configuration = null; // Will use environment variables only
+            _configuration = null; // Will use hardcoded values
             _getOfferRepository = new GetOfferRepository();
             _contactRequestRepository = new ContactRequestRepository();
             _careerInformationRepository = new CareerInformationRepository();
