@@ -1,5 +1,6 @@
 ﻿using MimeKit;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using System.IO;
@@ -12,6 +13,7 @@ using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
 using System;
+using MimeKit.ContentType;
 
 namespace CmkCable.Business.Concrete
 {
@@ -67,15 +69,18 @@ namespace CmkCable.Business.Concrete
                     <h1>Teklif Detayları</h1>
                     <table>
                         <tr><th>Alan</th><th>Değer</th></tr>
-                        <tr><td>Ad Soyad</td><td>{offerDetails.AdSoyad}</td></tr>
-                        <tr><td>Email</td><td>{offerDetails.Email}</td></tr>
-                        <tr><td>Firma Adı</td><td>{offerDetails.FirmaAdi}</td></tr>
+                        <tr><td>Ad</td><td>{offerDetails.FirstName}</td></tr>
+                        <tr><td>Soyad</td><td>{offerDetails.LastName}</td></tr>
+                        <tr><td>Work Email</td><td>{offerDetails.WorkEmail}</td></tr>
+                        <tr><td>Rol</td><td>{offerDetails.Role?.Name ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Ülke</td><td>{offerDetails.Country}</td></tr>
+                        <tr><td>Şirket</td><td>{offerDetails.Company}</td></tr>
+                        <tr><td>Şirket Türü</td><td>{offerDetails.CompanyType?.Name ?? "Belirtilmemiş"}</td></tr>
                         <tr><td>Telefon</td><td>{offerDetails.TelephoneNumber}</td></tr>
-                        <tr><td>Kablolar</td><td>{offerDetails.Kablolar}</td></tr>
-                        <tr><td>LME</td><td>{offerDetails.Lme}</td></tr>
-                        <tr><td>Ödeme Şekli</td><td>{offerDetails.OdemeSekli}</td></tr>
-                        <tr><td>Ambalajlama</td><td>{offerDetails.Ambalajlama}</td></tr>
-                        <tr><td>Açıklama</td><td>{offerDetails.Aciklama}</td></tr>
+                        <tr><td>Yardım Türü</td><td>{offerDetails.HelpType?.Name ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Mesaj</td><td>{offerDetails.Message}</td></tr>
+                        <tr><td>IP Adresi</td><td>{offerDetails.IpAddress ?? "Belirtilmemiş"}</td></tr>
+                        <tr><td>Açık Rıza</td><td>{(offerDetails.AcikRiza ? "Evet" : "Hayır")}</td></tr>
                         <tr><td>Oluşturulma Tarihi</td><td>{offerDetails.CreatedAt:dd/MM/yyyy HH:mm}</td></tr>
                     </table>"
             };
@@ -265,6 +270,7 @@ namespace CmkCable.Business.Concrete
         public async Task SendCareerEmailAsync(string toEmail, string subject, CareerInformation careerInformation, IFormFile attachmentFile)
         {
             CareerInformation savedCareerInfo = null;
+            List<ManagerMail> to_mails = null;
             
             try
             {
@@ -273,7 +279,7 @@ namespace CmkCable.Business.Concrete
                 Console.WriteLine($"Career information saved to database with ID: {savedCareerInfo.Id}");
                 
                 // Get manager emails for career type
-                var to_mails = _managerMailRepository.GetByType("career");
+                to_mails = _managerMailRepository.GetByType("career");
                 
                 // Check if any manager emails are found
                 if (to_mails == null || !to_mails.Any())
@@ -359,7 +365,7 @@ namespace CmkCable.Business.Concrete
                         await attachmentFile.CopyToAsync(memoryStream);
                         memoryStream.Position = 0;
 
-                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), ContentType.Parse(attachmentFile.ContentType));
+                        bodyBuilder.Attachments.Add(attachmentFile.FileName, memoryStream.ToArray(), MimeKit.ContentType.Parse(attachmentFile.ContentType));
                         Console.WriteLine($"CV attachment added: {attachmentFile.FileName}");
                     }
                 }

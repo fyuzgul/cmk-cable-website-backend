@@ -231,7 +231,7 @@ namespace CmkCable.API.Controllers
                 testMessage.From.Add(new MailboxAddress("CMK KABLO", "webcmkkablo@gmail.com"));
                 testMessage.To.Add(new MailboxAddress("Test", "test@example.com"));
                 testMessage.Subject = "Email Health Check";
-                testMessage.Body = new TextPart("plain") { Text = "This is a test email to check SMTP connectivity." };
+                testMessage.Body = new MimeKit.TextPart("plain") { Text = "This is a test email to check SMTP connectivity." };
 
                 var emailManager = new EmailManager();
                 
@@ -244,7 +244,7 @@ namespace CmkCable.API.Controllers
                 // Test Gmail TLS
                 try
                 {
-                    await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                    await client.ConnectAsync("smtp.gmail.com", 587, MimeKit.Security.SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
                     await client.DisconnectAsync(true);
                     healthResults.Add(new { Method = "Gmail SMTP (TLS)", Status = "Success", Port = 587 });
@@ -257,7 +257,7 @@ namespace CmkCable.API.Controllers
                 // Test Gmail SSL
                 try
                 {
-                    await client.ConnectAsync("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.SslOnConnect);
+                    await client.ConnectAsync("smtp.gmail.com", 465, MimeKit.Security.SecureSocketOptions.SslOnConnect);
                     await client.AuthenticateAsync("webcmkkablo@gmail.com", "yrmmegzyzbosuoph");
                     await client.DisconnectAsync(true);
                     healthResults.Add(new { Method = "Gmail SMTP (SSL)", Status = "Success", Port = 465 });
