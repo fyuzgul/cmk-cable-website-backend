@@ -89,7 +89,6 @@ namespace CmkCable.API
                                 listenOptions.UseHttps(new HttpsConnectionAdapterOptions
                                 {
                                     ServerCertificate = certificate,
-                                    ClientCertificateMode = Microsoft.AspNetCore.Authentication.Certificate.ClientCertificateMode.NoCertificate,
                                     SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
                                 });
                             }
