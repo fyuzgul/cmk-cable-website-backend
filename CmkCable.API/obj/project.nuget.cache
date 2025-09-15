@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "aYnhlN4BsR4=",
+  "dgSpecHash": "5ku3V9e/HG0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\mfyuzgul\\Desktop\\Yeni klasör\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
+  "projectFilePath": "C:\\Users\\mfyuzgul\\Desktop\\website\\CmkCable\\CmkCable.API\\CmkCable.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\bouncycastle.cryptography\\2.5.0\\bouncycastle.cryptography.2.5.0.nupkg.sha512",
     "C:\\Users\\mfyuzgul\\.nuget\\packages\\cloudinarydotnet\\1.27.4\\cloudinarydotnet.1.27.4.nupkg.sha512",

@@ -66,11 +66,19 @@ namespace CmkCable.API
                                 var certPem = File.ReadAllText(CertPath);
                                 var keyPem = File.ReadAllText(KeyPath);
 
+                                logger.LogInformation($"Certificate PEM length: {certPem.Length}");
+                                logger.LogInformation($"Private key PEM length: {keyPem.Length}");
+
                                 // Create certificate with private key
                                 var certificate = X509Certificate2.CreateFromPem(
                                     certPem,
                                     keyPem
                                 );
+
+                                logger.LogInformation($"Certificate created. Has private key: {certificate.HasPrivateKey}");
+                                logger.LogInformation($"Certificate thumbprint: {certificate.Thumbprint}");
+                                logger.LogInformation($"Certificate not before: {certificate.NotBefore}");
+                                logger.LogInformation($"Certificate not after: {certificate.NotAfter}");
 
                                 // Create a copy with exportable private key
                                 certificate = new X509Certificate2(certificate.Export(X509ContentType.Pfx), "", X509KeyStorageFlags.Exportable | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
@@ -80,7 +88,9 @@ namespace CmkCable.API
 
                                 listenOptions.UseHttps(new HttpsConnectionAdapterOptions
                                 {
-                                    ServerCertificate = certificate
+                                    ServerCertificate = certificate,
+                                    ClientCertificateMode = Microsoft.AspNetCore.Authentication.Certificate.ClientCertificateMode.NoCertificate,
+                                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
                                 });
                             }
                             catch (Exception ex)
