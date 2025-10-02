@@ -386,7 +386,7 @@ namespace CmkCable.API.Controllers
                 var sendGridFromName = Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME");
                 
                 // Check configuration
-                var config = HttpContext.RequestServices.GetService<Microsoft.Extensions.Configuration.IConfiguration>();
+                var config = HttpContext.RequestServices.GetService(typeof(Microsoft.Extensions.Configuration.IConfiguration)) as Microsoft.Extensions.Configuration.IConfiguration;
                 var configApiKey = config?["SendGrid:ApiKey"];
                 var configFromEmail = config?["SendGrid:FromEmail"];
                 var configFromName = config?["SendGrid:FromName"];
