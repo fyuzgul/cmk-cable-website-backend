@@ -92,7 +92,7 @@ namespace CmkCable.API.Controllers
             }
             if (category.Image != null)
             {
-                DeletionResult imageDeletionResult = await _cloudinaryManager.DestoryImage(_category.Image);
+                DeletionResult imageDeletionResult = await _cloudinaryManager.DestroyImage(_category.Image);
                 if (imageDeletionResult.Result.Equals("ok"))
                 {
                     imageUrl = await _cloudinaryManager.UploadImage(category.Image, "category-images");
@@ -134,7 +134,7 @@ namespace CmkCable.API.Controllers
         public async void Delete(int id)
         {
             var deletedCategory = _categoryService.GetCategoryById(id, 1);
-             DeletionResult deletionResult= await _cloudinaryManager.DestoryImage(deletedCategory.Image);
+             DeletionResult deletionResult= await _cloudinaryManager.DestroyImage(deletedCategory.Image);
             if (deletionResult.Result.Equals("ok"))
             {
                 _categoryService.DeleteCategory(id);

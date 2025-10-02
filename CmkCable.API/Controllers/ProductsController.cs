@@ -106,8 +106,8 @@ namespace CmkCable.API.Controllers
                 return NotFound("Ürün bulunamadı.");
             }
 
-            var deletionResult = await _cloudinaryManager.DestoryImage(product.Image);
-            var deletionResultDetail = await _cloudinaryManager.DestoryImage(product.DetailImage);
+            var deletionResult = await _cloudinaryManager.DestroyImage(product.Image);
+            var deletionResultDetail = await _cloudinaryManager.DestroyImage(product.DetailImage);
 
             if (deletionResult.Result.Equals("ok") && deletionResultDetail.Result.Equals("ok"))
             {
@@ -140,7 +140,7 @@ namespace CmkCable.API.Controllers
 
             if ((_product.Image) != null && _product.Image.Length > 0)
             {
-                DeletionResult imageDeletionResult = await _cloudinaryManager.DestoryImage(product.Image);
+                DeletionResult imageDeletionResult = await _cloudinaryManager.DestroyImage(product.Image);
                 if (imageDeletionResult.Result.Equals("ok"))
                 {
                   imageUrl = await _cloudinaryManager.UploadImage(_product.Image, "product-covers");
@@ -149,7 +149,7 @@ namespace CmkCable.API.Controllers
 
             if ((_product.DetailImage) != null)
             {
-                DeletionResult detailImageDeletionResult = await _cloudinaryManager.DestoryImage(product.DetailImage);
+                DeletionResult detailImageDeletionResult = await _cloudinaryManager.DestroyImage(product.DetailImage);
                 if (detailImageDeletionResult.Result.Equals("ok"))
                 {
                     detailImageUrl = await _cloudinaryManager.UploadImage(_product.DetailImage, "product-details");
