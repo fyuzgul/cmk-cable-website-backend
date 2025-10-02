@@ -36,7 +36,7 @@ namespace CmkCable.Business.Concrete
             return publicId;
         }
 
-        public async Task<DeletionResult> DestoryImage(string imageUrl)
+        public async Task<DeletionResult> DestroyImage(string imageUrl)
         {
             var publicId = GetCloudinaryPublicId(imageUrl);
 
@@ -54,51 +54,80 @@ namespace CmkCable.Business.Concrete
 
         public async Task<string> UploadImage(IFormFile fromFile, string folderName)
         {
-            var uploadResult = new ImageUploadResult();
-            using (var stream = fromFile.OpenReadStream())
+            try
             {
-                var uploadParams = new ImageUploadParams()
+                var uploadResult = new ImageUploadResult();
+                using (var stream = fromFile.OpenReadStream())
                 {
-                    File = new FileDescription(fromFile.FileName, stream),
-                    Transformation = new Transformation().Quality("100").FetchFormat("auto"),
-                    Folder = folderName
-                };
-                uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            }
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(fromFile.FileName, stream),
+                        Transformation = new Transformation().Quality("100").FetchFormat("auto"),
+                        Folder = folderName
+                    };
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                }
 
-            // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
-            var url = uploadResult.Url.ToString();
-            if (url.StartsWith("http://"))
+                // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
+                var url = uploadResult.Url.ToString();
+                if (url.StartsWith("http://"))
+                {
+                    url = url.Replace("http://", "https://");
+                }
+
+                return url;
+            }
+            catch (Exception ex)
             {
-                url = url.Replace("http://", "https://");
+                Console.WriteLine($"Cloudinary image upload failed: {ex.Message}");
+                // Fallback to base64
+                using (var memoryStream = new MemoryStream())
+                {
+                    await fromFile.CopyToAsync(memoryStream);
+                    byte[] imageBytes = memoryStream.ToArray();
+                    string base64Image = Convert.ToBase64String(imageBytes);
+                    return $"data:{fromFile.ContentType};base64,{base64Image}";
+                }
             }
-
-            return url;
         }
         public async Task<string> UploadPdf(IFormFile fromFile, string folderName)
         {
-            var uploadResult = new ImageUploadResult();
-            using (var stream = fromFile.OpenReadStream())
+            try
             {
-                var uploadParams = new ImageUploadParams()
+                var uploadResult = new RawUploadResult();
+                using (var stream = fromFile.OpenReadStream())
                 {
-                    File = new FileDescription(fromFile.FileName, stream),
-                    Folder = folderName,
-                    Transformation = new Transformation().Quality("100").FetchFormat("auto"),
-                    Format = "pdf"
-                };
+                    var uploadParams = new RawUploadParams()
+                    {
+                        File = new FileDescription(fromFile.FileName, stream),
+                        Folder = folderName,
+                        ResourceType = ResourceType.Raw
+                    };
 
-                uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                }
+
+                // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
+                var url = uploadResult.Url.ToString();
+                if (url.StartsWith("http://"))
+                {
+                    url = url.Replace("http://", "https://");
+                }
+
+                return url;
             }
-
-            // URL'yi kontrol et ve HTTP'yi HTTPS ile değiştir
-            var url = uploadResult.Url.ToString();
-            if (url.StartsWith("http://"))
+            catch (Exception ex)
             {
-                url = url.Replace("http://", "https://");
+                Console.WriteLine($"Cloudinary PDF upload failed: {ex.Message}");
+                // Fallback to base64
+                using (var memoryStream = new MemoryStream())
+                {
+                    await fromFile.CopyToAsync(memoryStream);
+                    byte[] pdfBytes = memoryStream.ToArray();
+                    string base64Pdf = Convert.ToBase64String(pdfBytes);
+                    return base64Pdf;
+                }
             }
-
-            return url;
         }
 
 

@@ -80,9 +80,21 @@ namespace CmkCable.API.Controllers
 
             if (updatedCertificateType.Image != null && updatedCertificateType.Image.Length > 0)
             {
-                DeletionResult deletionResult = await _cloudinaryManager.DestoryImage(existingCertificateType.Image);
-                if (deletionResult.Result.Equals("ok"))
+                try
                 {
+                    DeletionResult deletionResult = await _cloudinaryManager.DestroyImage(existingCertificateType.Image);
+                    if (deletionResult != null && deletionResult.Result.Equals("ok"))
+                    {
+                        imageUrl = await _cloudinaryManager.UploadImage(updatedCertificateType.Image, "document-types");
+                    }
+                    else
+                    {
+                        imageUrl = await _cloudinaryManager.UploadImage(updatedCertificateType.Image, "document-types");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deleting old image: {ex.Message}");
                     imageUrl = await _cloudinaryManager.UploadImage(updatedCertificateType.Image, "document-types");
                 }
             }

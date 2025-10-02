@@ -132,27 +132,51 @@ namespace CmkCable.API.Controllers
 
                 if (updatedCertificate.Image != null && updatedCertificate.Image.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(existingCertificate.Image))
+                    if (!string.IsNullOrEmpty(existingCertificate.Image) && !existingCertificate.Image.StartsWith("data:"))
                     {
-                        DeletionResult deletionResult = await _cloudinaryManager.DestoryImage(existingCertificate.Image);
-                        if (deletionResult.Result.Equals("ok"))
+                        try
                         {
-                            imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-image");
+                            DeletionResult deletionResult = await _cloudinaryManager.DestroyImage(existingCertificate.Image);
+                            if (deletionResult != null && deletionResult.Result.Equals("ok"))
+                            {
+                                imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-images");
+                            }
+                            else
+                            {
+                                imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-images");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error deleting old image: {ex.Message}");
+                            imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-images");
                         }
                     }
                     else
                     {
-                        imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-image");
+                        imageUrl = await _cloudinaryManager.UploadImage(updatedCertificate.Image, "document-images");
                     }
                 }
 
                 if (updatedCertificate.FileContent != null && updatedCertificate.FileContent.Length > 0)
                 {
-                    if (!string.IsNullOrEmpty(existingCertificate.FileContent))
+                    if (!string.IsNullOrEmpty(existingCertificate.FileContent) && !existingCertificate.FileContent.StartsWith("data:"))
                     {
-                        DeletionResult deletion = await _cloudinaryManager.DestroyPdf(existingCertificate.FileContent);
-                        if (deletion.Result.Equals("ok"))
+                        try
                         {
+                            DeletionResult deletion = await _cloudinaryManager.DestroyPdf(existingCertificate.FileContent);
+                            if (deletion != null && deletion.Result.Equals("ok"))
+                            {
+                                pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
+                            }
+                            else
+                            {
+                                pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error deleting old PDF: {ex.Message}");
                             pdfUrl = await _cloudinaryManager.UploadPdf(updatedCertificate.FileContent, "document-pdfs");
                         }
                     }
@@ -166,11 +190,10 @@ namespace CmkCable.API.Controllers
                 {
                     Id = updatedCertificate.Id,
                     Name = updatedCertificate.Name ?? existingCertificate.Name,
-                    TypeId = updatedCertificate.TypeId,
+                    TypeId = updatedCertificate.TypeId > 0 ? updatedCertificate.TypeId : existingCertificate.TypeId,
                     Image = imageUrl,
                     FileContent = pdfUrl,
-                    //deneme
-                    DopNumber = updatedCertificate.DopNumber  
+                    DopNumber = updatedCertificate.DopNumber ?? existingCertificate.DopNumber
                 };
 
                 var updatedCert = _certificateService.UpdateCertificate(certificate);
