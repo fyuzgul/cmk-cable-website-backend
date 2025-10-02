@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -100,8 +101,7 @@ namespace CmkCable.Business.Concrete
                     var uploadParams = new RawUploadParams()
                     {
                         File = new FileDescription(fromFile.FileName, stream),
-                        Folder = folderName,
-                        ResourceType = ResourceType.Raw
+                        Folder = folderName
                     };
 
                     uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -141,10 +141,7 @@ namespace CmkCable.Business.Concrete
                 return null;
             }
 
-            var deleteParams = new DeletionParams(publicId)
-            {
-                ResourceType = ResourceType.Raw
-            };
+            var deleteParams = new DeletionParams(publicId);
 
             var deletionResult = await _cloudinary.DestroyAsync(deleteParams);
 
