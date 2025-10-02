@@ -18,11 +18,25 @@ namespace CmkCable.API
         {
             // Log environment variables for debugging
             var sendGridKey = Environment.GetEnvironmentVariable("SENDGRID_API_KEY");
-            Console.WriteLine($"SendGrid API Key configured: {!string.IsNullOrEmpty(sendGridKey)}");
+            var sendGridFromEmail = Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL");
+            var sendGridFromName = Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME");
+            
+            Console.WriteLine("=== SendGrid Configuration Check ===");
+            Console.WriteLine($"SENDGRID_API_KEY configured: {!string.IsNullOrEmpty(sendGridKey)}");
+            Console.WriteLine($"SENDGRID_FROM_EMAIL: {sendGridFromEmail ?? "Not set"}");
+            Console.WriteLine($"SENDGRID_FROM_NAME: {sendGridFromName ?? "Not set"}");
+            
             if (!string.IsNullOrEmpty(sendGridKey))
             {
                 Console.WriteLine($"SendGrid API Key length: {sendGridKey.Length}");
+                Console.WriteLine($"SendGrid API Key starts with: {sendGridKey.Substring(0, Math.Min(10, sendGridKey.Length))}...");
             }
+            else
+            {
+                Console.WriteLine("WARNING: SENDGRID_API_KEY environment variable is not set!");
+                Console.WriteLine("Email functionality may not work properly.");
+            }
+            Console.WriteLine("=====================================");
             
             CreateHostBuilder(args).Build().Run();
         }

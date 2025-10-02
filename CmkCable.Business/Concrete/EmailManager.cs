@@ -231,38 +231,43 @@ namespace CmkCable.Business.Concrete
                 // Validate input parameters
                 if (string.IsNullOrEmpty(toEmail))
                 {
-                    Console.WriteLine("SendEmailWithSendGridAsync: toEmail is null or empty");
+                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: toEmail is null or empty");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(subject))
                 {
-                    Console.WriteLine("SendEmailWithSendGridAsync: subject is null or empty");
+                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: subject is null or empty");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(htmlContent))
                 {
-                    Console.WriteLine("SendEmailWithSendGridAsync: htmlContent is null or empty");
+                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: htmlContent is null or empty");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(SendGridApiKey))
                 {
-                    Console.WriteLine("SendGrid API Key not configured. Please set SendGrid:ApiKey in appsettings.json.");
+                    Console.WriteLine($"[ERROR] SendGrid API Key not configured. Please set SENDGRID_API_KEY environment variable or SendGrid:ApiKey in appsettings.json.");
+                    Console.WriteLine($"[DEBUG] Environment variable SENDGRID_API_KEY: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"))}");
+                    Console.WriteLine($"[DEBUG] Configuration SendGrid:ApiKey: {!string.IsNullOrEmpty(_configuration?["SendGrid:ApiKey"])}");
                     return false;
                 }
 
                 if (string.IsNullOrEmpty(FromEmail))
                 {
-                    Console.WriteLine("FROM_EMAIL is not configured");
+                    Console.WriteLine($"[ERROR] FROM_EMAIL is not configured");
+                    Console.WriteLine($"[DEBUG] Environment variable SENDGRID_FROM_EMAIL: {Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL")}");
+                    Console.WriteLine($"[DEBUG] Configuration SendGrid:FromEmail: {_configuration?["SendGrid:FromEmail"]}");
                     return false;
                 }
                 
-                Console.WriteLine($"Preparing to send email to: {toEmail}");
-                Console.WriteLine($"From: {FromEmail} ({FromName})");
-                Console.WriteLine($"Subject: {subject}");
-                Console.WriteLine($"Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
+                Console.WriteLine($"[INFO] Preparing to send email to: {toEmail}");
+                Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
+                Console.WriteLine($"[INFO] Subject: {subject}");
+                Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
+                Console.WriteLine($"[DEBUG] SendGrid API Key length: {SendGridApiKey?.Length ?? 0}");
                 
                 var client = new SendGridClient(SendGridApiKey);
                 var from = new EmailAddress(FromEmail, FromName);
@@ -276,34 +281,37 @@ namespace CmkCable.Business.Concrete
                     try
                     {
                         msg.AddAttachment(attachmentName, Convert.ToBase64String(attachmentData), attachmentType ?? "application/octet-stream");
-                        Console.WriteLine($"Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
+                        Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
                     }
                     catch (Exception attachEx)
                     {
-                        Console.WriteLine($"Failed to add attachment: {attachEx.Message}");
+                        Console.WriteLine($"[WARNING] Failed to add attachment: {attachEx.Message}");
                         // Continue without attachment rather than failing completely
                     }
                 }
                 
-                Console.WriteLine("Sending email via SendGrid...");
+                Console.WriteLine($"[INFO] Sending email via SendGrid...");
                 var response = await client.SendEmailAsync(msg);
                 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"SendGrid email sent successfully to {toEmail}");
+                    Console.WriteLine($"[SUCCESS] SendGrid email sent successfully to {toEmail}");
+                    Console.WriteLine($"[DEBUG] Response status: {response.StatusCode}");
                     return true;
                 }
                 else
                 {
                     var responseBody = await response.Body.ReadAsStringAsync();
-                    Console.WriteLine($"SendGrid email failed: {response.StatusCode} - {responseBody}");
+                    Console.WriteLine($"[ERROR] SendGrid email failed: {response.StatusCode} - {responseBody}");
+                    Console.WriteLine($"[DEBUG] Response headers: {string.Join(", ", response.Headers.Select(h => $"{h.Key}={h.Value}"))}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"SendGrid email error for {toEmail}: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                Console.WriteLine($"[ERROR] SendGrid email error for {toEmail}: {ex.Message}");
+                Console.WriteLine($"[ERROR] Exception type: {ex.GetType().Name}");
+                Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
                 return false;
             }
         }
