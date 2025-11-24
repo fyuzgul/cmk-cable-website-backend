@@ -292,6 +292,33 @@ namespace CmkCable.Business.Concrete
                     throw new InvalidOperationException("FROM_EMAIL is not configured");
                 }
                 
+                // Test network connectivity before attempting to send
+                Console.WriteLine($"[INFO] Testing network connectivity to {SmtpServer}:{SmtpPort}...");
+                try
+                {
+                    using (var tcpClient = new System.Net.Sockets.TcpClient())
+                    {
+                        var connectTask = tcpClient.ConnectAsync(SmtpServer, SmtpPort);
+                        var timeoutTask = Task.Delay(5000); // 5 second timeout for connection test
+                        var completedTask = await Task.WhenAny(connectTask, timeoutTask);
+                        
+                        if (completedTask == timeoutTask)
+                        {
+                            tcpClient.Close();
+                            throw new InvalidOperationException($"Cannot connect to SMTP server {SmtpServer}:{SmtpPort}. Network connectivity issue or firewall blocking. Please check if the server is reachable from the container.");
+                        }
+                        
+                        await connectTask;
+                        Console.WriteLine($"[SUCCESS] Network connectivity test passed");
+                        tcpClient.Close();
+                    }
+                }
+                catch (Exception connectEx)
+                {
+                    Console.WriteLine($"[ERROR] Network connectivity test failed: {connectEx.Message}");
+                    throw new InvalidOperationException($"Cannot connect to SMTP server {SmtpServer}:{SmtpPort}. Error: {connectEx.Message}. Please check network connectivity and firewall settings.", connectEx);
+                }
+                
                 Console.WriteLine($"[INFO] Preparing to send email to: {toEmail}");
                 Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
                 Console.WriteLine($"[INFO] Subject: {subject}");
@@ -333,21 +360,43 @@ namespace CmkCable.Business.Concrete
                         }
                     }
                     
-                    // Configure SMTP client
+                    // Configure SMTP client with optimized settings
                     using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
                     {
                         smtpClient.EnableSsl = true;
                         smtpClient.UseDefaultCredentials = false;
                         smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
                         smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                        smtpClient.Timeout = 30000; // 30 seconds
+                        smtpClient.Timeout = 30000; // 30 seconds - should be enough for normal SMTP operations
+                        
+                        // Set TLS protocol once (not per email)
+                        if (ServicePointManager.SecurityProtocol == SecurityProtocolType.SystemDefault)
+                        {
+                            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+                        }
                         
                         Console.WriteLine($"[INFO] Sending email via SMTP ({SmtpServer}:{SmtpPort})...");
+                        Console.WriteLine($"[DEBUG] SSL Enabled: {smtpClient.EnableSsl}");
+                        Console.WriteLine($"[DEBUG] Timeout: {smtpClient.Timeout}ms");
+                        Console.WriteLine($"[DEBUG] Security Protocol: {ServicePointManager.SecurityProtocol}");
                         
-                        // Send email asynchronously
-                        await Task.Run(() => smtpClient.Send(mailMessage));
+                        var sendStartTime = DateTime.UtcNow;
                         
-                        Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail}");
+                        // Send email asynchronously using SendMailAsync with cancellation token
+                        using (var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(25)))
+                        {
+                            try
+                            {
+                                await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
+                                
+                                var sendDuration = (DateTime.UtcNow - sendStartTime).TotalMilliseconds;
+                                Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail} in {sendDuration:F0}ms");
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                throw new InvalidOperationException($"SMTP send operation timed out after 25 seconds. This usually indicates a network connectivity issue or the SMTP server is not responding.");
+                            }
+                        }
                     }
                 }
             }
@@ -366,14 +415,45 @@ namespace CmkCable.Business.Concrete
                 Console.WriteLine($"[ERROR] SMTP error for {toEmail}: {smtpEx.Message}");
                 Console.WriteLine($"[ERROR] SMTP Status Code: {smtpEx.StatusCode}");
                 Console.WriteLine($"[DEBUG] Stack trace: {smtpEx.StackTrace}");
-                throw new InvalidOperationException($"SMTP email sending failed: {smtpEx.Message}", smtpEx);
+                
+                // Provide more specific error messages
+                string errorMessage = smtpEx.Message;
+                if (smtpEx.InnerException != null)
+                {
+                    errorMessage += $" Inner exception: {smtpEx.InnerException.Message}";
+                    Console.WriteLine($"[DEBUG] Inner exception: {smtpEx.InnerException.Message}");
+                }
+                
+                // Check for timeout specifically
+                if (smtpEx.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
+                    smtpEx.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = $"SMTP connection timeout. Please check network connectivity and firewall settings. Server: {SmtpServer}:{SmtpPort}";
+                }
+                
+                throw new InvalidOperationException($"SMTP email sending failed: {errorMessage}", smtpEx);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] Email error for {toEmail}: {ex.Message}");
                 Console.WriteLine($"[ERROR] Exception type: {ex.GetType().Name}");
                 Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
-                throw new InvalidOperationException($"Email sending failed: {ex.Message}", ex);
+                
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[DEBUG] Inner exception: {ex.InnerException.Message}");
+                    Console.WriteLine($"[DEBUG] Inner exception type: {ex.InnerException.GetType().Name}");
+                }
+                
+                // Check for timeout in general exceptions too
+                string errorMessage = ex.Message;
+                if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
+                    ex.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
+                {
+                    errorMessage = $"Email sending timeout. Please check network connectivity to {SmtpServer}:{SmtpPort} and ensure Office 365 SMTP is accessible.";
+                }
+                
+                throw new InvalidOperationException($"Email sending failed: {errorMessage}", ex);
             }
         }
 
