@@ -36,7 +36,7 @@ namespace CmkCable.Business.Concrete
         private string SmtpPassword => 
             Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? 
             _configuration?["Smtp:Password"] ?? 
-            string.Empty;
+            string.Empty; // default blank to avoid committing secrets
         private string FromEmail => 
             Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
             _configuration?["Smtp:FromEmail"] ?? 
