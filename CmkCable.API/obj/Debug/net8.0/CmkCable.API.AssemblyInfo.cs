@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CmkCable.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a88f1ec4b7d680101bb6ae4f2eef0a632be28b2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3904c73b554d012c2f12ee72b4a7fc1e9d475f57")]
 [assembly: System.Reflection.AssemblyProductAttribute("CmkCable.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CmkCable.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

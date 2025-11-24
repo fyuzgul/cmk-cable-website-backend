@@ -444,7 +444,8 @@ namespace CmkCable.Business.Concrete
                     errorMessage = $"SMTP connection timeout. Please check network connectivity and firewall settings. Server: {SmtpServer}:{SmtpPort}";
                 }
                 // Check for authentication errors
-                else if (smtpEx.StatusCode == SmtpStatusCode.AuthenticationUnsuccessful)
+                else if (smtpEx.StatusCode == SmtpStatusCode.GeneralFailure &&
+                    smtpEx.Message.Contains("auth", StringComparison.OrdinalIgnoreCase))
                 {
                     errorMessage = $"SMTP authentication failed. Please check your Brevo SMTP username ({SmtpUsername}) and transactional key. Ensure SMTP is enabled for this sender.";
                 }
