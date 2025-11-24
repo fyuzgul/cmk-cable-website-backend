@@ -7,8 +7,9 @@ using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
 using System;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using System.Net;
+using System.Net.Mail;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace CmkCable.Business.Concrete
@@ -21,17 +22,28 @@ namespace CmkCable.Business.Concrete
         private IManagerMailRepository _managerMailRepository;
         private readonly IConfiguration _configuration;
         
-        // SendGrid Configuration - Artık configuration'dan okunuyor
-        private string SendGridApiKey => 
-            Environment.GetEnvironmentVariable("SENDGRID_API_KEY") ?? 
-            _configuration?["SendGrid:ApiKey"];
+        // SMTP Configuration - Office 365
+        private string SmtpServer => 
+            Environment.GetEnvironmentVariable("SMTP_SERVER") ?? 
+            _configuration?["Smtp:Server"] ?? 
+            "smtp.office365.com";
+        private int SmtpPort => 
+            int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? _configuration?["Smtp:Port"], out int port) ? port : 587;
+        private string SmtpUsername => 
+            Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? 
+            _configuration?["Smtp:Username"] ?? 
+            "runner@cmkkablo.com";
+        private string SmtpPassword => 
+            Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? 
+            _configuration?["Smtp:Password"] ?? 
+            "L$186511182400ap";
         private string FromEmail => 
-            Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL") ?? 
-            _configuration?["SendGrid:FromEmail"] ?? 
-            "webcmkkablo@gmail.com";
+            Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
+            _configuration?["Smtp:FromEmail"] ?? 
+            "runner@cmkkablo.com";
         private string FromName => 
-            Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME") ?? 
-            _configuration?["SendGrid:FromName"] ?? 
+            Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? 
+            _configuration?["Smtp:FromName"] ?? 
             "CMK KABLO";
         
         public EmailManager(IConfiguration configuration)
@@ -96,7 +108,7 @@ namespace CmkCable.Business.Concrete
 
             var plainTextBody = $"Teklif Detayları - {offerDetails.FirstName} {offerDetails.LastName}\nEmail: {offerDetails.WorkEmail}\nŞirket: {offerDetails.Company}";
 
-            // Send emails to all recipients using SendGrid
+            // Send emails to all recipients using SMTP
             List<string> failedEmails = new List<string>();
             foreach (var emailRecord in to_emails)
             {
@@ -104,17 +116,14 @@ namespace CmkCable.Business.Concrete
                 {
                     try
                     {
-                        bool emailSent = await SendEmailWithSendGridAsync(
+                        await SendEmailWithSmtpAsync(
                             emailRecord.Email, 
                             subject, 
                             htmlBody, 
                             plainTextBody
                         );
                         
-                        if (emailSent)
-                        {
-                            Console.WriteLine($"Successfully sent offer email to {emailRecord.Email}");
-                        }
+                        Console.WriteLine($"Successfully sent offer email to {emailRecord.Email}");
                     }
                     catch (Exception emailEx)
                     {
@@ -127,10 +136,10 @@ namespace CmkCable.Business.Concrete
             if (failedEmails.Any())
             {
                 var errorDetails = string.Join("; ", failedEmails);
-                throw new Exception($"Some offer emails failed to send via SendGrid. Details: {errorDetails}");
+                throw new Exception($"Some offer emails failed to send via SMTP. Details: {errorDetails}");
             }
 
-            Console.WriteLine("Offer email process completed successfully via SendGrid");
+            Console.WriteLine("Offer email process completed successfully via SMTP");
         }
 
         public async Task SendEmailAsync(string subject, ContactRequest message)
@@ -179,7 +188,7 @@ namespace CmkCable.Business.Concrete
 
                 var plainTextBody = $"İletişim Mesajı - {message.FullName}\nEmail: {message.Email}\nTelefon: {message.TelephoneNumber}\nMesaj: {message.Message}";
 
-                // Send emails to all recipients using SendGrid
+                // Send emails to all recipients using SMTP
                 List<string> failedEmails = new List<string>();
                 foreach (var emailRecord in to_mails)
                 {
@@ -187,17 +196,14 @@ namespace CmkCable.Business.Concrete
                     {
                         try
                         {
-                            bool emailSent = await SendEmailWithSendGridAsync(
+                            await SendEmailWithSmtpAsync(
                                 emailRecord.Email, 
                                 subject, 
                                 htmlBody, 
                                 plainTextBody
                             );
                             
-                            if (emailSent)
-                            {
-                                Console.WriteLine($"Successfully sent contact email to {emailRecord.Email}");
-                            }
+                            Console.WriteLine($"Successfully sent contact email to {emailRecord.Email}");
                         }
                         catch (Exception emailEx)
                         {
@@ -210,10 +216,10 @@ namespace CmkCable.Business.Concrete
                 if (failedEmails.Any())
                 {
                     var errorDetails = string.Join("; ", failedEmails);
-                    throw new Exception($"Some contact emails failed to send via SendGrid. Details: {errorDetails}");
+                    throw new Exception($"Some contact emails failed to send via SMTP. Details: {errorDetails}");
                 }
 
-                Console.WriteLine("Contact email process completed successfully via SendGrid");
+                Console.WriteLine("Contact email process completed successfully via SMTP");
             }
             catch (Exception ex)
             {
@@ -240,150 +246,109 @@ namespace CmkCable.Business.Concrete
             }
         }
 
-        private async Task<bool> SendEmailWithSendGridAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
+        private async Task SendEmailWithSmtpAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
         {
-            string detailedErrorMessage = null;
-            
             try
             {
                 // Validate input parameters
                 if (string.IsNullOrEmpty(toEmail))
                 {
-                    detailedErrorMessage = "toEmail is null or empty";
-                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: {detailedErrorMessage}");
-                    throw new ArgumentException(detailedErrorMessage, nameof(toEmail));
+                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: toEmail is null or empty");
+                    throw new ArgumentException("toEmail is null or empty", nameof(toEmail));
                 }
 
                 if (string.IsNullOrEmpty(subject))
                 {
-                    detailedErrorMessage = "subject is null or empty";
-                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: {detailedErrorMessage}");
-                    throw new ArgumentException(detailedErrorMessage, nameof(subject));
+                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: subject is null or empty");
+                    throw new ArgumentException("subject is null or empty", nameof(subject));
                 }
 
                 if (string.IsNullOrEmpty(htmlContent))
                 {
-                    detailedErrorMessage = "htmlContent is null or empty";
-                    Console.WriteLine($"[ERROR] SendEmailWithSendGridAsync: {detailedErrorMessage}");
-                    throw new ArgumentException(detailedErrorMessage, nameof(htmlContent));
+                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: htmlContent is null or empty");
+                    throw new ArgumentException("htmlContent is null or empty", nameof(htmlContent));
                 }
 
-                // Check SendGrid configuration at the start
-                Console.WriteLine($"[DEBUG] === SendGrid Configuration Check ===");
-                Console.WriteLine($"[DEBUG] SENDGRID_API_KEY from env: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"))}");
-                Console.WriteLine($"[DEBUG] SENDGRID_FROM_EMAIL from env: {Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL") ?? "Not set"}");
-                Console.WriteLine($"[DEBUG] SENDGRID_FROM_NAME from env: {Environment.GetEnvironmentVariable("SENDGRID_FROM_NAME") ?? "Not set"}");
-                Console.WriteLine($"[DEBUG] SendGridApiKey property value: {!string.IsNullOrEmpty(SendGridApiKey)} (length: {SendGridApiKey?.Length ?? 0})");
-                Console.WriteLine($"[DEBUG] FromEmail property value: {FromEmail}");
-                Console.WriteLine($"[DEBUG] FromName property value: {FromName}");
+                // Check SMTP configuration
+                Console.WriteLine($"[DEBUG] === SMTP Configuration Check ===");
+                Console.WriteLine($"[DEBUG] SMTP Server: {SmtpServer}");
+                Console.WriteLine($"[DEBUG] SMTP Port: {SmtpPort}");
+                Console.WriteLine($"[DEBUG] SMTP Username: {SmtpUsername}");
+                Console.WriteLine($"[DEBUG] FromEmail: {FromEmail}");
+                Console.WriteLine($"[DEBUG] FromName: {FromName}");
 
-                if (string.IsNullOrEmpty(SendGridApiKey))
+                if (string.IsNullOrEmpty(SmtpServer))
                 {
-                    detailedErrorMessage = "SendGrid API Key not configured. Please set SENDGRID_API_KEY environment variable or SendGrid:ApiKey in appsettings.json.";
-                    Console.WriteLine($"[ERROR] {detailedErrorMessage}");
-                    Console.WriteLine($"[DEBUG] Environment variable SENDGRID_API_KEY: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SENDGRID_API_KEY"))}");
-                    Console.WriteLine($"[DEBUG] Configuration SendGrid:ApiKey: {!string.IsNullOrEmpty(_configuration?["SendGrid:ApiKey"])}");
-                    throw new InvalidOperationException(detailedErrorMessage);
+                    throw new InvalidOperationException("SMTP Server is not configured");
                 }
 
-                // API Key format validation
-                if (!SendGridApiKey.StartsWith("SG.") || SendGridApiKey.Length < 20)
+                if (string.IsNullOrEmpty(SmtpUsername) || string.IsNullOrEmpty(SmtpPassword))
                 {
-                    detailedErrorMessage = $"SendGrid API Key format appears to be invalid. Expected format: SG.xxxxx.xxxxx. Current length: {SendGridApiKey.Length}, Starts with SG.: {SendGridApiKey.StartsWith("SG.")}";
-                    Console.WriteLine($"[ERROR] {detailedErrorMessage}");
-                    throw new InvalidOperationException(detailedErrorMessage);
+                    throw new InvalidOperationException("SMTP Username or Password is not configured");
                 }
 
                 if (string.IsNullOrEmpty(FromEmail))
                 {
-                    detailedErrorMessage = "FROM_EMAIL is not configured";
-                    Console.WriteLine($"[ERROR] {detailedErrorMessage}");
-                    Console.WriteLine($"[DEBUG] Environment variable SENDGRID_FROM_EMAIL: {Environment.GetEnvironmentVariable("SENDGRID_FROM_EMAIL")}");
-                    Console.WriteLine($"[DEBUG] Configuration SendGrid:FromEmail: {_configuration?["SendGrid:FromEmail"]}");
-                    throw new InvalidOperationException(detailedErrorMessage);
+                    throw new InvalidOperationException("FROM_EMAIL is not configured");
                 }
                 
                 Console.WriteLine($"[INFO] Preparing to send email to: {toEmail}");
                 Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
                 Console.WriteLine($"[INFO] Subject: {subject}");
                 Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
-                Console.WriteLine($"[DEBUG] SendGrid API Key length: {SendGridApiKey?.Length ?? 0}");
-                Console.WriteLine($"[DEBUG] SendGrid API Key preview: {SendGridApiKey.Substring(0, Math.Min(10, SendGridApiKey.Length))}...");
                 
-                var client = new SendGridClient(SendGridApiKey);
-                var from = new EmailAddress(FromEmail, FromName);
-                var to = new EmailAddress(toEmail);
-                
-                var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
-                
-                // Add attachment if provided
-                if (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
+                // Create mail message
+                using (var mailMessage = new MailMessage())
                 {
-                    try
-                    {
-                        msg.AddAttachment(attachmentName, Convert.ToBase64String(attachmentData), attachmentType ?? "application/octet-stream");
-                        Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
-                    }
-                    catch (Exception attachEx)
-                    {
-                        Console.WriteLine($"[WARNING] Failed to add attachment: {attachEx.Message}");
-                        // Continue without attachment rather than failing completely
-                    }
-                }
-                
-                Console.WriteLine($"[INFO] Sending email via SendGrid...");
-                var response = await client.SendEmailAsync(msg);
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    Console.WriteLine($"[SUCCESS] SendGrid email sent successfully to {toEmail}");
-                    Console.WriteLine($"[DEBUG] Response status: {response.StatusCode}");
-                    return true;
-                }
-                else
-                {
-                    var responseBody = await response.Body.ReadAsStringAsync();
-                    Console.WriteLine($"[ERROR] SendGrid email failed: {response.StatusCode} - {responseBody}");
-                    Console.WriteLine($"[DEBUG] Response headers: {string.Join(", ", response.Headers.Select(h => $"{h.Key}={string.Join(", ", h.Value)}"))}");
+                    mailMessage.From = new MailAddress(FromEmail, FromName);
+                    mailMessage.To.Add(new MailAddress(toEmail));
+                    mailMessage.Subject = subject;
+                    mailMessage.Body = htmlContent;
+                    mailMessage.IsBodyHtml = true;
                     
-                    // Parse and extract detailed error information
-                    var errorMessages = new List<string>();
-                    try
+                    // Add plain text alternative if provided
+                    if (!string.IsNullOrEmpty(plainTextContent))
                     {
-                        var errorDetails = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(responseBody);
-                        if (errorDetails.TryGetProperty("errors", out var errors))
+                        var plainTextView = AlternateView.CreateAlternateViewFromString(plainTextContent, null, "text/plain");
+                        mailMessage.AlternateViews.Add(plainTextView);
+                    }
+                    
+                    // Add attachment if provided
+                    if (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
+                    {
+                        try
                         {
-                            foreach (var error in errors.EnumerateArray())
+                            using (var attachmentStream = new MemoryStream(attachmentData))
                             {
-                                var errorMsg = "";
-                                if (error.TryGetProperty("message", out var message))
-                                {
-                                    errorMsg = message.GetString();
-                                    Console.WriteLine($"[ERROR] SendGrid error message: {errorMsg}");
-                                    errorMessages.Add(errorMsg);
-                                }
-                                if (error.TryGetProperty("field", out var field))
-                                {
-                                    var fieldName = field.GetString();
-                                    Console.WriteLine($"[ERROR] SendGrid error field: {fieldName}");
-                                    if (!string.IsNullOrEmpty(errorMsg))
-                                    {
-                                        errorMessages.Add($"{fieldName}: {errorMsg}");
-                                    }
-                                }
+                                var attachment = new Attachment(attachmentStream, attachmentName);
+                                attachment.ContentType = new System.Net.Mime.ContentType(attachmentType ?? "application/octet-stream");
+                                mailMessage.Attachments.Add(attachment);
+                                Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
                             }
                         }
+                        catch (Exception attachEx)
+                        {
+                            Console.WriteLine($"[WARNING] Failed to add attachment: {attachEx.Message}");
+                            // Continue without attachment rather than failing completely
+                        }
                     }
-                    catch (Exception parseEx)
+                    
+                    // Configure SMTP client
+                    using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
                     {
-                        Console.WriteLine($"[WARNING] Could not parse SendGrid error response: {parseEx.Message}");
+                        smtpClient.EnableSsl = true;
+                        smtpClient.UseDefaultCredentials = false;
+                        smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
+                        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                        smtpClient.Timeout = 30000; // 30 seconds
+                        
+                        Console.WriteLine($"[INFO] Sending email via SMTP ({SmtpServer}:{SmtpPort})...");
+                        
+                        // Send email asynchronously
+                        await Task.Run(() => smtpClient.Send(mailMessage));
+                        
+                        Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail}");
                     }
-                    
-                    detailedErrorMessage = errorMessages.Any() 
-                        ? $"SendGrid API Error ({response.StatusCode}): {string.Join("; ", errorMessages)}" 
-                        : $"SendGrid API Error ({response.StatusCode}): {responseBody}";
-                    
-                    throw new InvalidOperationException(detailedErrorMessage);
                 }
             }
             catch (ArgumentException)
@@ -396,15 +361,19 @@ namespace CmkCable.Business.Concrete
                 // Re-throw invalid operation exceptions as-is
                 throw;
             }
+            catch (SmtpException smtpEx)
+            {
+                Console.WriteLine($"[ERROR] SMTP error for {toEmail}: {smtpEx.Message}");
+                Console.WriteLine($"[ERROR] SMTP Status Code: {smtpEx.StatusCode}");
+                Console.WriteLine($"[DEBUG] Stack trace: {smtpEx.StackTrace}");
+                throw new InvalidOperationException($"SMTP email sending failed: {smtpEx.Message}", smtpEx);
+            }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] SendGrid email error for {toEmail}: {ex.Message}");
+                Console.WriteLine($"[ERROR] Email error for {toEmail}: {ex.Message}");
                 Console.WriteLine($"[ERROR] Exception type: {ex.GetType().Name}");
                 Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
-                
-                // Wrap in a more descriptive exception
-                var errorMsg = detailedErrorMessage ?? $"SendGrid email sending failed: {ex.Message}";
-                throw new InvalidOperationException(errorMsg, ex);
+                throw new InvalidOperationException($"Email sending failed: {ex.Message}", ex);
             }
         }
 
@@ -570,9 +539,9 @@ namespace CmkCable.Business.Concrete
                     }
                 }
 
-                Console.WriteLine("Attempting to send email via SendGrid...");
+                Console.WriteLine("Attempting to send email via SMTP...");
                 
-                // Send emails to all recipients using SendGrid
+                // Send emails to all recipients using SMTP
                 List<string> failedEmails = new List<string>();
                 foreach (var emailRecord in validEmails)
                 {
@@ -580,7 +549,7 @@ namespace CmkCable.Business.Concrete
                     {
                         try
                         {
-                            bool emailSent = await SendEmailWithSendGridAsync(
+                            await SendEmailWithSmtpAsync(
                                 emailRecord.Email, 
                                 subject, 
                                 htmlBody, 
@@ -590,10 +559,7 @@ namespace CmkCable.Business.Concrete
                                 attachmentType
                             );
                             
-                            if (emailSent)
-                            {
-                                Console.WriteLine($"Successfully sent email to {emailRecord.Email}");
-                            }
+                            Console.WriteLine($"Successfully sent email to {emailRecord.Email}");
                         }
                         catch (Exception emailEx)
                         {
@@ -612,10 +578,10 @@ namespace CmkCable.Business.Concrete
                 if (failedEmails.Any())
                 {
                     var errorDetails = string.Join("; ", failedEmails);
-                    throw new Exception($"Some emails failed to send via SendGrid. Details: {errorDetails}");
+                    throw new Exception($"Some emails failed to send via SMTP. Details: {errorDetails}");
                 }
 
-                Console.WriteLine("Career email process completed successfully via SendGrid");
+                Console.WriteLine("Career email process completed successfully via SMTP");
             }
             catch (Exception ex)
             {
