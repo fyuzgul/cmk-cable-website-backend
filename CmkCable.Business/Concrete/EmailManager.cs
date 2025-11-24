@@ -255,6 +255,14 @@ namespace CmkCable.Business.Concrete
                     return false;
                 }
 
+                // API Key format validation
+                if (!SendGridApiKey.StartsWith("SG.") || SendGridApiKey.Length < 20)
+                {
+                    Console.WriteLine($"[ERROR] SendGrid API Key format appears to be invalid. Expected format: SG.xxxxx.xxxxx");
+                    Console.WriteLine($"[DEBUG] API Key length: {SendGridApiKey.Length}, Starts with SG.: {SendGridApiKey.StartsWith("SG.")}");
+                    return false;
+                }
+
                 if (string.IsNullOrEmpty(FromEmail))
                 {
                     Console.WriteLine($"[ERROR] FROM_EMAIL is not configured");
@@ -303,7 +311,32 @@ namespace CmkCable.Business.Concrete
                 {
                     var responseBody = await response.Body.ReadAsStringAsync();
                     Console.WriteLine($"[ERROR] SendGrid email failed: {response.StatusCode} - {responseBody}");
-                    Console.WriteLine($"[DEBUG] Response headers: {string.Join(", ", response.Headers.Select(h => $"{h.Key}={h.Value}"))}");
+                    Console.WriteLine($"[DEBUG] Response headers: {string.Join(", ", response.Headers.Select(h => $"{h.Key}={string.Join(", ", h.Value)}"))}");
+                    
+                    // Log detailed error information
+                    try
+                    {
+                        var errorDetails = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(responseBody);
+                        if (errorDetails.TryGetProperty("errors", out var errors))
+                        {
+                            foreach (var error in errors.EnumerateArray())
+                            {
+                                if (error.TryGetProperty("message", out var message))
+                                {
+                                    Console.WriteLine($"[ERROR] SendGrid error message: {message.GetString()}");
+                                }
+                                if (error.TryGetProperty("field", out var field))
+                                {
+                                    Console.WriteLine($"[ERROR] SendGrid error field: {field.GetString()}");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception parseEx)
+                    {
+                        Console.WriteLine($"[WARNING] Could not parse SendGrid error response: {parseEx.Message}");
+                    }
+                    
                     return false;
                 }
             }
