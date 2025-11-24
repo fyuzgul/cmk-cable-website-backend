@@ -22,21 +22,21 @@ namespace CmkCable.Business.Concrete
         private IManagerMailRepository _managerMailRepository;
         private readonly IConfiguration _configuration;
         
-        // SMTP Configuration - Office 365
+        // SMTP Configuration - defaults fall back to Brevo relay
         private string SmtpServer => 
             Environment.GetEnvironmentVariable("SMTP_SERVER") ?? 
             _configuration?["Smtp:Server"] ?? 
-            "smtp.office365.com";
+            "smtp-relay.brevo.com";
         private int SmtpPort => 
             int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? _configuration?["Smtp:Port"], out int port) ? port : 587;
         private string SmtpUsername => 
             Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? 
             _configuration?["Smtp:Username"] ?? 
-            "runner@cmkkablo.com";
+            "9c5aec001@smtp-brevo.com";
         private string SmtpPassword => 
             Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? 
             _configuration?["Smtp:Password"] ?? 
-            "L$186511182400ap";
+            string.Empty;
         private string FromEmail => 
             Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
             _configuration?["Smtp:FromEmail"] ?? 
@@ -424,11 +424,29 @@ namespace CmkCable.Business.Concrete
                     Console.WriteLine($"[DEBUG] Inner exception: {smtpEx.InnerException.Message}");
                 }
                 
+                // Check for blacklist/IP blocking errors
+                if (smtpEx.Message.Contains("blocked", StringComparison.OrdinalIgnoreCase) || 
+                    smtpEx.Message.Contains("blacklist", StringComparison.OrdinalIgnoreCase) ||
+                    smtpEx.Message.Contains("not allowed", StringComparison.OrdinalIgnoreCase) ||
+                    smtpEx.Message.Contains("rejected", StringComparison.OrdinalIgnoreCase) ||
+                    smtpEx.StatusCode == SmtpStatusCode.ClientNotPermitted ||
+                    smtpEx.StatusCode == SmtpStatusCode.GeneralFailure)
+                {
+                    errorMessage = $"SMTP server blocked the connection. Your server IP ({GetServerIpAddress()}) may be blacklisted by Brevo. " +
+                                   $"To resolve this: 1) Contact Brevo support to whitelist your IP address, " +
+                                   $"2) Ensure the Brevo SMTP relay is enabled for this account, " +
+                                   $"3) Confirm the sender domain is validated. Server: {SmtpServer}:{SmtpPort}";
+                }
                 // Check for timeout specifically
-                if (smtpEx.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
+                else if (smtpEx.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
                     smtpEx.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
                 {
                     errorMessage = $"SMTP connection timeout. Please check network connectivity and firewall settings. Server: {SmtpServer}:{SmtpPort}";
+                }
+                // Check for authentication errors
+                else if (smtpEx.StatusCode == SmtpStatusCode.AuthenticationUnsuccessful)
+                {
+                    errorMessage = $"SMTP authentication failed. Please check your Brevo SMTP username ({SmtpUsername}) and transactional key. Ensure SMTP is enabled for this sender.";
                 }
                 
                 throw new InvalidOperationException($"SMTP email sending failed: {errorMessage}", smtpEx);
@@ -450,10 +468,27 @@ namespace CmkCable.Business.Concrete
                 if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
                     ex.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
                 {
-                    errorMessage = $"Email sending timeout. Please check network connectivity to {SmtpServer}:{SmtpPort} and ensure Office 365 SMTP is accessible.";
+                    errorMessage = $"Email sending timeout. Please check network connectivity to {SmtpServer}:{SmtpPort} and ensure the Brevo SMTP relay is accessible.";
                 }
                 
                 throw new InvalidOperationException($"Email sending failed: {errorMessage}", ex);
+            }
+        }
+
+        private string GetServerIpAddress()
+        {
+            try
+            {
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                    var response = client.GetStringAsync("https://api.ipify.org").Result;
+                    return response.Trim();
+                }
+            }
+            catch
+            {
+                return "Unknown";
             }
         }
 
