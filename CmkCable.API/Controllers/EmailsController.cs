@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using MimeKit;
-using MailKit.Net.Smtp;
-using MailKit.Security;
 
 namespace CmkCable.API.Controllers
 {

@@ -50,10 +50,6 @@
               "target": "Package",
               "version": "[1.27.4, )"
             },
-            "MailKit": {
-              "target": "Package",
-              "version": "[4.10.0, )"
-            },
             "Microsoft.AspNetCore.Http": {
               "target": "Package",
               "version": "[2.3.0, )"
@@ -151,10 +147,6 @@
             "CloudinaryDotNet": {
               "target": "Package",
               "version": "[1.27.4, )"
-            },
-            "MailKit": {
-              "target": "Package",
-              "version": "[4.10.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",

@@ -11,7 +11,6 @@
           "CloudinaryDotNet": "1.27.4",
           "CmkCable.DataAccess": "1.0.0",
           "CmkCable.Entities": "1.0.0",
-          "MailKit": "4.10.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "3.1.26",
           "Microsoft.EntityFrameworkCore": "9.0.3",
           "Microsoft.EntityFrameworkCore.Analyzers": "9.0.3",
@@ -25,14 +24,6 @@
           "CmkCable.Business.dll": {}
         }
       },
-      "BouncyCastle.Cryptography/2.5.0": {
-        "runtime": {
-          "lib/net6.0/BouncyCastle.Cryptography.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.5.0.6119"
-          }
-        }
-      },
       "CloudinaryDotNet/1.27.4": {
         "dependencies": {
           "Newtonsoft.Json": "13.0.3",
@@ -43,18 +34,6 @@
           "lib/netstandard2.0/CloudinaryDotNet.dll": {
             "assemblyVersion": "1.27.4.0",
             "fileVersion": "1.27.4.0"
-          }
-        }
-      },
-      "MailKit/4.10.0": {
-        "dependencies": {
-          "MimeKit": "4.10.0",
-          "System.Formats.Asn1": "8.0.1"
-        },
-        "runtime": {
-          "lib/net8.0/MailKit.dll": {
-            "assemblyVersion": "4.10.0.0",
-            "fileVersion": "4.10.0.0"
           }
         }
       },
@@ -315,19 +294,6 @@
       },
       "Microsoft.NETCore.Platforms/1.1.1": {},
       "Microsoft.NETCore.Targets/1.1.3": {},
-      "MimeKit/4.10.0": {
-        "dependencies": {
-          "BouncyCastle.Cryptography": "2.5.0",
-          "System.Formats.Asn1": "8.0.1",
-          "System.Security.Cryptography.Pkcs": "8.0.1"
-        },
-        "runtime": {
-          "lib/net8.0/MimeKit.dll": {
-            "assemblyVersion": "4.10.0.0",
-            "fileVersion": "4.10.0.0"
-          }
-        }
-      },
       "Newtonsoft.Json/13.0.3": {
         "runtime": {
           "lib/net6.0/Newtonsoft.Json.dll": {
@@ -446,7 +412,6 @@
           "System.Runtime": "4.3.1"
         }
       },
-      "System.Formats.Asn1/8.0.1": {},
       "System.Globalization/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.1",
@@ -711,22 +676,6 @@
           "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.2"
         }
       },
-      "System.Security.Cryptography.Pkcs/8.0.1": {
-        "runtime": {
-          "lib/net8.0/System.Security.Cryptography.Pkcs.dll": {
-            "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.1024.46610"
-          }
-        },
-        "runtimeTargets": {
-          "runtimes/win/lib/net8.0/System.Security.Cryptography.Pkcs.dll": {
-            "rid": "win",
-            "assetType": "runtime",
-            "assemblyVersion": "8.0.0.0",
-            "fileVersion": "8.0.1024.46610"
-          }
-        }
-      },
       "System.Security.Cryptography.Primitives/4.3.0": {
         "dependencies": {
           "System.Diagnostics.Debug": "4.3.0",
@@ -825,7 +774,6 @@
           "CloudinaryDotNet": "1.27.4",
           "CmkCable.Entities": "1.0.0",
           "DTOs": "1.0.0",
-          "MailKit": "4.10.0",
           "Microsoft.EntityFrameworkCore": "9.0.3",
           "Microsoft.EntityFrameworkCore.Analyzers": "9.0.3",
           "Newtonsoft.Json": "13.0.3",
@@ -842,7 +790,6 @@
       "CmkCable.Entities/1.0.0": {
         "dependencies": {
           "CloudinaryDotNet": "1.27.4",
-          "MailKit": "4.10.0",
           "Microsoft.AspNetCore.Http": "2.3.0",
           "Microsoft.EntityFrameworkCore": "9.0.3",
           "Microsoft.EntityFrameworkCore.Analyzers": "9.0.3",
@@ -861,7 +808,6 @@
         "dependencies": {
           "CloudinaryDotNet": "1.27.4",
           "CmkCable.Entities": "1.0.0",
-          "MailKit": "4.10.0",
           "Microsoft.EntityFrameworkCore": "9.0.3",
           "Microsoft.EntityFrameworkCore.Analyzers": "9.0.3",
           "Newtonsoft.Json": "13.0.3",
@@ -883,26 +829,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "BouncyCastle.Cryptography/2.5.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-rc7vRCq/KD3GtIwSgRtjanGaBwTb9nLenFDZnEcauWlssuuEoxcbMfWA3QWWho6QDMSOSkWjs657McdHzEtEcw==",
-      "path": "bouncycastle.cryptography/2.5.0",
-      "hashPath": "bouncycastle.cryptography.2.5.0.nupkg.sha512"
-    },
     "CloudinaryDotNet/1.27.4": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-yg8ueu70WBJStNGcp+E8kqRCRiFST6LX+Tup8XrXVLjY1Pumas1d6GTjfrsq54hDm42kWc1BtRpaKw6dmm7v5Q==",
       "path": "cloudinarydotnet/1.27.4",
       "hashPath": "cloudinarydotnet.1.27.4.nupkg.sha512"
-    },
-    "MailKit/4.10.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-C6gwHQGHru2x/g1pzk0NXn5BIv0qoeKbSgb4BIFfWl4OjTZOEajSIR+O6i4WElsuJI8Z77LGr4rH5nVjypyvDQ==",
-      "path": "mailkit/4.10.0",
-      "hashPath": "mailkit.4.10.0.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/3.1.26": {
       "type": "package",
@@ -1100,13 +1032,6 @@
       "path": "microsoft.netcore.targets/1.1.3",
       "hashPath": "microsoft.netcore.targets.1.1.3.nupkg.sha512"
     },
-    "MimeKit/4.10.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-GQofI17cH55XSh109hJmHaYMtSFqTX/eUek3UcV7hTnYayAIXZ6eHlv345tfdc+bQ/BrEnYOSZVzx9I3wpvvpg==",
-      "path": "mimekit/4.10.0",
-      "hashPath": "mimekit.4.10.0.nupkg.sha512"
-    },
     "Newtonsoft.Json/13.0.3": {
       "type": "package",
       "serviceable": true,
@@ -1275,13 +1200,6 @@
       "path": "system.diagnostics.tracing/4.3.0",
       "hashPath": "system.diagnostics.tracing.4.3.0.nupkg.sha512"
     },
-    "System.Formats.Asn1/8.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-XqKba7Mm/koKSjKMfW82olQdmfbI5yqeoLV/tidRp7fbh5rmHAQ5raDI/7SU0swTzv+jgqtUGkzmFxuUg0it1A==",
-      "path": "system.formats.asn1/8.0.1",
-      "hashPath": "system.formats.asn1.8.0.1.nupkg.sha512"
-    },
     "System.Globalization/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -1449,13 +1367,6 @@
       "sha512": "sha512-h4CEgOgv5PKVF/HwaHzJRiVboL2THYCou97zpmhjghx5frc7fIvlkY1jL+lnIQyChrJDMNEXS6r7byGif8Cy4w==",
       "path": "system.security.cryptography.openssl/4.3.0",
       "hashPath": "system.security.cryptography.openssl.4.3.0.nupkg.sha512"
-    },
-    "System.Security.Cryptography.Pkcs/8.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-CoCRHFym33aUSf/NtWSVSZa99dkd0Hm7OCZUxORBjRB16LNhIEOf8THPqzIYlvKM0nNDAPTRBa1FxEECrgaxxA==",
-      "path": "system.security.cryptography.pkcs/8.0.1",
-      "hashPath": "system.security.cryptography.pkcs.8.0.1.nupkg.sha512"
     },
     "System.Security.Cryptography.Primitives/4.3.0": {
       "type": "package",

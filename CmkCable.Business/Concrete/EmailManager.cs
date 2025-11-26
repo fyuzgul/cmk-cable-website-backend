@@ -7,9 +7,10 @@ using CmkCable.DataAccess.Abstract;
 using CmkCable.DataAccess.Concrete;
 using System.Linq;
 using System;
-using System.Net;
-using System.Net.Mail;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace CmkCable.Business.Concrete
@@ -22,30 +23,34 @@ namespace CmkCable.Business.Concrete
         private IManagerMailRepository _managerMailRepository;
         private readonly IConfiguration _configuration;
         
-        // SMTP Configuration - defaults fall back to Brevo relay
-        private string SmtpServer => 
-            Environment.GetEnvironmentVariable("SMTP_SERVER") ?? 
-            _configuration?["Smtp:Server"] ?? 
-            "smtp-relay.brevo.com";
-        private List<int> _smtpPortsCache;
-        private IEnumerable<int> SmtpPorts => _smtpPortsCache ??= BuildSmtpPortList();
-        private int SmtpPort => SmtpPorts.FirstOrDefault();
-        private string SmtpUsername => 
-            Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? 
-            _configuration?["Smtp:Username"] ?? 
-            "9c5aec001@smtp-brevo.com";
-        private string SmtpPassword => 
-            Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? 
-            _configuration?["Smtp:Password"] ?? 
-            string.Empty; // default blank to avoid committing secrets
-        private string FromEmail => 
+        // Brevo HTTP API configuration
+        private string BrevoApiKey =>
+            Environment.GetEnvironmentVariable("BREVO_API_KEY") ??
+            _configuration?["Brevo:ApiKey"];
+        private string BrevoSenderEmail =>
+            Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL") ??
             Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
+            _configuration?["Brevo:SenderEmail"] ??
             _configuration?["Smtp:FromEmail"] ?? 
             "runner@cmkkablo.com";
-        private string FromName => 
+        private string BrevoSenderName =>
+            Environment.GetEnvironmentVariable("BREVO_SENDER_NAME") ??
             Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? 
+            _configuration?["Brevo:SenderName"] ??
             _configuration?["Smtp:FromName"] ?? 
             "CMK KABLO";
+        private bool IsBrevoApiConfigured => !string.IsNullOrWhiteSpace(BrevoApiKey);
+
+        private const string BrevoApiEndpoint = "https://api.brevo.com/v3/smtp/email";
+        private static readonly HttpClient BrevoHttpClient = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+        private static readonly JsonSerializerOptions BrevoJsonOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
         
         public EmailManager(IConfiguration configuration)
         {
@@ -109,7 +114,7 @@ namespace CmkCable.Business.Concrete
 
             var plainTextBody = $"Teklif Detayları - {offerDetails.FirstName} {offerDetails.LastName}\nEmail: {offerDetails.WorkEmail}\nŞirket: {offerDetails.Company}";
 
-            // Send emails to all recipients using SMTP
+            // Send emails to all recipients using Brevo API
             List<string> failedEmails = new List<string>();
             foreach (var emailRecord in to_emails)
             {
@@ -117,7 +122,7 @@ namespace CmkCable.Business.Concrete
                 {
                     try
                     {
-                        await SendEmailWithSmtpAsync(
+                        await SendEmailWithBrevoApiAsync(
                             emailRecord.Email, 
                             subject, 
                             htmlBody, 
@@ -137,10 +142,10 @@ namespace CmkCable.Business.Concrete
             if (failedEmails.Any())
             {
                 var errorDetails = string.Join("; ", failedEmails);
-                throw new Exception($"Some offer emails failed to send via SMTP. Details: {errorDetails}");
+                throw new Exception($"Some offer emails failed to send via Brevo API. Details: {errorDetails}");
             }
 
-            Console.WriteLine("Offer email process completed successfully via SMTP");
+            Console.WriteLine("Offer email process completed successfully via Brevo API");
         }
 
         public async Task SendEmailAsync(string subject, ContactRequest message)
@@ -189,7 +194,7 @@ namespace CmkCable.Business.Concrete
 
                 var plainTextBody = $"İletişim Mesajı - {message.FullName}\nEmail: {message.Email}\nTelefon: {message.TelephoneNumber}\nMesaj: {message.Message}";
 
-                // Send emails to all recipients using SMTP
+                // Send emails to all recipients using Brevo API
                 List<string> failedEmails = new List<string>();
                 foreach (var emailRecord in to_mails)
                 {
@@ -197,7 +202,7 @@ namespace CmkCable.Business.Concrete
                     {
                         try
                         {
-                            await SendEmailWithSmtpAsync(
+                            await SendEmailWithBrevoApiAsync(
                                 emailRecord.Email, 
                                 subject, 
                                 htmlBody, 
@@ -217,10 +222,10 @@ namespace CmkCable.Business.Concrete
                 if (failedEmails.Any())
                 {
                     var errorDetails = string.Join("; ", failedEmails);
-                    throw new Exception($"Some contact emails failed to send via SMTP. Details: {errorDetails}");
+                    throw new Exception($"Some contact emails failed to send via Brevo API. Details: {errorDetails}");
                 }
 
-                Console.WriteLine("Contact email process completed successfully via SMTP");
+                Console.WriteLine("Contact email process completed successfully via Brevo API");
             }
             catch (Exception ex)
             {
@@ -247,339 +252,77 @@ namespace CmkCable.Business.Concrete
             }
         }
 
-        private async Task SendEmailWithSmtpAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
+        private async Task SendEmailWithBrevoApiAsync(string toEmail, string subject, string htmlContent, string plainTextContent = null, byte[] attachmentData = null, string attachmentName = null, string attachmentType = null)
         {
+            if (!IsBrevoApiConfigured)
+            {
+                throw new InvalidOperationException("Brevo API key is not configured");
+            }
+
+            if (string.IsNullOrEmpty(BrevoSenderEmail))
+            {
+                throw new InvalidOperationException("Brevo sender email is not configured");
+            }
+
             try
             {
-                // Validate input parameters
-                if (string.IsNullOrEmpty(toEmail))
-                {
-                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: toEmail is null or empty");
-                    throw new ArgumentException("toEmail is null or empty", nameof(toEmail));
-                }
+                Console.WriteLine("[INFO] Sending email via Brevo HTTP API...");
+                Console.WriteLine($"[INFO] Brevo sender: {BrevoSenderEmail} ({BrevoSenderName})");
+                Console.WriteLine($"[INFO] Recipient: {toEmail}");
+                Console.WriteLine($"[INFO] Subject: {subject}");
+                Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
 
-                if (string.IsNullOrEmpty(subject))
+                var payload = new
                 {
-                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: subject is null or empty");
-                    throw new ArgumentException("subject is null or empty", nameof(subject));
-                }
-
-                if (string.IsNullOrEmpty(htmlContent))
-                {
-                    Console.WriteLine($"[ERROR] SendEmailWithSmtpAsync: htmlContent is null or empty");
-                    throw new ArgumentException("htmlContent is null or empty", nameof(htmlContent));
-                }
-
-                // Check SMTP configuration
-                Console.WriteLine($"[DEBUG] === SMTP Configuration Check ===");
-                Console.WriteLine($"[DEBUG] SMTP Server: {SmtpServer}");
-                Console.WriteLine($"[DEBUG] SMTP Port: {SmtpPort}");
-                Console.WriteLine($"[DEBUG] SMTP Username: {SmtpUsername}");
-                Console.WriteLine($"[DEBUG] FromEmail: {FromEmail}");
-                Console.WriteLine($"[DEBUG] FromName: {FromName}");
-                
-                var smtpPorts = SmtpPorts?.ToList() ?? new List<int>();
-                if (!smtpPorts.Any())
-                {
-                    smtpPorts.Add(587);
-                }
-                Console.WriteLine($"[DEBUG] SMTP Ports to try: {string.Join(", ", smtpPorts)}");
-
-                if (string.IsNullOrEmpty(SmtpServer))
-                {
-                    throw new InvalidOperationException("SMTP Server is not configured");
-                }
-
-                if (string.IsNullOrEmpty(SmtpUsername) || string.IsNullOrEmpty(SmtpPassword))
-                {
-                    throw new InvalidOperationException("SMTP Username or Password is not configured");
-                }
-
-                if (string.IsNullOrEmpty(FromEmail))
-                {
-                    throw new InvalidOperationException("FROM_EMAIL is not configured");
-                }
-                
-                // Create mail message
-                using (var mailMessage = new MailMessage())
-                {
-                    mailMessage.From = new MailAddress(FromEmail, FromName);
-                    mailMessage.To.Add(new MailAddress(toEmail));
-                    mailMessage.Subject = subject;
-                    mailMessage.Body = htmlContent;
-                    mailMessage.IsBodyHtml = true;
-                    
-                    // Add plain text alternative if provided
-                    if (!string.IsNullOrEmpty(plainTextContent))
+                    sender = new
                     {
-                        var plainTextView = AlternateView.CreateAlternateViewFromString(plainTextContent, null, "text/plain");
-                        mailMessage.AlternateViews.Add(plainTextView);
-                    }
-                    
-                    // Add attachment if provided
-                    if (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
+                        email = BrevoSenderEmail,
+                        name = BrevoSenderName
+                    },
+                    to = new[]
                     {
-                        try
+                        new { email = toEmail }
+                    },
+                    subject = subject,
+                    htmlContent = htmlContent,
+                    textContent = string.IsNullOrWhiteSpace(plainTextContent) ? null : plainTextContent,
+                    attachment = (attachmentData != null && !string.IsNullOrEmpty(attachmentName))
+                        ? new[]
                         {
-                            var attachmentStream = new MemoryStream(attachmentData);
-                            var attachment = new Attachment(attachmentStream, attachmentName);
-                            attachment.ContentType = new System.Net.Mime.ContentType(attachmentType ?? "application/octet-stream");
-                            mailMessage.Attachments.Add(attachment);
-                            Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
-                        }
-                        catch (Exception attachEx)
-                        {
-                            Console.WriteLine($"[WARNING] Failed to add attachment: {attachEx.Message}");
-                            // Continue without attachment rather than failing completely
-                        }
-                    }
-
-                    var portErrors = new List<string>();
-                    Exception lastPortException = null;
-                    
-                    foreach (var port in smtpPorts)
-                    {
-                        try
-                        {
-                            Console.WriteLine($"[INFO] Testing network connectivity to {SmtpServer}:{port}...");
-                            await EnsureSmtpConnectivityAsync(SmtpServer, port);
-                            
-                            Console.WriteLine($"[INFO] Preparing to send email to: {toEmail} via port {port}");
-                            Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
-                            Console.WriteLine($"[INFO] Subject: {subject}");
-                            Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
-                            
-                            using (var smtpClient = new SmtpClient(SmtpServer, port))
+                            new
                             {
-                                smtpClient.EnableSsl = true;
-                                smtpClient.UseDefaultCredentials = false;
-                                smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
-                                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                                smtpClient.Timeout = 30000; // 30 seconds - should be enough for normal SMTP operations
-                                
-                                if (ServicePointManager.SecurityProtocol == SecurityProtocolType.SystemDefault)
-                                {
-                                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-                                }
-                                
-                                Console.WriteLine($"[INFO] Sending email via SMTP ({SmtpServer}:{port})...");
-                                Console.WriteLine($"[DEBUG] SSL Enabled: {smtpClient.EnableSsl}");
-                                Console.WriteLine($"[DEBUG] Timeout: {smtpClient.Timeout}ms");
-                                Console.WriteLine($"[DEBUG] Security Protocol: {ServicePointManager.SecurityProtocol}");
-                                
-                                var sendStartTime = DateTime.UtcNow;
-                                
-                                using (var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(25)))
-                                {
-                                    try
-                                    {
-                                        await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
-                                        
-                                        var sendDuration = (DateTime.UtcNow - sendStartTime).TotalMilliseconds;
-                                        Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail} via port {port} in {sendDuration:F0}ms");
-                                        return;
-                                    }
-                                    catch (OperationCanceledException)
-                                    {
-                                        throw new InvalidOperationException($"SMTP send operation timed out after 25 seconds on port {port}. This usually indicates a network connectivity issue or the SMTP server is not responding.");
-                                    }
-                                }
+                                name = attachmentName,
+                                content = Convert.ToBase64String(attachmentData),
+                                type = string.IsNullOrWhiteSpace(attachmentType) ? "application/octet-stream" : attachmentType
                             }
                         }
-                        catch (Exception portEx)
-                        {
-                            lastPortException = portEx;
-                            var detailedMessage = BuildPortErrorMessage(SmtpServer, port, portEx);
-                            portErrors.Add(detailedMessage);
-                            Console.WriteLine($"[WARNING] {detailedMessage}");
-                        }
-                    }
-                    
-                    var errorSummary = string.Join(" || ", portErrors);
-                    throw new InvalidOperationException($"SMTP email sending failed via all configured ports ({string.Join(", ", smtpPorts)}). Details: {errorSummary}", lastPortException);
-                }
-            }
-            catch (ArgumentException)
-            {
-                // Re-throw argument exceptions as-is
-                throw;
-            }
-            catch (InvalidOperationException)
-            {
-                // Re-throw invalid operation exceptions as-is
-                throw;
-            }
-            catch (SmtpException smtpEx)
-            {
-                Console.WriteLine($"[ERROR] SMTP error for {toEmail}: {smtpEx.Message}");
-                Console.WriteLine($"[ERROR] SMTP Status Code: {smtpEx.StatusCode}");
-                Console.WriteLine($"[DEBUG] Stack trace: {smtpEx.StackTrace}");
-                
-                // Provide more specific error messages
-                string errorMessage = smtpEx.Message;
-                if (smtpEx.InnerException != null)
-                {
-                    errorMessage += $" Inner exception: {smtpEx.InnerException.Message}";
-                    Console.WriteLine($"[DEBUG] Inner exception: {smtpEx.InnerException.Message}");
-                }
-                
-                // Check for blacklist/IP blocking errors
-                if (smtpEx.Message.Contains("blocked", StringComparison.OrdinalIgnoreCase) || 
-                    smtpEx.Message.Contains("blacklist", StringComparison.OrdinalIgnoreCase) ||
-                    smtpEx.Message.Contains("not allowed", StringComparison.OrdinalIgnoreCase) ||
-                    smtpEx.Message.Contains("rejected", StringComparison.OrdinalIgnoreCase) ||
-                    smtpEx.StatusCode == SmtpStatusCode.ClientNotPermitted ||
-                    smtpEx.StatusCode == SmtpStatusCode.GeneralFailure)
-                {
-                    errorMessage = $"SMTP server blocked the connection. Your server IP ({GetServerIpAddress()}) may be blacklisted by Brevo. " +
-                                   $"To resolve this: 1) Contact Brevo support to whitelist your IP address, " +
-                                   $"2) Ensure the Brevo SMTP relay is enabled for this account, " +
-                                   $"3) Confirm the sender domain is validated. Server: {SmtpServer}:{SmtpPort}";
-                }
-                // Check for timeout specifically
-                else if (smtpEx.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
-                    smtpEx.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = $"SMTP connection timeout. Please check network connectivity and firewall settings. Server: {SmtpServer}:{SmtpPort}";
-                }
-                // Check for authentication errors
-                else if (smtpEx.StatusCode == SmtpStatusCode.GeneralFailure &&
-                    smtpEx.Message.Contains("auth", StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = $"SMTP authentication failed. Please check your Brevo SMTP username ({SmtpUsername}) and transactional key. Ensure SMTP is enabled for this sender.";
-                }
-                
-                throw new InvalidOperationException($"SMTP email sending failed: {errorMessage}", smtpEx);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ERROR] Email error for {toEmail}: {ex.Message}");
-                Console.WriteLine($"[ERROR] Exception type: {ex.GetType().Name}");
-                Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
-                
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"[DEBUG] Inner exception: {ex.InnerException.Message}");
-                    Console.WriteLine($"[DEBUG] Inner exception type: {ex.InnerException.GetType().Name}");
-                }
-                
-                // Check for timeout in general exceptions too
-                string errorMessage = ex.Message;
-                if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase) || 
-                    ex.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase))
-                {
-                    errorMessage = $"Email sending timeout. Please check network connectivity to {SmtpServer}:{SmtpPort} and ensure the Brevo SMTP relay is accessible.";
-                }
-                
-                throw new InvalidOperationException($"Email sending failed: {errorMessage}", ex);
-            }
-        }
+                        : null
+                };
 
-        private List<int> BuildSmtpPortList()
-        {
-            var ports = new List<int>();
-            var envPorts = Environment.GetEnvironmentVariable("SMTP_PORTS");
-            if (!string.IsNullOrWhiteSpace(envPorts))
-            {
-                ports.AddRange(ParsePortList(envPorts));
-            }
-            else if (!string.IsNullOrWhiteSpace(_configuration?["Smtp:Ports"]))
-            {
-                ports.AddRange(ParsePortList(_configuration["Smtp:Ports"]));
-            }
+                var jsonPayload = JsonSerializer.Serialize(payload, BrevoJsonOptions);
 
-            if (!ports.Any())
-            {
-                if (int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? _configuration?["Smtp:Port"], out int singlePort))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, BrevoApiEndpoint))
                 {
-                    ports.Add(singlePort);
-                }
-            }
+                    request.Headers.TryAddWithoutValidation("api-key", BrevoApiKey);
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-            if (!ports.Any())
-            {
-                ports.AddRange(new[] { 587, 465, 2525 });
-            }
+                    var response = await BrevoHttpClient.SendAsync(request);
+                    var responseBody = await response.Content.ReadAsStringAsync();
 
-            return ports.Where(p => p > 0 && p < 65536).Distinct().ToList();
-        }
-
-        private IEnumerable<int> ParsePortList(string portList)
-        {
-            return portList
-                .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                .Select(p => p.Trim())
-                .Select(p => int.TryParse(p, out int value) ? value : (int?)null)
-                .Where(v => v.HasValue && v.Value > 0 && v.Value < 65536)
-                .Select(v => v.Value);
-        }
-
-        private async Task EnsureSmtpConnectivityAsync(string server, int port)
-        {
-            try
-            {
-                using (var tcpClient = new System.Net.Sockets.TcpClient())
-                {
-                    var connectTask = tcpClient.ConnectAsync(server, port);
-                    var timeoutTask = Task.Delay(5000);
-                    var completedTask = await Task.WhenAny(connectTask, timeoutTask);
-
-                    if (completedTask == timeoutTask)
+                    if (!response.IsSuccessStatusCode)
                     {
-                        tcpClient.Close();
-                        throw new InvalidOperationException($"Cannot connect to SMTP server {server}:{port}. Network connectivity issue or firewall blocking. Please check if the server is reachable from the container.");
+                        Console.WriteLine($"[ERROR] Brevo API responded with {(int)response.StatusCode}: {responseBody}");
+                        throw new InvalidOperationException($"Brevo API email sending failed with status {(int)response.StatusCode}. Response: {responseBody}");
                     }
 
-                    await connectTask;
-                    Console.WriteLine($"[SUCCESS] Network connectivity test passed for {server}:{port}");
-                    tcpClient.Close();
+                    Console.WriteLine($"[SUCCESS] Brevo API email sent successfully to {toEmail}");
                 }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Cannot connect to SMTP server {server}:{port}. Error: {ex.Message}. Possible causes: outbound firewall blocks port {port}, DNS issue, or Brevo IP whitelist. Please verify by running 'nc -vz {server} {port}' inside the container.", ex);
-            }
-        }
-
-        private string BuildPortErrorMessage(string server, int port, Exception ex)
-        {
-            var baseMessage = $"{server}:{port} => {ex.GetType().Name}: {ex.Message}";
-            if (ex.InnerException != null)
-            {
-                baseMessage += $" | Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}";
-            }
-
-            if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase))
-            {
-                baseMessage += " | Hint: Check outbound firewall rules and ensure the SMTP host allows this IP.";
-            }
-            else if (ex.Message.Contains("auth", StringComparison.OrdinalIgnoreCase))
-            {
-                baseMessage += $" | Hint: Confirm Brevo transactional key matches username {SmtpUsername}.";
-            }
-            else if (ex.Message.Contains("certificate", StringComparison.OrdinalIgnoreCase))
-            {
-                baseMessage += " | Hint: TLS inspection or invalid cert may be blocking the handshake.";
-            }
-
-            baseMessage += $" | Server IP: {GetServerIpAddress()}";
-            return baseMessage;
-        }
-
-        private string GetServerIpAddress()
-        {
-            try
-            {
-                using (var client = new System.Net.Http.HttpClient())
-                {
-                    client.Timeout = TimeSpan.FromSeconds(5);
-                    var response = client.GetStringAsync("https://api.ipify.org").Result;
-                    return response.Trim();
-                }
-            }
-            catch
-            {
-                return "Unknown";
+                Console.WriteLine($"[ERROR] Brevo API email sending failed: {ex.Message}");
+                throw;
             }
         }
 
@@ -745,9 +488,9 @@ namespace CmkCable.Business.Concrete
                     }
                 }
 
-                Console.WriteLine("Attempting to send email via SMTP...");
+                Console.WriteLine("Attempting to send career emails via Brevo API...");
                 
-                // Send emails to all recipients using SMTP
+                // Send emails to all recipients using Brevo API
                 List<string> failedEmails = new List<string>();
                 foreach (var emailRecord in validEmails)
                 {
@@ -755,7 +498,7 @@ namespace CmkCable.Business.Concrete
                     {
                         try
                         {
-                            await SendEmailWithSmtpAsync(
+                            await SendEmailWithBrevoApiAsync(
                                 emailRecord.Email, 
                                 subject, 
                                 htmlBody, 
@@ -784,10 +527,10 @@ namespace CmkCable.Business.Concrete
                 if (failedEmails.Any())
                 {
                     var errorDetails = string.Join("; ", failedEmails);
-                    throw new Exception($"Some emails failed to send via SMTP. Details: {errorDetails}");
+                    throw new Exception($"Some emails failed to send via Brevo API. Details: {errorDetails}");
                 }
 
-                Console.WriteLine("Career email process completed successfully via SMTP");
+                Console.WriteLine("Career email process completed successfully via Brevo API");
             }
             catch (Exception ex)
             {
