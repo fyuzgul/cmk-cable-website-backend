@@ -39,7 +39,7 @@
   - `GET /api/emails/debug-config` - Email configuration debugging
 
 ## Security Note
-**IMPORTANT**: The SendGrid API key is currently hardcoded in the `EmailManager.cs` file. This is a security risk and should be moved to environment variables or secure configuration.
+**IMPORTANT**: SMTP credentials must be provided via environment variables or secure configuration. Avoid hardcoding relay usernames or transactional keys anywhere in the repository.
 
 ## Testing the Fixes
 
@@ -71,11 +71,6 @@ This will show the current email configuration and relationships.
 2. **Tables**: Ensure all required tables exist and have proper relationships
 3. **Data**: Check if FormTypes and ManagerMails are properly seeded
 
-### SendGrid Issues
-1. **API Key**: Verify SendGrid API key is valid and has proper permissions
-2. **Sender Email**: Ensure `webcmkkablo@gmail.com` is verified in SendGrid
-3. **Rate Limits**: Check SendGrid account limits and usage
-
 ### File Upload Issues
 1. **File Size**: Check if CV file size exceeds limits
 2. **File Type**: Verify supported file types
@@ -84,10 +79,10 @@ This will show the current email configuration and relationships.
 ## Next Steps
 
 1. **Test the health check endpoint** to verify database connectivity
-2. **Test the test email endpoint** to verify SendGrid functionality
+2. **Test the test email endpoint** to verify SMTP delivery
 3. **Review console logs** for detailed error information
-4. **Move SendGrid credentials** to environment variables
-5. **Monitor email delivery** in SendGrid dashboard
+4. **Keep SMTP credentials** in environment variables
+5. **Monitor email delivery** via Brevo dashboard
 
 ## Logging
 

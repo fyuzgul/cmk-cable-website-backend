@@ -367,8 +367,6 @@ C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Mono.Te
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Npgsql.dll
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
-C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\SendGrid.dll
-C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\StarkbankEcdsa.dll
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\mfyuzgul\Desktop\website\CmkCable\CmkCable.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll

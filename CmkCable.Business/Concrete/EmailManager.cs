@@ -27,8 +27,9 @@ namespace CmkCable.Business.Concrete
             Environment.GetEnvironmentVariable("SMTP_SERVER") ?? 
             _configuration?["Smtp:Server"] ?? 
             "smtp-relay.brevo.com";
-        private int SmtpPort => 
-            int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? _configuration?["Smtp:Port"], out int port) ? port : 587;
+        private List<int> _smtpPortsCache;
+        private IEnumerable<int> SmtpPorts => _smtpPortsCache ??= BuildSmtpPortList();
+        private int SmtpPort => SmtpPorts.FirstOrDefault();
         private string SmtpUsername => 
             Environment.GetEnvironmentVariable("SMTP_USERNAME") ?? 
             _configuration?["Smtp:Username"] ?? 
@@ -276,6 +277,13 @@ namespace CmkCable.Business.Concrete
                 Console.WriteLine($"[DEBUG] SMTP Username: {SmtpUsername}");
                 Console.WriteLine($"[DEBUG] FromEmail: {FromEmail}");
                 Console.WriteLine($"[DEBUG] FromName: {FromName}");
+                
+                var smtpPorts = SmtpPorts?.ToList() ?? new List<int>();
+                if (!smtpPorts.Any())
+                {
+                    smtpPorts.Add(587);
+                }
+                Console.WriteLine($"[DEBUG] SMTP Ports to try: {string.Join(", ", smtpPorts)}");
 
                 if (string.IsNullOrEmpty(SmtpServer))
                 {
@@ -291,38 +299,6 @@ namespace CmkCable.Business.Concrete
                 {
                     throw new InvalidOperationException("FROM_EMAIL is not configured");
                 }
-                
-                // Test network connectivity before attempting to send
-                Console.WriteLine($"[INFO] Testing network connectivity to {SmtpServer}:{SmtpPort}...");
-                try
-                {
-                    using (var tcpClient = new System.Net.Sockets.TcpClient())
-                    {
-                        var connectTask = tcpClient.ConnectAsync(SmtpServer, SmtpPort);
-                        var timeoutTask = Task.Delay(5000); // 5 second timeout for connection test
-                        var completedTask = await Task.WhenAny(connectTask, timeoutTask);
-                        
-                        if (completedTask == timeoutTask)
-                        {
-                            tcpClient.Close();
-                            throw new InvalidOperationException($"Cannot connect to SMTP server {SmtpServer}:{SmtpPort}. Network connectivity issue or firewall blocking. Please check if the server is reachable from the container.");
-                        }
-                        
-                        await connectTask;
-                        Console.WriteLine($"[SUCCESS] Network connectivity test passed");
-                        tcpClient.Close();
-                    }
-                }
-                catch (Exception connectEx)
-                {
-                    Console.WriteLine($"[ERROR] Network connectivity test failed: {connectEx.Message}");
-                    throw new InvalidOperationException($"Cannot connect to SMTP server {SmtpServer}:{SmtpPort}. Error: {connectEx.Message}. Please check network connectivity and firewall settings.", connectEx);
-                }
-                
-                Console.WriteLine($"[INFO] Preparing to send email to: {toEmail}");
-                Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
-                Console.WriteLine($"[INFO] Subject: {subject}");
-                Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
                 
                 // Create mail message
                 using (var mailMessage = new MailMessage())
@@ -345,13 +321,11 @@ namespace CmkCable.Business.Concrete
                     {
                         try
                         {
-                            using (var attachmentStream = new MemoryStream(attachmentData))
-                            {
-                                var attachment = new Attachment(attachmentStream, attachmentName);
-                                attachment.ContentType = new System.Net.Mime.ContentType(attachmentType ?? "application/octet-stream");
-                                mailMessage.Attachments.Add(attachment);
-                                Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
-                            }
+                            var attachmentStream = new MemoryStream(attachmentData);
+                            var attachment = new Attachment(attachmentStream, attachmentName);
+                            attachment.ContentType = new System.Net.Mime.ContentType(attachmentType ?? "application/octet-stream");
+                            mailMessage.Attachments.Add(attachment);
+                            Console.WriteLine($"[INFO] Attachment added: {attachmentName} ({attachmentData.Length} bytes)");
                         }
                         catch (Exception attachEx)
                         {
@@ -359,45 +333,70 @@ namespace CmkCable.Business.Concrete
                             // Continue without attachment rather than failing completely
                         }
                     }
+
+                    var portErrors = new List<string>();
+                    Exception lastPortException = null;
                     
-                    // Configure SMTP client with optimized settings
-                    using (var smtpClient = new SmtpClient(SmtpServer, SmtpPort))
+                    foreach (var port in smtpPorts)
                     {
-                        smtpClient.EnableSsl = true;
-                        smtpClient.UseDefaultCredentials = false;
-                        smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
-                        smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                        smtpClient.Timeout = 30000; // 30 seconds - should be enough for normal SMTP operations
-                        
-                        // Set TLS protocol once (not per email)
-                        if (ServicePointManager.SecurityProtocol == SecurityProtocolType.SystemDefault)
+                        try
                         {
-                            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
-                        }
-                        
-                        Console.WriteLine($"[INFO] Sending email via SMTP ({SmtpServer}:{SmtpPort})...");
-                        Console.WriteLine($"[DEBUG] SSL Enabled: {smtpClient.EnableSsl}");
-                        Console.WriteLine($"[DEBUG] Timeout: {smtpClient.Timeout}ms");
-                        Console.WriteLine($"[DEBUG] Security Protocol: {ServicePointManager.SecurityProtocol}");
-                        
-                        var sendStartTime = DateTime.UtcNow;
-                        
-                        // Send email asynchronously using SendMailAsync with cancellation token
-                        using (var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(25)))
-                        {
-                            try
+                            Console.WriteLine($"[INFO] Testing network connectivity to {SmtpServer}:{port}...");
+                            await EnsureSmtpConnectivityAsync(SmtpServer, port);
+                            
+                            Console.WriteLine($"[INFO] Preparing to send email to: {toEmail} via port {port}");
+                            Console.WriteLine($"[INFO] From: {FromEmail} ({FromName})");
+                            Console.WriteLine($"[INFO] Subject: {subject}");
+                            Console.WriteLine($"[INFO] Has attachment: {attachmentData != null && !string.IsNullOrEmpty(attachmentName)}");
+                            
+                            using (var smtpClient = new SmtpClient(SmtpServer, port))
                             {
-                                await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
+                                smtpClient.EnableSsl = true;
+                                smtpClient.UseDefaultCredentials = false;
+                                smtpClient.Credentials = new NetworkCredential(SmtpUsername, SmtpPassword);
+                                smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
+                                smtpClient.Timeout = 30000; // 30 seconds - should be enough for normal SMTP operations
                                 
-                                var sendDuration = (DateTime.UtcNow - sendStartTime).TotalMilliseconds;
-                                Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail} in {sendDuration:F0}ms");
+                                if (ServicePointManager.SecurityProtocol == SecurityProtocolType.SystemDefault)
+                                {
+                                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+                                }
+                                
+                                Console.WriteLine($"[INFO] Sending email via SMTP ({SmtpServer}:{port})...");
+                                Console.WriteLine($"[DEBUG] SSL Enabled: {smtpClient.EnableSsl}");
+                                Console.WriteLine($"[DEBUG] Timeout: {smtpClient.Timeout}ms");
+                                Console.WriteLine($"[DEBUG] Security Protocol: {ServicePointManager.SecurityProtocol}");
+                                
+                                var sendStartTime = DateTime.UtcNow;
+                                
+                                using (var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(25)))
+                                {
+                                    try
+                                    {
+                                        await smtpClient.SendMailAsync(mailMessage).ConfigureAwait(false);
+                                        
+                                        var sendDuration = (DateTime.UtcNow - sendStartTime).TotalMilliseconds;
+                                        Console.WriteLine($"[SUCCESS] SMTP email sent successfully to {toEmail} via port {port} in {sendDuration:F0}ms");
+                                        return;
+                                    }
+                                    catch (OperationCanceledException)
+                                    {
+                                        throw new InvalidOperationException($"SMTP send operation timed out after 25 seconds on port {port}. This usually indicates a network connectivity issue or the SMTP server is not responding.");
+                                    }
+                                }
                             }
-                            catch (OperationCanceledException)
-                            {
-                                throw new InvalidOperationException($"SMTP send operation timed out after 25 seconds. This usually indicates a network connectivity issue or the SMTP server is not responding.");
-                            }
+                        }
+                        catch (Exception portEx)
+                        {
+                            lastPortException = portEx;
+                            var detailedMessage = BuildPortErrorMessage(SmtpServer, port, portEx);
+                            portErrors.Add(detailedMessage);
+                            Console.WriteLine($"[WARNING] {detailedMessage}");
                         }
                     }
+                    
+                    var errorSummary = string.Join(" || ", portErrors);
+                    throw new InvalidOperationException($"SMTP email sending failed via all configured ports ({string.Join(", ", smtpPorts)}). Details: {errorSummary}", lastPortException);
                 }
             }
             catch (ArgumentException)
@@ -474,6 +473,97 @@ namespace CmkCable.Business.Concrete
                 
                 throw new InvalidOperationException($"Email sending failed: {errorMessage}", ex);
             }
+        }
+
+        private List<int> BuildSmtpPortList()
+        {
+            var ports = new List<int>();
+            var envPorts = Environment.GetEnvironmentVariable("SMTP_PORTS");
+            if (!string.IsNullOrWhiteSpace(envPorts))
+            {
+                ports.AddRange(ParsePortList(envPorts));
+            }
+            else if (!string.IsNullOrWhiteSpace(_configuration?["Smtp:Ports"]))
+            {
+                ports.AddRange(ParsePortList(_configuration["Smtp:Ports"]));
+            }
+
+            if (!ports.Any())
+            {
+                if (int.TryParse(Environment.GetEnvironmentVariable("SMTP_PORT") ?? _configuration?["Smtp:Port"], out int singlePort))
+                {
+                    ports.Add(singlePort);
+                }
+            }
+
+            if (!ports.Any())
+            {
+                ports.AddRange(new[] { 587, 465, 2525 });
+            }
+
+            return ports.Where(p => p > 0 && p < 65536).Distinct().ToList();
+        }
+
+        private IEnumerable<int> ParsePortList(string portList)
+        {
+            return portList
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Trim())
+                .Select(p => int.TryParse(p, out int value) ? value : (int?)null)
+                .Where(v => v.HasValue && v.Value > 0 && v.Value < 65536)
+                .Select(v => v.Value);
+        }
+
+        private async Task EnsureSmtpConnectivityAsync(string server, int port)
+        {
+            try
+            {
+                using (var tcpClient = new System.Net.Sockets.TcpClient())
+                {
+                    var connectTask = tcpClient.ConnectAsync(server, port);
+                    var timeoutTask = Task.Delay(5000);
+                    var completedTask = await Task.WhenAny(connectTask, timeoutTask);
+
+                    if (completedTask == timeoutTask)
+                    {
+                        tcpClient.Close();
+                        throw new InvalidOperationException($"Cannot connect to SMTP server {server}:{port}. Network connectivity issue or firewall blocking. Please check if the server is reachable from the container.");
+                    }
+
+                    await connectTask;
+                    Console.WriteLine($"[SUCCESS] Network connectivity test passed for {server}:{port}");
+                    tcpClient.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Cannot connect to SMTP server {server}:{port}. Error: {ex.Message}. Possible causes: outbound firewall blocks port {port}, DNS issue, or Brevo IP whitelist. Please verify by running 'nc -vz {server} {port}' inside the container.", ex);
+            }
+        }
+
+        private string BuildPortErrorMessage(string server, int port, Exception ex)
+        {
+            var baseMessage = $"{server}:{port} => {ex.GetType().Name}: {ex.Message}";
+            if (ex.InnerException != null)
+            {
+                baseMessage += $" | Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}";
+            }
+
+            if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase))
+            {
+                baseMessage += " | Hint: Check outbound firewall rules and ensure the SMTP host allows this IP.";
+            }
+            else if (ex.Message.Contains("auth", StringComparison.OrdinalIgnoreCase))
+            {
+                baseMessage += $" | Hint: Confirm Brevo transactional key matches username {SmtpUsername}.";
+            }
+            else if (ex.Message.Contains("certificate", StringComparison.OrdinalIgnoreCase))
+            {
+                baseMessage += " | Hint: TLS inspection or invalid cert may be blocking the handshake.";
+            }
+
+            baseMessage += $" | Server IP: {GetServerIpAddress()}";
+            return baseMessage;
         }
 
         private string GetServerIpAddress()
