@@ -23,22 +23,14 @@ namespace CmkCable.Business.Concrete
         private IManagerMailRepository _managerMailRepository;
         private readonly IConfiguration _configuration;
         
-        // Brevo HTTP API configuration
-        private string BrevoApiKey =>
-            Environment.GetEnvironmentVariable("BREVO_API_KEY") ??
-            _configuration?["Brevo:ApiKey"];
-        private string BrevoSenderEmail =>
-            Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL") ??
-            Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
-            _configuration?["Brevo:SenderEmail"] ??
-            _configuration?["Smtp:FromEmail"] ?? 
-            "runner@cmkkablo.com";
-        private string BrevoSenderName =>
-            Environment.GetEnvironmentVariable("BREVO_SENDER_NAME") ??
-            Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? 
-            _configuration?["Brevo:SenderName"] ??
-            _configuration?["Smtp:FromName"] ?? 
-            "CMK KABLO";
+        // Brevo HTTP API configuration - cached values
+        private readonly string _brevoApiKey;
+        private readonly string _brevoSenderEmail;
+        private readonly string _brevoSenderName;
+        
+        private string BrevoApiKey => _brevoApiKey;
+        private string BrevoSenderEmail => _brevoSenderEmail;
+        private string BrevoSenderName => _brevoSenderName;
         private bool IsBrevoApiConfigured => !string.IsNullOrWhiteSpace(BrevoApiKey);
 
         private const string BrevoApiEndpoint = "https://api.brevo.com/v3/smtp/email";
@@ -59,6 +51,46 @@ namespace CmkCable.Business.Concrete
             _contactRequestRepository = new ContactRequestRepository();
             _careerInformationRepository = new CareerInformationRepository();
             _managerMailRepository = new ManagerMailRepository();
+            
+            // Initialize Brevo configuration with detailed logging
+            Console.WriteLine("=== Initializing Brevo Configuration ===");
+            
+            // Try to read from environment variables first
+            var envApiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+            var envSenderEmail = Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL");
+            var envSenderName = Environment.GetEnvironmentVariable("BREVO_SENDER_NAME");
+            
+            Console.WriteLine($"[DEBUG] BREVO_API_KEY from env: {(string.IsNullOrEmpty(envApiKey) ? "NOT SET" : "SET (length: " + envApiKey.Length + ")")}");
+            Console.WriteLine($"[DEBUG] BREVO_SENDER_EMAIL from env: {envSenderEmail ?? "NOT SET"}");
+            Console.WriteLine($"[DEBUG] BREVO_SENDER_NAME from env: {envSenderName ?? "NOT SET"}");
+            
+            // Try to read from configuration (supports both Brevo:ApiKey and BREVO__API__KEY format)
+            var configApiKey = _configuration["Brevo:ApiKey"] ?? _configuration["BREVO__API__KEY"];
+            var configSenderEmail = _configuration["Brevo:SenderEmail"] ?? _configuration["BREVO__SENDER__EMAIL"];
+            var configSenderName = _configuration["Brevo:SenderName"] ?? _configuration["BREVO__SENDER__NAME"];
+            
+            Console.WriteLine($"[DEBUG] Brevo:ApiKey from config: {(string.IsNullOrEmpty(configApiKey) ? "NOT SET" : "SET")}");
+            Console.WriteLine($"[DEBUG] Brevo:SenderEmail from config: {configSenderEmail ?? "NOT SET"}");
+            Console.WriteLine($"[DEBUG] Brevo:SenderName from config: {configSenderName ?? "NOT SET"}");
+            
+            // Set values with fallback chain
+            _brevoApiKey = envApiKey ?? configApiKey;
+            _brevoSenderEmail = envSenderEmail ?? 
+                               Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
+                               configSenderEmail ??
+                               _configuration["Smtp:FromEmail"] ?? 
+                               "runner@cmkkablo.com";
+            _brevoSenderName = envSenderName ?? 
+                              Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? 
+                              configSenderName ??
+                              _configuration["Smtp:FromName"] ?? 
+                              "CMK KABLO";
+            
+            Console.WriteLine($"[DEBUG] Final BrevoApiKey: {(string.IsNullOrEmpty(_brevoApiKey) ? "NOT CONFIGURED" : "CONFIGURED (length: " + _brevoApiKey.Length + ")")}");
+            Console.WriteLine($"[DEBUG] Final BrevoSenderEmail: {_brevoSenderEmail}");
+            Console.WriteLine($"[DEBUG] Final BrevoSenderName: {_brevoSenderName}");
+            Console.WriteLine($"[DEBUG] IsBrevoApiConfigured: {IsBrevoApiConfigured}");
+            Console.WriteLine("=== Brevo Configuration Initialization Complete ===");
         }
 
         // Parameterless constructor for use without dependency injection
@@ -69,6 +101,22 @@ namespace CmkCable.Business.Concrete
             _contactRequestRepository = new ContactRequestRepository();
             _careerInformationRepository = new CareerInformationRepository();
             _managerMailRepository = new ManagerMailRepository();
+            
+            // Initialize Brevo configuration from environment variables only
+            Console.WriteLine("=== Initializing Brevo Configuration (No DI) ===");
+            
+            _brevoApiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+            _brevoSenderEmail = Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL") ??
+                               Environment.GetEnvironmentVariable("SMTP_FROM_EMAIL") ?? 
+                               "runner@cmkkablo.com";
+            _brevoSenderName = Environment.GetEnvironmentVariable("BREVO_SENDER_NAME") ??
+                              Environment.GetEnvironmentVariable("SMTP_FROM_NAME") ?? 
+                              "CMK KABLO";
+            
+            Console.WriteLine($"[DEBUG] BrevoApiKey: {(string.IsNullOrEmpty(_brevoApiKey) ? "NOT CONFIGURED" : "CONFIGURED")}");
+            Console.WriteLine($"[DEBUG] BrevoSenderEmail: {_brevoSenderEmail}");
+            Console.WriteLine($"[DEBUG] BrevoSenderName: {_brevoSenderName}");
+            Console.WriteLine("=== Brevo Configuration Initialization Complete ===");
         }
 
         public async Task SendOfferEmailAsync(string subject, GetOffer offerDetails)

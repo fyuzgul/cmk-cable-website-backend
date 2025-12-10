@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 
 namespace CmkCable.API
@@ -21,6 +22,21 @@ namespace CmkCable.API
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, config) =>
+                {
+                    // Ensure environment variables are loaded
+                    // CreateDefaultBuilder already does this, but we're being explicit
+                    config.AddEnvironmentVariables();
+                    
+                    // Log environment variables for debugging
+                    var envApiKey = Environment.GetEnvironmentVariable("BREVO_API_KEY");
+                    var envSenderEmail = Environment.GetEnvironmentVariable("BREVO_SENDER_EMAIL");
+                    var envSenderName = Environment.GetEnvironmentVariable("BREVO_SENDER_NAME");
+                    
+                    Console.WriteLine($"[Program] BREVO_API_KEY: {(string.IsNullOrEmpty(envApiKey) ? "NOT SET" : "SET (length: " + envApiKey.Length + ")")}");
+                    Console.WriteLine($"[Program] BREVO_SENDER_EMAIL: {envSenderEmail ?? "NOT SET"}");
+                    Console.WriteLine($"[Program] BREVO_SENDER_NAME: {envSenderName ?? "NOT SET"}");
+                })
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
